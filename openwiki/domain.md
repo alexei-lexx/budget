@@ -1,11 +1,8 @@
 ---
 type: concept
-title: Domain model and concepts
-description: Finance domain concepts, ownership boundaries, and invariants for users, accounts, categories, transactions, transfers, reports, assistant sessions, Telegram bots, and currency/date rules.
-tags: [finance-domain, data-model, invariants, user-scoping, reporting]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-20T15:02:07.269Z
+title: Domain
+description: User-scoped finance concepts and invariants for accounts, categories, transactions, transfers, reports, assistant chat, Telegram bots, and persistence schemas.
+tags: [finance-domain, invariants, user-scoping, persistence, reporting]
 sources:
   - id: openwiki-source-cecd7ef801ec711f05881348
     resource: repo://backend/src/graphql/context.ts
@@ -39,16 +36,19 @@ sources:
     resource: repo://backend/src/repositories/schemas/user.ts
   - id: openwiki-source-896074f6e4175a63f2ad8325
     resource: repo://backend/src/types/currency.ts
-generated: { by: "openwiki/0.5.2", at: "2026-09-20T15:02:07.269Z" }
+verified:
+  - by: openwiki/0.6.0
+    at: 2026-09-27T13:28:59.762Z
+generated: { by: "openwiki/0.6.0", at: "2026-09-27T13:28:59.762Z" }
 ---
 
-# Domain model and concepts
+# Domain
 
-This repository models a user-scoped personal finance system. The domain layer is intentionally strict: models and repository schemas encode business rules about ownership, currencies, dates, archiving, reporting, and assistant/chat persistence so that invalid state is rejected close to the boundary.
+This repository models a user-scoped personal finance system. The domain layer encodes ownership, archive behavior, currency rules, date handling, and persistence contracts close to the model boundary so invalid state is rejected early.
 
-## Ownership and scoping
+## Ownership and context
 
-User identity is the top-level boundary. Most persistent records carry a `userId`, and the GraphQL context wires services and loaders only after authentication, so every safe change must preserve user scoping across repositories, services, and embedded lookups.
+User identity is the top-level boundary. Most persistent records carry a `userId`, and GraphQL context is assembled only after authentication, so services and loaders operate within an authenticated user boundary.
 
 ```mermaid
 erDiagram
@@ -61,22 +61,22 @@ erDiagram
   Account ||--o{ Transaction : records
   Category ||--o{ Transaction : classifies
 ```
-
-The core domain relationships are user-owned, with transactions linked to an account and optionally to a category. Chat messages and Telegram bot records also belong to a user even though they serve assistant and integration workflows.
+Caption: the main user-scoped domain relationships.
 
 ## Users
 
-Users store the account-level preferences that affect downstream behavior:
+Users carry account-level preferences that influence downstream behavior:
 
 - email is normalized and validated before persistence
-- interface language, voice input language, and transaction pattern limits are optional preferences
+- interface language and voice input language are optional preferences
+- `transactionPatternsLimit` is bounded as a non-negative integer
 - MCP token generation is part of the user lifecycle and can be regenerated without changing identity
 
-The model does not support user deletion today, so there is no soft-delete flag on `User`. That is an explicit exception in the codebase, not an omission.
+The model does not support user deletion today, so there is no soft-delete flag on `User`.
 
 ## Accounts
 
-Accounts are the money-holding ledgers for a user. They have a name, a currency, an initial balance, and a transaction balance that accumulates the effect of transactions.
+Accounts are the money-holding ledgers for a user. They store a name, a currency, an initial balance, a transaction balance, an archive flag, and a version number.
 
 Important account rules:
 
@@ -84,13 +84,13 @@ Important account rules:
 - currency must be one of the supported currency codes
 - `balance` is derived as `initialBalance + transactionBalance`
 - archived accounts cannot be updated
-- account versioning is used for persistence concurrency, while `nextVersion()` and `bumpVersion()` keep the version boundary explicit
+- version bumps are explicit and preserve all invariant-bearing fields
 
 Accounts are the source of truth for transaction currency: when a transaction is created or moved to another account, the transaction currency follows the selected account rather than being set independently.
 
 ## Categories
 
-Categories classify transactions for reporting and assistant workflows. They are also user-scoped, archived rather than deleted, and versioned.
+Categories classify transactions for reporting and assistant workflows. They are user-scoped, archived rather than deleted, and versioned.
 
 A category has:
 
@@ -101,7 +101,7 @@ A category has:
 
 The type is not cosmetic: transaction creation and updates reject mismatches between a category and transaction kind. Categories of type `INCOME` can only be attached to income transactions, while `EXPENSE` categories can be attached to expenses and refunds.
 
-Categories excluded from reports still exist for bookkeeping, but reporting logic must omit them from totals and make that omission visible to the user.
+Categories excluded from reports still exist for bookkeeping, but reporting logic must omit them from totals.
 
 ## Transactions
 
@@ -117,7 +117,7 @@ The domain supports these transaction kinds:
 - `TRANSFER_IN`
 - `TRANSFER_OUT`
 
-A transaction must have a positive amount, a date, and a currency. Description is optional and is normalized/truncated by the model boundary rules, but the stored value must not exceed the maximum length.
+A transaction must have a positive amount, a date, and a currency. Description is optional and is normalized and length-checked by the model boundary.
 
 The sign rules are:
 
@@ -137,12 +137,13 @@ Transactions enforce several safety rules at construction and update time:
 - non-transfer transactions cannot include a transfer ID
 - the category type must match the transaction type
 - archived transactions cannot be updated
+- compound transfer metadata, when present, must have an id and a positive total amount
 
 Those rules are important because services and reports rely on the model to reject cross-user contamination, impossible transfer shapes, and misclassified spending.
 
 ### Lifecycle
 
-Transactions are archived, not hard-deleted, so historical reports and assistant lookups can still preserve prior state. Versioning is also present for optimistic persistence updates.
+Transactions are archived, not hard-deleted, so historical reports and assistant lookups can still preserve prior state. Versioning is explicit for optimistic persistence updates.
 
 ```mermaid
 stateDiagram-v2
@@ -152,7 +153,6 @@ stateDiagram-v2
   Active --> Active: bumpVersion()
   Archived --> [*]
 ```
-
 Caption: transaction lifecycle at the domain boundary.
 
 ## Transfers
@@ -188,7 +188,7 @@ Key rules:
 - messages have only `ASSISTANT` and `USER` roles
 - content and session ID are required
 - expiration must be after creation; the storage layer treats `expiresAt` as a Unix seconds TTL attribute
-- there is no update/archive lifecycle for chat messages, because their persistence is time-bounded rather than mutable
+- there is no update or archive lifecycle for chat messages, because their persistence is time-bounded rather than mutable
 
 This makes assistant history append-only and disposable, which is important for safe storage and replay behavior.
 
@@ -203,7 +203,6 @@ sequenceDiagram
   Assistant->>ChatMessage: create immutable record
   ChatMessage->>Repo: persist with TTL
 ```
-
 Caption: assistant chat persistence flow.
 
 ## Telegram bots

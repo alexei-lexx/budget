@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:1c28a72ec3c808088ac67bdc5158f0856ad7e0c783635813d7c7106a48aa279c",
+  "claims": [
+    {
+      "id": "claim_9d3d75d8f79648d297caac0be53414d5",
+      "statement": "The web Lambda routes `/webhooks/telegram` to the Telegram webhook handler, `/mcp` to the MCP handler, `/.well-known/*` to a 404, and everything else to Apollo after loading runtime environment values once per warm container.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/bootstrap.ts#L52-L116",
+          "version": "repo-lines-v1:sha256:15440320d3bed5914a39c72b9464d1508bb7a4fe1a5ea48033da78d9215271f8:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2ODYwMzg1YzI5MDk4ODM5MjQ1ZGZmNzQ1MjJkNGFiN2Q0ZGU1NWNkMDM3YjZiNmVjMGE0YjZjZWY4N2IxMjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4YTkxNzU5NzJmZTE1ZTJhOTY0MWFiMTMxZjU3MWU2YzdjYWJjYTA2ODM3NjJlYmE1ZjIzNTNlNDgzYzNkNTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://backend/src/lambdas/web.ts#L12-L60",
+          "version": "repo-lines-v1:sha256:4f74480f9ee34351a3f69edc9e623d31a6aa7fac3093fc03b427e38e0d31c2bf:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5MWM5ZmQ2NDNmMDYzYWVhM2Q1NjJlZjFkZGI5MmE2ZjBmMTJlMDk5OWM5NjA4MDk4NDFmOTFkMjkyNzFiZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZjc1ZGQxYjJmNTgxZjg5MjMwYmQzZDE3NzljOTMxZTQzNGE2NDg3MDA3MjAxYzU3Y2ZiMzhkODVkNDFkZWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMwMmM1MTQxMGY2NWY1ZDBiNzIyMTRhM2FlZDAwMWJlMzM0NzZiMzU2MjVlOGEzMjQ3ZjA4MDY3Njg4N2UzN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_085cf8c4e36842de9d1d6b8dcdef9842",
+      "statement": "`createContext` builds a fresh GraphQL context per request, normalizes the Authorization header, resolves JWT auth, and creates request-scoped account and category DataLoaders keyed by the authenticated internal user id when available.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/server.ts#L95-L172",
+          "version": "repo-lines-v1:sha256:a71218c5333d0ccd8d9d39c788c0e159ff26aed97ac3aa767cf09acd2850ec56:eyJzZWxlY3RlZExpbmVDb3VudCI6NzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5MDI4ZGMxZDJjNmJhODI1MWUyYjUyY2Q0Njk0NDg2OGMwMjdhMzQwZWEzZGRlMzEzNDRjOWQyNDA3NTkyY2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZiNjdiNGQ1OGU4MWZhNDNlN2YzOWViZGY5ZjhiYWJlNDAyNTRmNGE3ODY4MzgxNWQ1NmNmM2ZlMjE4MGNjNWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f42294b324e34cfd96e2d284385c16c6",
+      "statement": "Apollo error formatting preserves intentional `GraphQLError` values, maps user-facing validation and business-rule failures to safe client messages, and logs unexpected failures before returning `Internal server error` with `INTERNAL_SERVER_ERROR`.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/server.ts#L43-L88",
+          "version": "repo-lines-v1:sha256:2d85f393483a4022b6722ec2ba25830f91ebbea0b41446ac106d7201943d3b99:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3M2I5YTNiYTE0ZTNjYTNjYjIzYjU4YTIyZjY0ZGFiZTA5MDFmYjQ4NjJiOGU1ZDk5ZjdmMWZjODIxNDE3ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxOWIyNzU2NDcwMjFkYmVkYWE5NDI2NDdiYjg4MzFlNmVjYjJiN2Y2NWI1OWY1MmVjODMxZWNjYzJhNzA4ZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4YjdkNzgzMmE4MTQwYTJhYjMwYTJjYTI0OTk2NzEyYTc0NjIyMzFhOWYwMmMyYTA5N2YzNjI5NjZkNzQzYjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_095b08413a6e4623a103ebbc627eb80c",
+      "statement": "`CreateTransactionFromTextService` trims and validates text input, invokes the create-transaction agent with `userId`, `isVoiceInput`, and today's date in context, requires a `create_transaction` tool execution, validates the tool output as JSON, and reloads the created transaction from `TransactionService`.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/create-transaction-from-text-service.test.ts#L42-L170",
+          "version": "repo-lines-v1:sha256:3480c4dc8f25989813bbbf9591bbeda01b657b9b1e7d808fac37b92718c6a790:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJjMDFiOWRkZGE4YTIzNTFlODAzYjJlNTFkNWEyNDRmNzBiZjk0MDVhZTYzNTY3ODYyYzJhMmI5ZDZjMzYwNDgwIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmZWY2OTAwN2E3ZTc1Y2NkYjJjMTllZmE5ZDk1YzQzYmY3ODdmMzNhMmI5YzgyNjVjNGE1Y2U2NDJmZTZkYmVhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzZWU4YjI3MmQxYThjZTU1ZTE3NmMxYjE5MDFiMDQ2M2U0MTU0OGIxMDBiYmY5ZGE2YTI4NDI3YWIyMTgyNDY0IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5NmUwYTVjN2YzNDc0ODU1YjhhNjFlMDZhY2Q3OGY2MTJiMmYyMGQ4OTRjMjkxYTFmNDdhZDk5MTNiYzA2ZjlkIn0"
+        },
+        {
+          "resource": "repo://backend/src/services/create-transaction-from-text-service.ts#L56-L162",
+          "version": "repo-lines-v1:sha256:e06fd57e2ef943d9aa828147c8c0cbe8181f173853b0d089381a3f6e433b7b8a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzYmVhYWZiZjdhZDg3MDA1NzFmMDUzN2E4ZDYwMDFhNmJhMTMyMjU5MzYxY2UxOTgxNzU4ZDAxYWRjMjZmZWRjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkZmI3OTMwZjBhNDVhZWRiZGVkZTMwZmExYTUzYmRhNTE1OWQ3ODFjN2UxODAzYTE3NmQ3MzJlNTkzN2M1NDExIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_a1fa727793624dfa877a9a77a41517aa",
+      "statement": "`AssistantChatServiceImpl` loads recent messages for the user and session, calls `AssistantService` with normalized history, and only persists the user and assistant messages after a successful assistant response; failures keep the session id so callers can retry the same conversation.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/assistant-chat-service.ts#L54-L131",
+          "version": "repo-lines-v1:sha256:c7d6269f247d40fada563857f1d501cd3eb76d2e922f43c7f530b24b2699356d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiMTc0MTA2YmI3MWI1NjgyY2FjZWVmYzVhYWQ0YWI0Nzk0YzM1NjE4NTZjYzY0MzcwZGQyYTE2M2E5N2E1MDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmZDcxMmM4N2FjYzRmMDdlMzIyNGU2NDc4ODI5Zjc5MWRiZDU5NTE5NGRiNDNmMGMxZTZhYzUxMzcxZjc5M2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmNzM5YTA2YzFjYmIxMjQ0ZTMzNjNkMzhiY2Y5ZmE1MGNlODRmZWQzOTljMjE5M2EzYzdmMDhkNTk5MThiMmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bdd4ebfe92b14c73b891edc8092d0bca",
+      "statement": "`AssistantServiceImpl` validates user id and question, appends the current question to any supplied history, invokes the assistant agent with user and date context, and returns a trimmed non-empty answer plus agent trace.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/assistant-service.ts#L29-L74",
+          "version": "repo-lines-v1:sha256:9d88e8d235b0fa42ecb22e4e420ae8eb4ffeed1b247ce581ed72b24b31eff93e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3ZDg2YjAxNzQ3OTBiNjdiZDJjOThjMWExYWIzZjM0YzBiOTYwYTYwYmRlY2FlYjAzYjk3N2Q4OTdlMWZjMjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhMWEyOWQzODYzODNjYmI3N2QzZDFiZDk4NGQyODU0NjVkY2JkNWJiMjhmNmI4ZDUwODljM2NjNTc5MzQ4ZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1ba720f2cbdc41308a092cdb946fe2a3",
+      "statement": "The Telegram webhook handler requires the `x-telegram-bot-api-secret-token` header, rejects missing or invalid bodies, forwards accepted messages to `TelegramBotService.acceptMessage`, and returns a typing chat action response for message updates.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/telegram-webhook-handler.ts#L18-L65",
+          "version": "repo-lines-v1:sha256:08d4bfd41f718774298cda7d2b96a346f887f59d8036946a138077cbcf0caecd:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0YmMyNDM4ZmQ3MjEwZGExZDViZjczZjNlNjdiZDkzY2M3ZjlhNDJiMmFjYzMwMWZiNzljN2Y5ZDY2MGUyZmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMzNlYjkzYzg1M2UyZWFlM2RhNzlkNTBkMWZmZTY2NjVmNTNiNzhmZjdiMzM2ZjNmM2FmZDRhMTliYzZjOTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c1ef77c6fe4f47fa89cc39cb2910edef",
+      "statement": "`ProcessTelegramMessageService` ignores messages for missing or stale bot connections, replies with a non-text notice when `text` is null, otherwise derives a deterministic session id from `botId#chatId`, asks `AssistantChatService` for a reply, and sends the assistant result through `TelegramApiClient`.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/process-telegram-message-service.test.ts#L38-L205",
+          "version": "repo-lines-v1:sha256:77eb7ed69da5756289eb3ae173581045a2235aa713b0e9646d1d981665fc3aa1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTY4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlM2M1Y2JiNmJjNTMyNmVjMTQyMzgyYzNmZjc4ZjQ2ODBiMmQ0MTViMmFjZDcwZTM1ODg1MTlmZWYyMDcwYmVhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzZWU4YjI3MmQxYThjZTU1ZTE3NmMxYjE5MDFiMDQ2M2U0MTU0OGIxMDBiYmY5ZGE2YTI4NDI3YWIyMTgyNDY0IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MiwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkODE3ZmJiNzNjOTJiMzZkNWU0ODk2ZmY1MWMxYjU4ZWVjMzMwYmJlOTYxYmEwNWZjNjIwNWY4NjdlYTFiY2Y2In0"
+        },
+        {
+          "resource": "repo://backend/src/services/process-telegram-message-service.ts#L28-L87",
+          "version": "repo-lines-v1:sha256:76921432ac918e57a5d5f8ec73f3897436455a456cf755c43e28ea70c71b8bc5:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1ZGI2MGY0ZDZhMDhkMDFiYjY0ZWEwODBmYWVhNDEyNmY4MzE1MmU3MzUxMTEwNWY4N2Y1MDExNjU0OGZmMWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4NTE5YmQwYzA3ZGJlMzkyYTFiNmQxM2Y4ZmY4MzZhY2EyMjdlYjRkOTU4OWNlMTcyMDY2ZTc2ZDJhNzhiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_52be09e1fe8a415eb2a8272e4af4e553",
+      "statement": "The background-job Lambda validates job payloads with a discriminated union before dispatching, currently handles `telegram-message`, and throws on malformed payloads or processing failures after logging them.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/background-job.ts#L10-L54",
+          "version": "repo-lines-v1:sha256:ecad50285f1dcb8ec6e2c93a7e08c95fa5f4e94189c667adae187d508c600034:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxNWY2YjI4ZTNmYmM4NDllOTk1NWVjNjAwMGFmZThjNWU5NTBhNTE1MTUwNmQxZjVlN2NmZmUxZmE1NzYyZWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFjMTY3MDFkMDE3MDhjOTVlMDE4N2FmYTI2NjM5ZjFhZDBlYTMyNGQ3MjY0YzJhOWYzZTAyMjU1MzA1NGMzODEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_68670bcb907642fbbcaa59e0d9df2ad3",
+      "statement": "`LambdaBackgroundJobDispatcher` invokes the configured background job Lambda asynchronously with `InvocationType: \"Event\"`, so dispatch is fire-and-forget from the caller's perspective.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/providers/lambda-background-job-dispatcher.ts#L7-L35",
+          "version": "repo-lines-v1:sha256:ed27ba1eef763160446f067067fce7a307e776938ea698149023f7757bd191bb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMyNTdjZmM5YzgyYTY3YjEwZmI4YWIwN2Y3N2Y5MjdiNjY1Zjk2NTg5MDNiZTU1NDNiZmJjNjg1OGM2MGM2NGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJmN2JjZmUwOTEyNTkwYmM5ZTlhZDc1NmQ0N2UwMjQ3ZDA3ZmM3NzljM2ViNTUyOTg5NjMzNWM4ZmJhODYzNTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e53466513bfc4ddf9c22340509a7ce58",
+      "statement": "`mcpHandler` authenticates the token query parameter before creating the MCP server, returns `401 Unauthorized` when authentication fails, and otherwise bridges API Gateway requests to the MCP transport.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/mcp-handler.ts#L8-L30",
+          "version": "repo-lines-v1:sha256:e2c60733d5baaa0d3fba0186db75530631cc78bc9b2a9c5494a019314f93a4d5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxNWZmNzg4ZGMwOTdlMzZhZjM4NGRlN2ZlMTU4ZTdkYTJiYjU3MmM2ZjNmNTM3YTU3ZGJjNzBmNWJkYWIwMmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlMTI1M2ZmOGYxMThmNDQyMGFlY2U0N2I2M2UyYjRjOGEyOGEwMjUxN2Y2ZDYyYjVlMmE5NzBlMjg1OGIzZWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5MzkzMTMxNGI3YWQwMTU5Y2MyNGE5NzIzNDUyMzYwNWEzYTJhZmMzNjNiMWYxNzBmNWMwNWNjOWZkNWFjZDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ3MzVlZDg3MjcxYjVlZDQxNGU4YmIxZWIxNTFjMDg0OTAwNDA3ZWEzMmEwMzQ0M2FlODQ1YzAzMGY3MDIyOGUifQ"
+        },
+        {
+          "resource": "repo://backend/src/mcp/auth.ts#L4-L10",
+          "version": "repo-lines-v1:sha256:e5682760bdbadd39867344ef26575e8402fa7d362ba7c34cefb46aa2430e5d3c:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2FhMzBiMzk0ODI0YTRiZWIwMDJjZjdkODg1N2VmZWRkODkyODUxN2M2ZmM5ZTMzYzYzMWNjMTgwYzRkZTBmNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmU5YTA2NDI5MWQ4YmE0Mzk5ZGIxMzA3NjVhNDRmOTQyNGVjZjY2ZDdmZjBjNDJhYjAwYzVhYjdkZjE1MWE0YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ccb0c1c11d3f49bea1be58041d53ef9f",
+      "statement": "`createAuthenticatedMcpServer` resolves the token to a user, registers a fixed user-scoped tool set only when authentication succeeds, and translates user-facing tool errors directly while collapsing unexpected failures to `Failed to run <tool>`.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/mcp/server.test.ts#L44-L96",
+          "version": "repo-lines-v1:sha256:0d7ca04f069bd2a9716a6c8dbe35ddbbd61413cbc7951bf5ef71fe8c3d6bbba4:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4NzBkYWE2MzcxZGM3MGUyN2NlNjRkMmFiNzQ2Y2E5YTVmMmRiNTZhMTU2YTdjZWNiNzgzZjNkOWVkYTIyYjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc2ZTM4NWZkMzExNTYyZTlhZDU2YmQ3NmQ4MGI1OWVlMjhmOTFmNGUwNTU4YjZmZDM5NTUwOWY1M2Y5ZjkzMzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        },
+        {
+          "resource": "repo://backend/src/mcp/server.ts#L28-L83",
+          "version": "repo-lines-v1:sha256:47fab4207bbc0b5d7a891f27dfde63864ef6ecf3f77c97011fd5af1366dc97c0:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlNGUxYjM2ZTk3MjI5ZDgxZTYwNDdkZTZkNzgxZDRmYjJjNGQxNDQxZDk2YTgwNWUxY2FjNWU3OTY5OGYyNGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIyNmE3MjZhMjhiOWEzMjc4NmVhZDUyNjY0MmM5ZTg2YjBmNzJlMDNkYjUyZDE2YjI4NmJkZGFiN2U2NWUzMzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-09-27T13:28:59.762Z"
+  }
+}

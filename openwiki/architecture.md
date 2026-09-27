@@ -4,8 +4,8 @@ title: System architecture
 description: End-to-end architecture for the Vue SPA, GraphQL/Lambda backend, Cognito authentication, DynamoDB persistence, and CloudFront/CDK deployment, including AI, Telegram, and MCP entry paths.
 tags: [architecture, runtime, graphql, frontend, backend, aws]
 verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-20T15:02:07.269Z
+  - by: openwiki/0.6.0
+    at: 2026-09-27T13:28:59.762Z
 sources:
   - id: openwiki-source-4e38730dbdb863cc91804ce6
     resource: repo://backend/src/graphql/resolvers/index.ts
@@ -31,7 +31,7 @@ sources:
     resource: repo://infra-cdk/lib/frontend-cdk-stack.ts
   - id: openwiki-source-23775c3de52f3ab95a13cb8b
     resource: repo://README.md
-generated: { by: "openwiki/0.5.2", at: "2026-09-20T15:02:07.269Z" }
+generated: { by: "openwiki/0.6.0", at: "2026-09-27T13:28:59.762Z" }
 ---
 
 # System architecture

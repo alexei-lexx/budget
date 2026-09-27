@@ -1,11 +1,11 @@
 ---
 type: integration overview
 title: Integrations and external systems
-description: External boundaries for authentication, AWS services, Bedrock/LangChain, MCP, Telegram, and the adapters and infrastructure that isolate them from application code.
+description: External boundaries for authentication, AWS services, Bedrock/LangChain, MCP, Telegram, and the cloud infrastructure that exposes them.
 tags: [integrations, external-systems, aws, auth, bedrock, langchain, mcp, telegram]
 verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-20T15:02:07.269Z
+  - by: openwiki/0.6.0
+    at: 2026-09-27T13:28:59.762Z
 sources:
   - id: openwiki-source-b63a68c12dbbd9160de3c81c
     resource: repo://backend/src/auth/jwt-auth.ts
@@ -31,7 +31,7 @@ sources:
     resource: repo://infra-cdk/lib/backend-cdk-stack.ts
   - id: openwiki-source-1647748b461059b80c532cd9
     resource: repo://infra-cdk/lib/frontend-cdk-stack.ts
-generated: { by: "openwiki/0.5.2", at: "2026-09-20T15:02:07.269Z" }
+generated: { by: "openwiki/0.6.0", at: "2026-09-27T13:28:59.762Z" }
 ---
 
 # Integrations and external systems
@@ -45,7 +45,7 @@ The backend follows a port-and-adapter pattern:
 - application code depends on interfaces in `backend/src/ports/*`
 - outbound calls are wrapped by providers such as `HttpTelegramApiClient` and `LambdaBackgroundJobDispatcher`
 - AWS state is accessed through DynamoDB repositories and CDK-provisioned environment variables
-- tests mock the ports and wrap the protocol clients, so behavior can change without forcing the whole application to depend on AWS or external APIs
+- tests mock the ports or exercise protocol clients at the boundary, so behavior can change without forcing the whole application to depend on AWS or external APIs
 
 That separation matters because the same domain services are reused from GraphQL, MCP, webhook handlers, background jobs, and LangChain tools. The external boundary is the adapter, not the service.
 
@@ -57,7 +57,7 @@ Authentication is built on AWS Cognito, OIDC/OAuth configuration, and JWT valida
 
 A pre-token-generation Lambda adds a namespaced email claim to access tokens so the backend can derive the user identity without an extra `/userinfo` call. The CDK comments call out that V2_0 is required because the claim customization targets access tokens, not just ID tokens.
 
-`infra-cdk/lib/backend-cdk-stack.ts` passes `AUTH_CLIENT_ID`, `AUTH_ISSUER`, and `AUTH_CLAIM_NAMESPACE` into the backend Lambdas. The backend then validates incoming JWTs in `backend/src/auth/jwt-auth.ts` and creates request context from the resolved auth service.
+`infra-cdk/lib/backend-cdk-stack.ts` passes `AUTH_CLIENT_ID`, `AUTH_ISSUER`, and `AUTH_CLAIM_NAMESPACE` into the backend Lambdas. `backend/src/server.ts` creates request context by calling `resolveJwtAuthService().getAuthContext(...)`, and the auth service is implemented in `backend/src/auth/jwt-auth.ts`, where incoming JWTs are validated before downstream resolvers run.
 
 ```mermaid
 sequenceDiagram
@@ -82,8 +82,8 @@ This shows the token flow across the auth boundary.
 
 `infra-cdk/lib/backend-cdk-stack.ts` defines the core backend persistence and execution environment:
 
-- DynamoDB tables for users, accounts, categories, transactions, chat messages, telegram bots, trend presets, and migrations
-- table indexes for email lookup, MCP token lookup, transaction sorting, webhook-secret lookup, and date-based querying
+- DynamoDB tables for users, accounts, categories, transactions, migrations, chat messages, telegram bots, and trend presets
+- table indexes for email lookup, MCP token lookup, transaction sorting, date-based querying, and webhook-secret lookup
 - Lambda execution roles and permissions for DynamoDB, Bedrock invocation, SSM parameter access, and Lambda-to-Lambda invocation
 - environment variables that point application code at the provisioned tables and auth configuration
 

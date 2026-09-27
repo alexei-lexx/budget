@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:24c2bd3f24e3013984f5bc577c6885f0511f3f1baaf5348db79b6e8ff4f248a6",
+  "claims": [
+    {
+      "id": "claim_6e0bdd8008ab49fcbc5ff638fb8c9fb9",
+      "statement": "Accounts are user-owned finance records whose effective balance is derived as initialBalance plus transactionBalance, with archived accounts blocked from further updates or re-archiving.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/account.ts#L10-L18",
+          "version": "repo-lines-v1:sha256:96f4df82c5b3a4f037790223131a8cabb801c07e9560afb982264a0137853409:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzYxODRhM2YzYjQ2MDA0OWEyY2QwODQwZWYzODkwOGJkNjQwYzY1Y2U2ODAzZjBiYzU4N2M0MjFjNjg5YzkwYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmViYjM1ODNiNGI0NGMxZDIyMGVlYTIwMjk2ODJkNDcxNzE5NzVmZTkwOGU5ZDhmZTZkODc2Njg5Mzc1ZWY4MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTJlMWZkNTA4OWQ1ZGIyMTFjNzY1MmIzOGU3YWM4N2I2MzMzY2U5MTA1ZTEyMDY2MjQ5NTMzOWRlYTJmZTM5MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2U2NjIzYjQ5MzBhMDk4NzllODMwYTk3ZmUzZGRhZThkNzk1YmVjMTZiMjEwODVmZTQ1YTkyYTExMmE4NDQ4NiJ9"
+        },
+        {
+          "resource": "repo://backend/src/models/account.ts#L122-L155",
+          "version": "repo-lines-v1:sha256:aea3bb697d220eda917288e76452341d3844a9d390835e97e5a1c5570ec64c26:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY5YTM1MjFiMjkyMjVmMTc1ZGNlMzI1MTliZDBlMGQxODc3NzFiOGJiYzI4NTZhZjZmNGY2OTQ3MWY3OTk4ZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkYjNlN2NkMGMzYTYyMzA0NzY2ODE2MWQxMDRlOTlkODYyMDljYTNlNzc1NGEyNWIxMTlhNDkwNzg3ODA0MjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5ZTY3MmUyMTk5YzQzNzVkOTZmZGUwYzFlYWNmY2NmMTRmM2U1M2I5ZmY4ZWU0ODgzNjU0MjNiOWE4YTg2YWMifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/account.ts#L186-L196",
+          "version": "repo-lines-v1:sha256:eaa6e0d9d3b4597d7b35c0fdd9d2d140b4a19fa96f216ec8745e71f8642a0533:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkNDUzNjg0NGEwZGMzOTg3YTI1YTNlZDY2MDk2ZjY3ZmJhZDZiYTI5YjQ5Yjc0ODIyMTQzYjcwOWNhZDA3MWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/account.ts#L92-L94",
+          "version": "repo-lines-v1:sha256:e8ff7a3f91db6b0031e9e5d92bbed0271232324fdbdd1656357480c1704c0fea:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODdjYTZmNmUyMDI0NjVjYmIxOWVjYjBmZTM1MmRkOTQ3ZGEzYTlmZjFlNjI0MTU5Mzc1MDgwZWViYmEyMmYxMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWY4ZjJiYWJmZDcwNDEwNWJhNTI1OGEwYjZlMDI0MWEzZTgxMTk0NzM5MTM5NjMyMzE1MTg5ZGYzOGM4Yzk1MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODZkYTNmOGU0MzE2ZjI4ZDAwNjZkNWMyM2Y1MTYxMmFlYjc1ZGNhOGYxMTM3M2IyMzY0OWUxYTBlMWJjNTZmNSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_418e2483e2c14ba1a3903766481adfb7",
+      "statement": "Categories are user-owned labels with trimmed names, a fixed type of INCOME or EXPENSE, an excludeFromReports flag, and the same soft-delete plus version-bump lifecycle as accounts.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/category.ts#L114-L149",
+          "version": "repo-lines-v1:sha256:db050d81a431ebe52bc706c1090df8810abe8f96da0c1e547e0412c3266d4d07:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFhOTRlYTFkMzY4ODFkYjNjM2I4YTM3OWJlMDM0OTAxYjk3ODU3YTQ5Mzk1ZTEyNTRlYjlmMDFiYTA4YWE5N2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkYjNlN2NkMGMzYTYyMzA0NzY2ODE2MWQxMDRlOTlkODYyMDljYTNlNzc1NGEyNWIxMTlhNDkwNzg3ODA0MjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZlNGY3NzNkYWNmZGMyY2Q2NWJkMjUzNWMyZWU0Y2Y3YTVhYjIyYzMwMWU5NzI1NGRjMWI3ZjQwZTYzNDA0MjIifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/category.ts#L12-L21",
+          "version": "repo-lines-v1:sha256:a986d155079720449def2478a5cdaa756e234b153cc31f08615cbe9eca762a2a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZjljMDUwODQxMDJhNTA2Y2E1ZWI0Y2VhNDhmNGM0ZDRkMGVmZGRkYzBmNzg3OTViYzFiYmZkNGUxNzVkMGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlODVhZWI3N2ZmNzM3ZTE1NjU5NjhiZjg1ZTg1Yzc1OTE3ODM5M2Q4YzhhNzU2OWM1OGE4ZjM2NzdlNTcwZWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY3NWU1NjE0YjM4YTM5Njk1ZTZiZDZkM2NkMTQ4M2IwMjdmZTEyMzhjMTJjNzZiNzY2ZTI1OGU5ZTcxMzJiMjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ2NjMxNDhmNjRiNDg0NzAxNzFmM2Q4MjM1NDU0ODRkYzAyMzdiYTdkMzY4NTUwOTQ0OTNiNWViYWNkMDg4NjQifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/category.ts#L162-L169",
+          "version": "repo-lines-v1:sha256:21990b2a0666fe2a0fd057455941f556e17d3bb7f6a97ad8eae628a30eb25a4d:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQ0NTM2ODQ0YTBkYzM5ODdhMjVhM2VkNjYwOTZmNjdmYmFkNmJhMjliNDliNzQ4MjIxNDNiNzA5Y2FkMDcxZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTdkODYzMmU1NGU5Mjk4YWJiOTU4NzI3ZTJkNTE0MDhhYmFmMTM2NjAzNTM3OTEwMTQwYWJmNjViMzBhYjYxMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGUzMDA0MjFkYWJmOTIwNTY5OWFkM2VjOWRjMTMwYWU3ODgwYmM1MDhhNWExNGY0NWQxMGFlNmRhNzhiNTY2MCJ9"
+        },
+        {
+          "resource": "repo://backend/src/models/category.ts#L63-L82",
+          "version": "repo-lines-v1:sha256:48bfeb66ae72016ec604cec04e952df0fe52d33fb68c4c94b44c4478fedbeaca:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzMjBjMzUzOGI4YThkYTJlMDI5ZTRjYzFkZTc3MTYxNDY0MzZlZGI2ZDQwZjA2MGYxN2IyNTYwN2Y1Zjk1ODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA3NzJjZGM5YzZjYTBlYzIyZDU5ZjA0ZmQ1ZjY2MDk0YWUzODg2YzllZGUyYjE0ZjRhZmQ1ZjNkMTUwODRhNmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0MDYwOTljZWFiNjMwMDhiNTRhZmEwN2ZjZWYwYTgwMGNmMjg5ZTFmOGE3NDUxM2FjMmI5YmUyYWZmODU1ZTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a7e558aa075c430392661370a0aff670",
+      "statement": "Transactions are constrained by account and category ownership, require a positive amount, derive currency from the referenced account, and compute signedAmount from type so balances and reports can interpret movement consistently.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L113-L142",
+          "version": "repo-lines-v1:sha256:19f4fb4256fd6d5a0040fe3c4952cc774d06b6dd3a4863511a0a8bdbd1b75452:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzMjBjMzUzOGI4YThkYTJlMDI5ZTRjYzFkZTc3MTYxNDY0MzZlZGI2ZDQwZjA2MGYxN2IyNTYwN2Y1Zjk1ODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA3NzJjZGM5YzZjYTBlYzIyZDU5ZjA0ZmQ1ZjY2MDk0YWUzODg2YzllZGUyYjE0ZjRhZmQ1ZjNkMTUwODRhNmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc5YWY0MjdjZjc5ZjI0YzU1YTM5ZWM5MzMwMmFjMTliOTcyMzYzMzZhNGZhMjNhMWFiYTMzNzBjZGU3ODNjNzcifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L148-L158",
+          "version": "repo-lines-v1:sha256:ce06bb45d270abfbae0aca2b86b690ac2e3087bbf5391c088b6f54bc28a5517e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiZDVlYzNkZGYyNWZjYWRkN2MwMWJkZmJhZTY3ZmNjNTMwZTYxYzgzMmM3NzA1ZThkZGEyYTYxNGRmNzUxYTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM2NzQzYTlmMzEwNDEyZTk1ZDViM2VlMTA0MTM3ZDg0NjFjYmY4YWUwOGJhNjA2NTVjMWZiM2UxOWI0MzcyNDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjNTJlYzIwNDMyYWRhNjgwZGRkMWViNTRhMTI4ZDcyYjkzM2E4ZWE5NGRlODZiYzNmMmEwYTZjYjRiNTM3MzIifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L253-L333",
+          "version": "repo-lines-v1:sha256:ec2bcd3a86cedafa6cf77a7da9fe2da676189ee3eea7ff812a1c6568288378ea:eyJzZWxlY3RlZExpbmVDb3VudCI6ODEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1MDk1MWJjYThlMDlkOTVjNWVmOGFmMmJmNDg3NjUwNDIxODVlZjJlNzk3NjY4YmM3Zjc2MTAxNjhmNTQzODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzZmMzZjllOGU4Zjg3OWJlNDA4Yzc1MjQzZjljMTE5MjJlNzc3ODg0MGRlZDI0Njk2OGIxNWEzM2RkZTJhYjAifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L31-L48",
+          "version": "repo-lines-v1:sha256:8e904393c1b48887f7b5d6fdb8a1b85d9b837d351707cd156709649b63c24e6b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyNTA5YjlmZmJmMjk1NDEwNTc1NDQzMzIzMjAyNDM2Y2ZlNmY3MTI2YmQxOTljYmQxMDA1MmYyMTVmZDc1MTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmZjQ4MDA5YmZlYjA3Y2Q4NGE4N2FmYzNiODZiYmQwMDJlNDVmOWNkZDdhYzg0ODY4NzdmMTZmM2JhOWRkMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZkZmMxN2I1MDViNTQ0MmQzM2VkNDExMzZmMTVkMDdhYTQzMTA4YTk5ZDNiNTgxMzQ5NzhkYmMxNDI1NTJlN2EifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b0f781f4c13d4f50b0862ad9629255c6",
+      "statement": "Transfer transactions are a special transaction class: TRANSFER_IN and TRANSFER_OUT must include transferId, cannot have categories, and cannot participate in compound transactions, while non-transfer transactions must not include transferId.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L274-L294",
+          "version": "repo-lines-v1:sha256:16faaa1ca42a72a01c76cd1770751249c85dc7edf7fd2dc7541352791e646444:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5NzM3M2MzYjQ5OGI4OWIyM2U0MjBhM2NhMmYzOWE2YWZjODVjZTM2OTk0NDVkZmFjMDk4OTZjY2EzYjc1ZGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc1OGM3ZTE1MWQ2NDkyM2ZjYzNlODgzNmJhNTViMDFlYzViYmYyY2FhODI4ZGMzZGY0ODc2ZmFlZjRhNTg4MWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY5MmQ2ODFjZDljNzNmMzg2OWMzZjA0MmFhNGYzNGYyMWE3MzdlN2NhMTZhMGRlNTIwNDhjMGEyNmJhZDViZGYifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L335-L337",
+          "version": "repo-lines-v1:sha256:055dae62d8a9a0ab5d60cdbb57f2c0989927cf45fade7278c8268e3a415ac666:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDIyYTc5MWI1MjMxNWI5YWM0NzAwNWFkZjQ4MjQ2MTY1YjNjZDg4NDlkYWFjZTI4NGI5ZDY4ZjYxMmJiMTU2OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTdkODYzMmU1NGU5Mjk4YWJiOTU4NzI3ZTJkNTE0MDhhYmFmMTM2NjAzNTM3OTEwMTQwYWJmNjViMzBhYjYxMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWY5MzRkOTQ1M2NhZDc4Y2U5NDhmM2Q4YTE2MTQ3ODJlZTk1YzI4OWI3NGI0NWM5Y2E3Njc1MWNlZWIwM2RhNSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_130d6a38b1c5447092ee8e7ce6259ebc",
+      "statement": "Transaction categories are type-checked so INCOME categories only attach to INCOME transactions, while EXPENSE categories can attach to EXPENSE and REFUND transactions; archived categories are rejected.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L296-L314",
+          "version": "repo-lines-v1:sha256:aeb73cf8d1245b8d60d250842d452416b37904d4d1c125ab25b8e5509653a237:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0OGY4ZjdkNDc3Y2FmMWYxZGFiZGY2MTRhMWQ3ZDYxN2RmOTgwMTJmY2NhNDM1YzRjMWU3MDkxOGE5ZGJjMjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YjlhMGIxNmI5OTEwYmFhNWQwYTRkY2FmZjhhNjBjNDI5NjMzYmYyYWUzY2JhY2M4MjAyOTA3NTgwZDEwY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExZjJkYmQzZmE2ZjhlOGY2NzQ4OGY2MDM5OGE4OWU5Y2ZlYmFmZWQ2ZDdmNTNmN2I1M2M4NzUwMDQyZDY0ZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_49951f2791fe48c89c3ffead0a5cbf1f",
+      "statement": "ChatMessage is an immutable, TTL-expiring record of conversational history with userId, sessionId, role, content, createdAt, and expiresAt; it rejects empty session IDs or content and requires expiry after creation.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/chat-message.ts#L11-L26",
+          "version": "repo-lines-v1:sha256:6cc5970b425ebca2d306b7dfd9c46b4ac2c92d53d139ad534c860214b90e3d8f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyNTA5YjlmZmJmMjk1NDEwNTc1NDQzMzIzMjAyNDM2Y2ZlNmY3MTI2YmQxOTljYmQxMDA1MmYyMTVmZDc1MTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNmNjc3N2VkYTcwMDUzYzUwNzJhM2YzNDhiMmJmMDg3YjgyOWYzMjQzNDJjZjMxNTlkNWQzNWJjZWYwMmUzYTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFiMDYyN2Y5NmJhMTFiZWNhMjJlZGMyMWM1OTcwOWNjN2ExMWE3ZjY5MmI1NTcwMzcwMTExNGEyNjcwZWU5YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiYTIwN2IwM2JkYWE3MDk3Y2M5MGE0NDA0Nzg2MDNkY2FmNmZmNTVhNmM5NTA3OTRiZWU0MjRkNmFmZDBmN2QifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/chat-message.ts#L57-L75",
+          "version": "repo-lines-v1:sha256:4d2ad8c7fd8c540ad55ebc316faa93bd42a639bae6915e9d9da3152eeef0d89d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzMjBjMzUzOGI4YThkYTJlMDI5ZTRjYzFkZTc3MTYxNDY0MzZlZGI2ZDQwZjA2MGYxN2IyNTYwN2Y1Zjk1ODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlN2RhYjNhNjIzMGQwMDAwYTc4MTBjMGY4MTQwNWQ3YzU1N2JlMWE2NzQ1NTFjNzgxN2YxMTEzMzIxNWI0MWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM2ZWJlYzgzMDI0YjFjZDkxZWU4NTdjNDgxMjI5YzFhZTY3NjJhN2ZhYTI1YzI3YjllNWU0M2YyMjlmY2UwYjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQwNWJmYWFkYjM3MzVlMjE5YWUyMWFiNDM2NWQ3OWFjYTU5YWY5ZTk3MTUxMDY5MTQyMmM0YmRjNzhlNzc1ZGUifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/chat-message.ts#L93-L106",
+          "version": "repo-lines-v1:sha256:0664f541bc4c5dc9d66dcffb31938de5040a039e13e395296e79198ef76771ca:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkNDUzNjg0NGEwZGMzOTg3YTI1YTNlZDY2MDk2ZjY3ZmJhZDZiYTI5YjQ5Yjc0ODIyMTQzYjcwOWNhZDA3MWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNDJkMTVkY2I3NjdmYTFhMDMwMDVhODdmZTEwYWE4YzVjMGNiMDQ5MTM5ZjY2N2QxZTRkYWExMWI4ZTBkMTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk5OTUxMGMzYWJjYjBhZTFhODg2MGY1YWRlY2I3YjkwNGNmMGJiODlmMGE5YThjZGNiNGY0ZTU4NTY3M2M3MjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d257be7389f445e7b80bbfeecae28a35",
+      "statement": "TelegramBot models a separate connection lifecycle from archival state: bots start PENDING, may connect only from PENDING, may disconnect only from CONNECTED, and require both token and webhookSecret.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/telegram-bot.ts#L5-L25",
+          "version": "repo-lines-v1:sha256:41b1c12b905d9afc42962eb29e9ac71371a9b5bd9c35682b206409d622bf766f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3YTE2MWRkMWFhODlkZGUwZjJjNGI0ODg0NmU4NzhlNDZkYzg2ZDk5OTYyMzE0Y2EyOTdhOTE2NjRlYmVjOTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFjMDBiMjQ1MmQ0NGJhMGFiODk2N2FjNTA4YjA0YzM4ZDk0NGI0NmFmZThjZTFiMjEyYTNkN2MwYjZmZGZhOTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEwZDM2YjFmODY1M2UxOTk5YjEzNzM0Mjc5OGJjMjY4ZDk5YmFiOTllNWIwOWY5N2ZjYjFkMzNmMDVhZTRmNzUifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/telegram-bot.ts#L62-L86",
+          "version": "repo-lines-v1:sha256:c36f3ba98f88f6dc1103be291f64f0cc4c94f9e560701572a4a091fd4728a3ce:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzMjBjMzUzOGI4YThkYTJlMDI5ZTRjYzFkZTc3MTYxNDY0MzZlZGI2ZDQwZjA2MGYxN2IyNTYwN2Y1Zjk1ODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA3NzJjZGM5YzZjYTBlYzIyZDU5ZjA0ZmQ1ZjY2MDk0YWUzODg2YzllZGUyYjE0ZjRhZmQ1ZjNkMTUwODRhNmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI5NTk0M2NhMGMzOGJiZmI4YmUzNmNkNzEyZDZjYWM0NDUxODI5MTM2NjgxZDAyZjgxNTU3ZWNiOWQyY2Q4ZWMifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/telegram-bot.ts#L98-L155",
+          "version": "repo-lines-v1:sha256:60c1cf67a877b38eee4abef3c63fc258252c1f8adf1028d80442ac7f58377b9c:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2YzhjOTViNTIxMTk4MWI0OTBmM2IzMTkzYjU3NmI0MDkyZGIxYjUzZWM4NjQzZTZhNTExNDQ5YTlkZjE5MWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWVmZGQ1MTEzZDk5MDU2ZjFlMTlkZTFiN2Q1YmVkZTZlMGEzMDFmOWU4ZjdiZTRlYWQzZjhmOGRhODY2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ1NGE1YjI3OTI5MTVkNDAyOWU1MmNjNDQ2YmFiMTQ3ZmZjZDdhMGUwOWE3NDIzNDVhZTM2MGJmNDg1NmRiY2EifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2bf1d3b78be64628a2e707aadb2dad3f",
+      "statement": "TrendPreset is a lightweight saved report configuration with periodUnit, bounded integer lookback, currency, categoryIds, and optional includeUncategorized, and it is intentionally hard-deleted rather than archived.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/trend-preset.ts#L11-L26",
+          "version": "repo-lines-v1:sha256:66a2aa99746b0edcfc758469a5fb5f9291b6556c8275bbf7befb7ac42d12ad3c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4ODMzNjBjZTQyZGFmMDY0ZDI0YzhjY2ZlOGMxMDEzMGIyMWUzOTUxZjZkMTI2N2FiYTQwMGRjMTA2MmQ1ZTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3MmE0MjkzODJiMmUxNDcxOGUwZTM3YjA1NzBhOGExNzAyOTkxZmNkODQ5OGNkODQwNjBhOGJmNGYwNTAxN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVhNzkwZjQ1NzI0NTBmMzQzYWIyOGE1NjU4MjY5ZGUzMmQ4NDQ3YzFiNDIzZjI4NzkwMjUzODIxYzEwMDU1ZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiZTdiMDdkZmRhMWUwMWEyZWU1MDA5MDViNDg1ZDY4MDRhNGJlNjM4N2FiNGVhMWQ3NGJkZWFlZGVhNmMxMjYifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/trend-preset.ts#L62-L109",
+          "version": "repo-lines-v1:sha256:53e565f8bd11dcf7c699a39816671e2a1364b90a8975173ad72078a6df7bdceb:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzMjBjMzUzOGI4YThkYTJlMDI5ZTRjYzFkZTc3MTYxNDY0MzZlZGI2ZDQwZjA2MGYxN2IyNTYwN2Y1Zjk1ODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0ZTI0YzAyY2E2ODdiOTE2MDE4NmI2ZTMzNGQ2ODNlNDY0NDI1Nzg5OWRiNGRjOWIyZGNhZjRmNzE0MzQxYWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzMDk1MmYxOWFhZDgwOTZmZWZlN2I3ZTM0NDJlZmMyMTNiMGE3YjNjMWJlYzFhY2NmYTQxYjc1Zjc1MjlmNGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c8ed08aba8ee45259059710861472781",
+      "statement": "The repository schemas mirror the model-level invariants for accounts, transactions, categories, chat messages, Telegram bots, and trend presets, including UUID and enum checks, positive numeric constraints, and timestamp normalization.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/repositories/schemas/account.ts#L6-L17",
+          "version": "repo-lines-v1:sha256:ea330bca8d088dd2271996491864a4382ed181d6d03ea2692f2d1a5c55901918:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczNTRhYWQzNDk0YzRhNjEzMGRkYWU1NWY0NDA0ZGExZTRlN2RlMzE1YzY0NjlkMzgzYzAwN2E0NDBkMGUyNDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmOTRhOTk1NTQ3NmFjNGIzMDY1OGE4MmNjODY5MzJlZTgyNWYxNTI1NTMxZGQwMjM3MDRlMzgwMDg2YzZlYWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1OGU2MjQyZmJkMmJmZTc1NDgxY2Q4MjNmZWNkYWIzNzE2YTdkMjVlNWYzNjc1ZTY5Y2NmOTkwNTQ2YmIwNDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/schemas/category.ts#L6-L16",
+          "version": "repo-lines-v1:sha256:8693be7a4508baeb516e99b8894a1dab34fbfb780189e241111320a013a23c21:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3ZWY0Y2RkNjA2NzQ0ZWM0MmMyZDk0ODM1ZmFmNWQ5ZmU3NTY0YTJlMzVmYjliYWZkMmFlZTkxYTIwM2U5MTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiMjk2ZWI0ODU4OWM3MGM5ZDVmZDRhYWIwZTM5ZTViNmFhNmM4NDQzZjZkNGViNzBhYmFkZTg1OWE5OTMwNWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA1NzJmOTIxYjczMDg3YTc0ODVlZGZjMzVmMWRjYjllN2E4MjY5MTBhZTMxYWQ1NDc1ZWVmNTY2NzEyMzBkMWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/schemas/chat-message.ts#L5-L16",
+          "version": "repo-lines-v1:sha256:4bc53c64b2e1dbcbdf6914bd1fe8a3b37a6f52916c39c46fea3c710ea718212d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyYTcwYWM0ZDkxYTNlNmZkMDMwYWVlMzgyNGE0NDZhN2ZmMDQ1MzkxNjhhMzkwMmQ3NjRlZTY5YjAxNzU5YzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3MzM2NzlkNTU0MGJiMzg1ZmI4NTBlOGU2NjYwMjc0MjAzNzQ0YmY5NWY1NmQxNDE2MWFiZjI0Njk3NWQ0MWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTUzOGQwODAwMGQ0Y2I4Y2ExMGQxMTJjODIwYjYzNzIzOGY0ZDAwMTBmMThiYzIzYzVjZjE3OTQyZWYwMzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/schemas/telegram-bot.ts#L8-L17",
+          "version": "repo-lines-v1:sha256:f9de8ac9dc1c9edabcd5ddd97675497278ae3c09b0ead4c011be25c267715871:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlM2UwNGEyN2ZlZjU0YWE0MjhkOTc2MzZhM2I4NmE4ZTY4NGM3NzBkZTNjNGExMTg3ODlkMTJkZjhmMzMwNGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU0YTM3NjdlYzM5NmQyYmM0OGI2ZjliNjYxOTY0MDlmY2JjMWViZmM1ZDMyN2QzZjBmZmY2YzkwNjk3MmM2ZDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjljZThlM2U4MDQ1M2ZiNjE1MmY2Mjk4MzQ4YzE3YmI0YzZmY2MzYzkzNGEzMGJkYTZiNDQ0Y2VmZjY3N2I0NzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/schemas/transaction.ts#L9-L28",
+          "version": "repo-lines-v1:sha256:2a2d3c83a4f3cdd384ed73deaca09ffecfa29801258611d1b752986e5bbf770c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2MmYwODkxNjg5ZDcwN2U2MjM0ZWE2MjRlYTZlYzY3NGU4NzVlYzA2ZTI0ODk3MjU0Y2ZkYzNjNzk1MGY4OTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5ODllMzgzYzc0ZmIyMDAxY2U0MDUwZDkyOGUwNWU4MzZlMWZjNWUyNTViNjgwNTEwODM0MWI5ZDVjMTU5MGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZlYzE5MTI3MTVhNTY5ZWZkZjQwZjdkYmE0NjRmOGZmOGY2YjkxOWE1NDcyMTZhMGQ5NjkwZDNhZDlmN2YxMjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU5N2UwOTEyMjkxZDU0YTE1Y2Y0YmM5MGU3N2U5Yzc5NDBmM2E3ZGM0YzYyMTViNTNiNTI3NTU0Y2RhZjAzYTAifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/schemas/trend-preset.ts#L10-L19",
+          "version": "repo-lines-v1:sha256:ffcd2763cb225679d4513712ccd25b83170b5ab998868d0a5cc1ed1822690dd0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyOWQ4MGUwMDdhY2Y2ZTk5MzY4ZWYzZDdmYTQzMmIzNTZkNDE2MzA4ZDM3YWM5YWFkYzBiYTg5MTRmOTkxMDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyMTg1YzU5NmEyNjVlNWI4MzgxN2NmZGVjNTkzOTA3NjE4NjU2M2NiMGM5YjEyZjlmMmVkZGI2ZGIyOWU4ZTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1OGU2MjQyZmJkMmJmZTc1NDgxY2Q4MjNmZWNkYWIzNzE2YTdkMjVlNWYzNjc1ZTY5Y2NmOTkwNTQ2YmIwNDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-09-27T13:28:59.762Z"
+  }
+}

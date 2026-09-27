@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:8ae07a35951fc6ba1fc23a9af0abccff429f304f4415f8135f33cc4bf84e5628",
+  "pageVersion": "sha256:520a8891498c52bac528e0801b4165d3af5bef53626c4eadcd832620dc35d82f",
   "claims": [
     {
       "id": "claim_e2310975b79b4e53acdb0f05fab0b791",
@@ -12,7 +12,7 @@
         },
         {
           "resource": "repo://backend/src/server.ts",
-          "version": "repo-file-v1:sha256:871c536162807092e556c8103e11f7ec6c2bc78baba2e3cd3df349a6f43f8649"
+          "version": "repo-file-v1:sha256:80d847adc56a2eadbc64ee8ea34b72c73f11d4d30110e5af482f85baaa9b08b5"
         },
         {
           "resource": "repo://frontend/src/main.ts",
@@ -20,7 +20,7 @@
         },
         {
           "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts",
-          "version": "repo-file-v1:sha256:796fa27fc60f4a96e9eb2084b32eeeda2709835a328fc9855990381fe88b6ad4"
+          "version": "repo-file-v1:sha256:6c324ef5f34c92b60ac092539682c88aa389e53eb1e3e1e76f88c5f5552bc6f5"
         },
         {
           "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts",
@@ -34,7 +34,7 @@
       "evidence": [
         {
           "resource": "repo://backend/src/server.ts",
-          "version": "repo-file-v1:sha256:871c536162807092e556c8103e11f7ec6c2bc78baba2e3cd3df349a6f43f8649"
+          "version": "repo-file-v1:sha256:80d847adc56a2eadbc64ee8ea34b72c73f11d4d30110e5af482f85baaa9b08b5"
         }
       ]
     },
@@ -45,24 +45,6 @@
         {
           "resource": "repo://backend/src/graphql/resolvers/index.ts",
           "version": "repo-file-v1:sha256:6368c235fe2a3bb6f1a608bfc40e6180bf8664b49074972945d6cdcbb8077df5"
-        }
-      ]
-    },
-    {
-      "id": "claim_caf610e7edd8487f8a0f1d5351351679",
-      "statement": "The web Lambda entrypoint routes `/webhooks/telegram` to the Telegram webhook handler, `/mcp` to the MCP handler, and `/.well-known/*` to a 404 instead of Apollo to avoid MCP client discovery failures.",
-      "evidence": [
-        {
-          "resource": "repo://backend/src/lambdas/telegram-webhook-handler.ts",
-          "version": "repo-file-v1:sha256:2d3ef5adb43605627e69406a1084c16eab490df5d55b0e6ce5ef6e74459caa1e"
-        },
-        {
-          "resource": "repo://backend/src/lambdas/web.ts",
-          "version": "repo-file-v1:sha256:e53c82542aa19d107ba6d69e35f1688f9178f0a97b4c9ff0e295775b42451eb6"
-        },
-        {
-          "resource": "repo://backend/src/mcp/server.ts",
-          "version": "repo-file-v1:sha256:3aa12134b55ad067c516a037ff4f8c2a275e046f91ea08f9e4b195fcb6f0b4c1"
         }
       ]
     },
@@ -111,22 +93,12 @@
       ]
     },
     {
-      "id": "claim_a2c4daf66b284bcbbe67078b44108f63",
-      "statement": "The backend CDK stack provisions DynamoDB tables for users, accounts, categories, transactions, chat messages, migrations, Telegram bots, and trend presets, and it wires Lambda permissions and environment variables so backend code reads tables and runtime config through infrastructure-provided inputs.",
-      "evidence": [
-        {
-          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts",
-          "version": "repo-file-v1:sha256:796fa27fc60f4a96e9eb2084b32eeeda2709835a328fc9855990381fe88b6ad4"
-        }
-      ]
-    },
-    {
       "id": "claim_81393ef676284ff1a2a2355ba58195e5",
       "statement": "The backend stack grants the web Lambda permission to invoke Bedrock models and asynchronously invoke the background job Lambda, while the migration Lambda is separately provisioned for deploy-time database changes.",
       "evidence": [
         {
           "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts",
-          "version": "repo-file-v1:sha256:796fa27fc60f4a96e9eb2084b32eeeda2709835a328fc9855990381fe88b6ad4"
+          "version": "repo-file-v1:sha256:6c324ef5f34c92b60ac092539682c88aa389e53eb1e3e1e76f88c5f5552bc6f5"
         }
       ]
     },
@@ -151,36 +123,8 @@
       ]
     },
     {
-      "id": "claim_25e30229fe9746a1a6c6534e1c36a02d",
-      "statement": "Request-scoped GraphQL context creation resolves the authenticated user lazily before creating account and category loaders, which keeps loader caches per request and user-scoped.",
-      "evidence": [
-        {
-          "resource": "repo://backend/src/server.ts",
-          "version": "repo-file-v1:sha256:871c536162807092e556c8103e11f7ec6c2bc78baba2e3cd3df349a6f43f8649"
-        }
-      ]
-    },
-    {
-      "id": "claim_d911d37e8f8348ae962283dc4eb390f1",
-      "statement": "The system’s persistence boundary is repository/service-based rather than direct table access from the UI or resolvers, which centralizes validation, business rules, and user scoping in the backend.",
-      "evidence": [
-        {
-          "resource": "repo://backend/src/graphql/resolvers/index.ts",
-          "version": "repo-file-v1:sha256:6368c235fe2a3bb6f1a608bfc40e6180bf8664b49074972945d6cdcbb8077df5"
-        },
-        {
-          "resource": "repo://backend/src/server.ts",
-          "version": "repo-file-v1:sha256:871c536162807092e556c8103e11f7ec6c2bc78baba2e3cd3df349a6f43f8649"
-        },
-        {
-          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts",
-          "version": "repo-file-v1:sha256:796fa27fc60f4a96e9eb2084b32eeeda2709835a328fc9855990381fe88b6ad4"
-        }
-      ]
-    },
-    {
-      "id": "claim_0192e3758ea34b8ea6176c83fc215bbd",
-      "statement": "The architecture treats AI, Telegram, and MCP as outbound or side-channel integrations owned by backend handlers and services rather than by the browser UI.",
+      "id": "claim_8c84b94e7a8a4a29b542d4f49ae02118",
+      "statement": "The web Lambda entrypoint in `backend/src/lambdas/web.ts` routes GraphQL requests through Apollo, sends `/webhooks/telegram` to the Telegram handler, sends `/mcp` to the MCP handler, and returns 404 for `/.well-known/*` discovery paths instead of falling through to Apollo.",
       "evidence": [
         {
           "resource": "repo://backend/src/lambdas/telegram-webhook-handler.ts",
@@ -192,17 +136,73 @@
         },
         {
           "resource": "repo://backend/src/mcp/server.ts",
-          "version": "repo-file-v1:sha256:3aa12134b55ad067c516a037ff4f8c2a275e046f91ea08f9e4b195fcb6f0b4c1"
+          "version": "repo-file-v1:sha256:b3464d47e47e551e434b5dbf557c16d2d3cd23ea95b5968d7d56225ee942413a"
+        }
+      ]
+    },
+    {
+      "id": "claim_560c3020e52d491bbf2f2c18a8d99745",
+      "statement": "`backend/src/server.ts` recreates account and category loaders on every request and resolves the authenticated user lazily, which keeps loader caches request-scoped and user-scoped.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/server.ts",
+          "version": "repo-file-v1:sha256:80d847adc56a2eadbc64ee8ea34b72c73f11d4d30110e5af482f85baaa9b08b5"
+        }
+      ]
+    },
+    {
+      "id": "claim_a48b567abda142ee8e9aba7e651f6d4a",
+      "statement": "The backend context injects repositories and services instead of letting resolvers or UI code talk to DynamoDB tables directly, which centralizes validation, business rules, and user scoping in backend service/repository boundaries.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/resolvers/index.ts",
+          "version": "repo-file-v1:sha256:6368c235fe2a3bb6f1a608bfc40e6180bf8664b49074972945d6cdcbb8077df5"
         },
         {
           "resource": "repo://backend/src/server.ts",
-          "version": "repo-file-v1:sha256:871c536162807092e556c8103e11f7ec6c2bc78baba2e3cd3df349a6f43f8649"
+          "version": "repo-file-v1:sha256:80d847adc56a2eadbc64ee8ea34b72c73f11d4d30110e5af482f85baaa9b08b5"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts",
+          "version": "repo-file-v1:sha256:6c324ef5f34c92b60ac092539682c88aa389e53eb1e3e1e76f88c5f5552bc6f5"
+        }
+      ]
+    },
+    {
+      "id": "claim_1958dc4842a34893aaa93ca57400ca7a",
+      "statement": "The backend stack provisions separate DynamoDB tables for users, accounts, categories, transactions, chat messages, migrations, Telegram bots, and trend presets, and wires Lambda permissions and environment variables so backend code receives table names and runtime configuration from infrastructure.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts",
+          "version": "repo-file-v1:sha256:6c324ef5f34c92b60ac092539682c88aa389e53eb1e3e1e76f88c5f5552bc6f5"
+        }
+      ]
+    },
+    {
+      "id": "claim_e97d254cb10846ff82d522e53e5faec3",
+      "statement": "The architecture treats AI, Telegram, and MCP as backend-owned outbound or side-channel integrations rather than browser responsibilities.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/telegram-webhook-handler.ts",
+          "version": "repo-file-v1:sha256:2d3ef5adb43605627e69406a1084c16eab490df5d55b0e6ce5ef6e74459caa1e"
+        },
+        {
+          "resource": "repo://backend/src/lambdas/web.ts",
+          "version": "repo-file-v1:sha256:e53c82542aa19d107ba6d69e35f1688f9178f0a97b4c9ff0e295775b42451eb6"
+        },
+        {
+          "resource": "repo://backend/src/mcp/server.ts",
+          "version": "repo-file-v1:sha256:b3464d47e47e551e434b5dbf557c16d2d3cd23ea95b5968d7d56225ee942413a"
+        },
+        {
+          "resource": "repo://backend/src/server.ts",
+          "version": "repo-file-v1:sha256:80d847adc56a2eadbc64ee8ea34b72c73f11d4d30110e5af482f85baaa9b08b5"
         }
       ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.2",
-    "at": "2026-09-20T15:02:07.269Z"
+    "by": "openwiki/0.6.0",
+    "at": "2026-09-27T13:28:59.762Z"
   }
 }

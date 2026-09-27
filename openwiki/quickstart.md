@@ -1,109 +1,122 @@
 ---
-type: quickstart guide
-title: OpenWiki quickstart
-description: Entry point for the repository wiki. Use this page to route changes to the right architecture, workflow, operations, integration, and testing guide.
-tags: [quickstart, navigation, backend, frontend, infrastructure, auth, testing]
+type: navigation guide
+title: Quickstart
+description: Start here to route to the smallest set of wiki pages for repo orientation, local setup, and subsystem-specific changes across backend, frontend, and infrastructure.
+tags: [quickstart, navigation, backend, frontend, infrastructure, testing]
 verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-20T15:02:07.269Z
+  - by: openwiki/0.6.0
+    at: 2026-09-27T13:28:59.762Z
 sources:
   - id: openwiki-source-23775c3de52f3ab95a13cb8b
     resource: repo://README.md
-generated: { by: "openwiki/0.5.2", at: "2026-09-20T15:02:07.269Z" }
+generated: { by: "openwiki/0.6.0", at: "2026-09-27T13:28:59.762Z" }
 ---
 
-# OpenWiki quickstart
+# Quickstart
 
-This page is the shortest path into the repository wiki. Use it to decide where to read next based on what you are changing.
+Use this page as the shortest route into the wiki. It is meant to help you decide what to read next, not to restate the full architecture.
 
-## Start here by change intent
+## Repo-level orientation
 
-- **Backend feature, bug fix, or GraphQL change** → [System architecture](architecture.md), [Workflows and request flows](workflows.md), [Testing and verification](testing.md)
-- **Frontend UI or composable change** → [System architecture](architecture.md), [Workflows and request flows](workflows.md), [Testing and verification](testing.md)
-- **Infrastructure, auth, deployment, or environment change** → [System architecture](architecture.md), [Operations and configuration](operations.md), [Testing and verification](testing.md)
-- **Domain rule or data model change** → [Domain model and concepts](domain.md), [Workflows and request flows](workflows.md), [Testing and verification](testing.md)
-- **Integration change for AI, Telegram, MCP, or external services** → [Integrations and external systems](integrations.md), [System architecture](architecture.md), [Workflows and request flows](workflows.md)
-- **Validation, unit tests, repo tests, or CDK checks** → [Testing and verification](testing.md)
-- **Release, bootstrap, SSM, or runtime tuning work** → [Operations and configuration](operations.md)
+This repository has three main code areas:
 
-## What each page is for
+- `backend/` — GraphQL app runtime, background jobs, integrations, and persistence-facing logic
+- `frontend/` — Vue single-page app that talks to the backend
+- `infra-cdk/` — AWS CDK stacks, deployment wiring, and environment configuration
 
-- **[System architecture](architecture.md)** explains how the SPA, GraphQL backend, Cognito auth, DynamoDB persistence, and CloudFront/CDK deployment fit together.
-- **[Domain model and concepts](domain.md)** covers the finance concepts and rules that shape safe application changes.
-- **[Integrations and external systems](integrations.md)** describes the AWS, Cognito, Bedrock/LangChain, MCP, and Telegram boundaries.
-- **[Operations and configuration](operations.md)** covers deployment flow, SSM parameters, stack outputs, bootstrap requirements, and runtime knobs.
-- **[Testing and verification](testing.md)** lists the useful test entrypoints and the smallest checks for backend, frontend, and infra work.
-- **[Workflows and request flows](workflows.md)** walks through authentication, GraphQL requests, assistant chat, quick transaction entry, Telegram processing, migrations, and deploy flow.
+Start with [Architecture Overview](architecture/overview.md) if you need the big picture first.
 
-## Common task routing
+## Where to go next
 
-### Feature work
+- **Understanding the runtime shape and boundaries** → [Architecture Overview](architecture/overview.md)
+- **Understanding business entities and rules** → [Domain Model](concepts/domain-model.md)
+- **Understanding external systems and service boundaries** → [External Integrations](integrations/external-systems.md)
+- **Understanding deploys, configuration, and runtime operations** → [Operations, Deployment, and Configuration](operations/deployment-and-config.md)
+- **Understanding tests and what to run for a change** → [Testing Strategy](testing/testing-strategy.md)
+- **Tracing request, command, and background-job flows** → [Request and Command Flows](workflows/request-and-command-flows.md)
 
-1. Identify the subsystem first: backend, frontend, infrastructure/auth, or integration.
-2. Read the architecture page for the relevant boundary.
-3. Read the workflow page for the user or request path you are touching.
-4. Finish with the testing page to choose the smallest useful verification.
+## Change routing
 
-### Bug fixes and debugging
+### Backend changes
 
-1. Reproduce the issue in the relevant workflow.
-2. Check the architecture page to confirm where the behavior belongs.
-3. Use the operations page if the problem involves deploy-time or runtime configuration.
-4. Run the narrowest test that proves the fix.
+Read, in order:
 
-### Deployment and ops changes
+1. [Architecture Overview](architecture/overview.md)
+2. [Request and Command Flows](workflows/request-and-command-flows.md)
+3. [Testing Strategy](testing/testing-strategy.md)
 
-1. Read the operations page for SSM parameters, stack outputs, and bootstrap requirements.
-2. Read the architecture page if the change alters routing, auth, or resource ownership.
-3. Read the testing page before changing deployment scripts or stack wiring.
+Use this path for GraphQL, services, background jobs, MCP, Telegram, persistence, and validation work.
 
-### Auth and access changes
+### Frontend changes
 
-1. Start with the architecture page for the Cognito and request-scoping model.
-2. Read the operations page for auth stack outputs and environment variables.
-3. Check the workflows page for request entry points that depend on auth.
+Read, in order:
 
-### Data and domain changes
+1. [Architecture Overview](architecture/overview.md)
+2. [Request and Command Flows](workflows/request-and-command-flows.md)
+3. [Testing Strategy](testing/testing-strategy.md)
 
-1. Read the domain page for invariants and terminology.
-2. Check the workflows page for how the data is created, updated, or queried.
-3. Use the testing page to verify repository or service behavior at the right layer.
+Use this path for Vue UI, router, Apollo client, session/auth handling, and composables.
 
-## Practical entrypoints
+### Infrastructure and deployment changes
 
-If you need a source starting point after reading the wiki pages, the most common code entrypoints are:
+Read, in order:
 
-- `backend/src/server.ts` — GraphQL request context and backend bootstrap
-- `backend/src/graphql/resolvers/index.ts` — resolver composition
-- `backend/src/services/assistant-service.ts` and `backend/src/services/create-transaction-from-text-service.ts` — assistant and text-entry flows
+1. [Architecture Overview](architecture/overview.md)
+2. [Operations, Deployment, and Configuration](operations/deployment-and-config.md)
+3. [Testing Strategy](testing/testing-strategy.md)
+
+Use this path for CDK stacks, AWS resources, environment variables, SSM parameters, and deployment behavior.
+
+### Domain or data-model changes
+
+Read, in order:
+
+1. [Domain Model](concepts/domain-model.md)
+2. [Request and Command Flows](workflows/request-and-command-flows.md)
+3. [Testing Strategy](testing/testing-strategy.md)
+
+Use this path when a change affects finance concepts, invariants, or cross-entity behavior.
+
+### Integration changes
+
+Read, in order:
+
+1. [External Integrations](integrations/external-systems.md)
+2. [Architecture Overview](architecture/overview.md)
+3. [Request and Command Flows](workflows/request-and-command-flows.md)
+
+Use this path for AWS, auth, Bedrock/LangChain, MCP, Telegram, or other external services.
+
+## Common local entrypoints
+
+If you need source starting points after reading the wiki pages, the usual entrypoints are:
+
+- `backend/src/server.ts` — backend request context and GraphQL setup
+- `backend/src/lambdas/web.ts` — HTTP routing for GraphQL, Telegram, and MCP
 - `frontend/src/main.ts` — SPA bootstrap
-- `infra-cdk/lib/backend-cdk-stack.ts` and `infra-cdk/lib/frontend-cdk-stack.ts` — deployment wiring
+- `infra-cdk/lib/backend-cdk-stack.ts` — backend resources and wiring
+- `infra-cdk/lib/frontend-cdk-stack.ts` — frontend distribution and API routing
 
-## Fast navigation map
+## Minimal navigation map
 
 ```mermaid
 flowchart TD
-  Quickstart["OpenWiki quickstart"] --> Arch["architecture.md"]
-  Quickstart --> Domain["domain.md"]
-  Quickstart --> Workflows["workflows.md"]
-  Quickstart --> Ops["operations.md"]
-  Quickstart --> Integrations["integrations.md"]
-  Quickstart --> Testing["testing.md"]
+  Quickstart["Quickstart"] --> Arch["Architecture Overview"]
+  Quickstart --> Domain["Domain Model"]
+  Quickstart --> Integrations["External Integrations"]
+  Quickstart --> Ops["Operations, Deployment, and Configuration"]
+  Quickstart --> Testing["Testing Strategy"]
+  Quickstart --> Workflows["Request and Command Flows"]
 
-  Arch --> Backend["backend"]
-  Arch --> Frontend["frontend"]
-  Arch --> Infra["infra-cdk"]
-  Workflows --> Auth["auth and request flows"]
-  Ops --> Deploy["deployment and configuration"]
-  Integrations --> External["AWS, AI, Telegram, MCP"]
+  Arch --> Backend["backend/"]
+  Arch --> Frontend["frontend/"]
+  Arch --> Infra["infra-cdk/"]
 ```
 
-This map is intentionally small: it routes you to the right system page instead of mirroring the repository tree.
+## Practical rule of thumb
 
-## How to use this page
-
-- Start with the page that matches your change intent.
-- Use the workflow page to understand request order and failure behavior.
-- Use the operations page for anything involving deployment, bootstrap, or SSM.
-- Use the testing page before editing code so you can choose the smallest useful verification.
-- Return here whenever you need a fast pointer to the rest of the wiki.
+- Read the architecture page first when you are unsure which subsystem owns a change.
+- Read the workflow page when you need request order, dispatch behavior, or failure shape.
+- Read the operations page before changing deployment or environment settings.
+- Read the testing page before editing code so you can choose the smallest useful verification.
+- Return here when you need a fast pointer to the right wiki page.
