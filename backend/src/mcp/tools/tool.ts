@@ -1,5 +1,5 @@
+import { Result } from "ts-result";
 import { z } from "zod";
-import { Result } from "../../types/result";
 
 export interface Tool<TInput = unknown> {
   name: string;

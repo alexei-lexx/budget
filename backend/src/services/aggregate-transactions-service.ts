@@ -1,10 +1,10 @@
 import { Temporal } from "temporal-polyfill";
+import { Failure, Result, Success } from "ts-result";
 import { MAX_PERIOD_DAYS } from "../langchain/tools/get-transactions";
 import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date-string";
-import { Failure, Result, Success } from "../types/result";
 
 export const AGGREGATE_GROUP_BY = ["ACCOUNT", "CATEGORY", "MONTH"] as const;
 export type AggregateGroupBy = (typeof AGGREGATE_GROUP_BY)[number];

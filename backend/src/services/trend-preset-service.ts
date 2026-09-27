@@ -1,7 +1,7 @@
+import { Result, Success } from "ts-result";
 import { ModelError } from "../models/model-error";
 import { CreateTrendPresetInput, TrendPreset } from "../models/trend-preset";
 import { TrendPresetRepository } from "../ports/trend-preset-repository";
-import { Result, Success } from "../types/result";
 
 export type CreateTrendPresetServiceInput = Omit<
   CreateTrendPresetInput,

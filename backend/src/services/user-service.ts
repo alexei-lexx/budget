@@ -1,3 +1,4 @@
+import { Failure, Result, Success } from "ts-result";
 import { ModelError } from "../models/model-error";
 import { User } from "../models/user";
 import { UserRepository } from "../ports/user-repository";
@@ -5,7 +6,6 @@ import {
   DEFAULT_INTERFACE_LANGUAGE,
   isSupportedInterfaceLanguage,
 } from "../types/language";
-import { Failure, Result, Success } from "../types/result";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   MAX_TRANSACTION_PATTERNS_LIMIT,

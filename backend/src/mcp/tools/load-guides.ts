@@ -1,5 +1,5 @@
+import { Result, Success } from "ts-result";
 import { z } from "zod";
-import { Result, Success } from "../../types/result";
 import { GUIDES, GUIDE_NAMES, Guide, GuideName } from "./guides";
 import { Tool } from "./tool";
 

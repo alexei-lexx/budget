@@ -1,8 +1,8 @@
 import { faker } from "@faker-js/faker";
+import { Failure, Success } from "ts-result";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../langchain/tools/create-transaction";
 import { Agent, AgentTraceMessage } from "../ports/agent-types";
-import { Failure, Success } from "../types/result";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionService } from "../utils/test-utils/services/transaction-service-mocks";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";

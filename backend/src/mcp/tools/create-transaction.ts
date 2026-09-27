@@ -1,3 +1,4 @@
+import { Result } from "ts-result";
 import { z } from "zod";
 import {
   TransactionDto,
@@ -9,7 +10,6 @@ import {
   TransactionService,
 } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
-import { Result } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 

@@ -1,8 +1,8 @@
 import { faker } from "@faker-js/faker";
+import { Failure, Success } from "ts-result";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
-import { Failure, Success } from "../types/result";
 import { fakeTelegramBot } from "../utils/test-utils/models/telegram-bot-fakes";
 import { createMockTelegramApiClient } from "../utils/test-utils/providers/telegram-api-client-mocks";
 import { createMockTelegramBotRepository } from "../utils/test-utils/repositories/telegram-bot-repository-mocks";

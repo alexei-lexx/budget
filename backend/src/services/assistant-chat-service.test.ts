@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
+import { Failure, Success } from "ts-result";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
-import { Failure, Success } from "../types/result";
 import { fakeChatMessage } from "../utils/test-utils/models/chat-message-fakes";
 import { createMockChatMessageRepository } from "../utils/test-utils/repositories/chat-message-repository-mocks";
 import { createMockAssistantService } from "../utils/test-utils/services/assistant-service-mocks";

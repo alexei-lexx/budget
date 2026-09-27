@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
+import { Failure, Result, Success } from "ts-result";
 import { z } from "zod";
 import { CATEGORY_TYPES } from "../../models/category";
 import { TransactionType } from "../../models/transaction";
-import { Failure, Result, Success } from "../../types/result";
 
 const HOUR_MS = 60 * 60 * 1000;
 

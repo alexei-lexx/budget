@@ -1,11 +1,11 @@
 import { tool } from "langchain";
 import { Temporal } from "temporal-polyfill";
+import { Success } from "ts-result";
 import { z } from "zod";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
 import { toDateString } from "../../types/date-string";
 import { ENTITY_SCOPES } from "../../types/entity-scope";
-import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
 import { CategoryDto, toCategoryDto } from "./category-dto";
 

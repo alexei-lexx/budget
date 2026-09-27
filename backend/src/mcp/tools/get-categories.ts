@@ -1,8 +1,8 @@
+import { Result } from "ts-result";
 import { z } from "zod";
 import { CategoryDto, toCategoryDto } from "../../langchain/tools/category-dto";
 import { CategoryService } from "../../services/category-service";
 import { ENTITY_SCOPES, EntityScope } from "../../types/entity-scope";
-import { Result } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 

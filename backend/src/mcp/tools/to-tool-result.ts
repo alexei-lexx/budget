@@ -1,5 +1,5 @@
 import { CallToolResult } from "@modelcontextprotocol/server";
-import { Result } from "../../types/result";
+import { Result } from "ts-result";
 
 export function toToolResult<TData>(result: Result<TData>): CallToolResult {
   if (!result.success) {

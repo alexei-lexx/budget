@@ -1,7 +1,7 @@
 import { tool } from "langchain";
 import { evaluate, mean, sum } from "mathjs";
+import { Failure, Success } from "ts-result";
 import { z } from "zod";
-import { Failure, Success } from "../../types/result";
 
 export const sumTool = tool(({ numbers }) => Success(sum(numbers)), {
   name: "sum",

@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { Failure, Result, Success } from "ts-result";
 import { Account } from "../models/account";
 import { ModelError } from "../models/model-error";
 import { Transaction } from "../models/transaction";
@@ -6,7 +7,6 @@ import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date-string";
-import { Failure, Result, Success } from "../types/result";
 
 const ACCOUNT_NOT_FOUND_ERROR = "Account not found or doesn't belong to user";
 const SELF_TRANSFER_ERROR = "Cannot transfer money to the same account";

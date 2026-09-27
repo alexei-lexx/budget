@@ -1,10 +1,10 @@
 import { faker } from "@faker-js/faker";
+import { Failure, Success } from "ts-result";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { TelegramBot } from "../models/telegram-bot";
 import { BackgroundJobDispatcher } from "../ports/background-job-dispatcher";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
-import { Failure, Success } from "../types/result";
 import { fakeConnectedTelegramBot } from "../utils/test-utils/models/telegram-bot-fakes";
 import { createMockBackgroundJobDispatcher } from "../utils/test-utils/providers/background-job-dispatcher-mocks";
 import { createMockTelegramApiClient } from "../utils/test-utils/providers/telegram-api-client-mocks";

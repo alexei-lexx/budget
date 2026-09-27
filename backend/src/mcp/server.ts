@@ -1,4 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/server";
+import { Failure } from "ts-result";
 import {
   resolveAccountService,
   resolveAggregateTransactionsService,
@@ -7,7 +8,6 @@ import {
   resolveTransactionService,
   resolveUserRepository,
 } from "../dependencies";
-import { Failure } from "../types/result";
 import { isUserFacingError } from "../utils/errors";
 import { authenticateMcpToken } from "./auth";
 import { createAggregateTransactionsTool } from "./tools/aggregate-transactions";

@@ -1,6 +1,6 @@
+import { Result, Success } from "ts-result";
 import { AccountRepository } from "../ports/account-repository";
 import { SUPPORTED_CURRENCIES } from "../types/currency";
-import { Result, Success } from "../types/result";
 
 export interface CurrencyService {
   getSupportedCurrencies(params: { userId: string }): Promise<Result<string[]>>;
