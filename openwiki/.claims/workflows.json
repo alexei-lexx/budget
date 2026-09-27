@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:97fc4f891bcec70b3d2dfb9c3a295b97a1dbb32441d191a67464cf8f8204341a",
+  "pageVersion": "sha256:de26e3a28a930c6ca8c2ece21d07d5bdfb742ae7e5f849b21adbac8c1e3d0a5f",
   "claims": [
     {
       "id": "claim_1099dc2d676b4d41a3070aa806380915",
@@ -22,7 +22,7 @@
       "evidence": [
         {
           "resource": "repo://backend/src/server.ts#L44-L172",
-          "version": "repo-lines-v1:sha256:ad7a218aa51228c924e72130b5bbd7db3291c38066a9cdd33e3d847a248a44af:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1NzNiOWEzYmExNGUzY2EzY2IyM2I1OGEyMmY2NGRhYmUwOTAxZmI0ODYyYjhlNWQ5OWY3ZjFmYzgyMTQxN2Q0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MmEyY2IyNWExMjJiNDQyMjFhNjIzNGVjNjYwYTdiNWZiN2Y5YmRlN2IzYjllMmIzYzU1OWEwZDk2ZmFjNzM5IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4MTliMjc1NjQ3MDIxZGJlZGFhOTQyNjQ3YmI4ODMxZTZlY2IyYjdmNjViNTlmNTJlYzgzMWVjY2MyYTcwOGRlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
+          "version": "repo-lines-v1:sha256:c13aa9226d636197baa037490ce5e37180abd5808ff520eb6899c9ce931129ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1NzNiOWEzYmExNGUzY2EzY2IyM2I1OGEyMmY2NGRhYmUwOTAxZmI0ODYyYjhlNWQ5OWY3ZjFmYzgyMTQxN2Q0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MmEyY2IyNWExMjJiNDQyMjFhNjIzNGVjNjYwYTdiNWZiN2Y5YmRlN2IzYjllMmIzYzU1OWEwZDk2ZmFjNzM5IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4MTliMjc1NjQ3MDIxZGJlZGFhOTQyNjQ3YmI4ODMxZTZlY2IyYjdmNjViNTlmNTJlYzgzMWVjY2MyYTcwOGRlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
         }
       ]
     },
@@ -32,7 +32,7 @@
       "evidence": [
         {
           "resource": "repo://backend/src/server.ts#L44-L88",
-          "version": "repo-lines-v1:sha256:3480734aba2f4361ec9d1c6033ea2af87385ff6210074d38f3065f2cfc970c7d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3M2I5YTNiYTE0ZTNjYTNjYjIzYjU4YTIyZjY0ZGFiZTA5MDFmYjQ4NjJiOGU1ZDk5ZjdmMWZjODIxNDE3ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxOWIyNzU2NDcwMjFkYmVkYWE5NDI2NDdiYjg4MzFlNmVjYjJiN2Y2NWI1OWY1MmVjODMxZWNjYzJhNzA4ZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4YjdkNzgzMmE4MTQwYTJhYjMwYTJjYTI0OTk2NzEyYTc0NjIyMzFhOWYwMmMyYTA5N2YzNjI5NjZkNzQzYjMifQ"
+          "version": "repo-lines-v1:sha256:2d85f393483a4022b6722ec2ba25830f91ebbea0b41446ac106d7201943d3b99:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3M2I5YTNiYTE0ZTNjYTNjYjIzYjU4YTIyZjY0ZGFiZTA5MDFmYjQ4NjJiOGU1ZDk5ZjdmMWZjODIxNDE3ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxOWIyNzU2NDcwMjFkYmVkYWE5NDI2NDdiYjg4MzFlNmVjYjJiN2Y2NWI1OWY1MmVjODMxZWNjYzJhNzA4ZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4YjdkNzgzMmE4MTQwYTJhYjMwYTJjYTI0OTk2NzEyYTc0NjIyMzFhOWYwMmMyYTA5N2YzNjI5NjZkNzQzYjMifQ"
         }
       ]
     },
@@ -43,26 +43,6 @@
         {
           "resource": "repo://backend/src/graphql/resolvers/assistant-resolvers.ts#L5-L35",
           "version": "repo-lines-v1:sha256:ebf90591a197e24ec709d867e26dd5acd0fa94bc5881a67a0d8c2dab17ea640b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjNjI1OTI1YWFmZjk3ZDBhZmIyN2U3MThjYzcyN2Q2MTNiMzQxMmQxYTgxNWIxODM0ZWUzOWNmYmFmNDNhOTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ3N2Q4MjRjZGNjZDEwYTFmZTc3YjlhNjUwOTUxOGIwN2Y5M2RhZTUyMDQ0MTcxMWQyMTRhNzM2ZDI5Y2E1ODEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU5YjFiYTIzZjkyNjI1OTk4NzExZTg4ZmQ1YjI5MDVkZmM1M2ZiMjhjNzVkNWNhZWUyNzRkMDVlM2E1NTc5NGQifQ"
-        }
-      ]
-    },
-    {
-      "id": "claim_f08d46c9b0804153b62785849afd5d59",
-      "statement": "`AssistantChatServiceImpl` reuses a provided session id or generates a UUID, loads recent messages for that user and session, passes them to `AssistantService`, persists the user question and assistant answer only after success, and returns the same session id on both success and failure.",
-      "evidence": [
-        {
-          "resource": "repo://backend/src/services/assistant-chat-service.ts#L20-L114",
-          "version": "repo-lines-v1:sha256:5ce651f0914008546f15956c26eb893fb7240f4526482d7c94248abe378aba98:eyJzZWxlY3RlZExpbmVDb3VudCI6OTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYzOGQxMDQ2MGNjMzIwOGZiZDIwZTVlMDBhZmFmOTAyYjRiZjE5ZGFiYWJhODI4OTcyYmM3ZDY4NGJkYWZlMDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIyNTdmYzg0N2JkZTBjMzMzNTViZjEyNWIzM2FiZDRiNmJhODUyNWVmNmE3ZGRjOGFkMTc1YTY0ZWNhYWVlNDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
-        }
-      ]
-    },
-    {
-      "id": "claim_03e69c9f83484532b18a3421ba887984",
-      "statement": "`CreateTransactionFromTextService` rejects empty user ids and blank text before invoking the agent, passes trimmed text plus user, voice, and today context to the agent, requires the create-transaction tool to run, logs malformed or failed tool output, and fetches the created transaction by id only after a successful tool result.",
-      "evidence": [
-        {
-          "resource": "repo://backend/src/services/create-transaction-from-text-service.ts#L22-L157",
-          "version": "repo-lines-v1:sha256:9969f9faac5766ae271684e7593de2f43f14f0219267c32c13c162625e0e6bd6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJjNDM1MGMxMDNlZjRiNWRmZTU0YjkzZDU3NjIwNGQ3ZTljYjEzZjg5NjMxOTA0NmVhYzU4OGYwODY0MzU4MDEyIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4ZmQ0ZmViYzRlZDhjODMyMmYwNDQ4MDM1NDVlM2RjZWMzMzRmZGM3NDRiODE3OTQ0ZTBiZTg3OTVkN2EyYjc1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
         }
       ]
     },
@@ -115,10 +95,50 @@
           "version": "repo-lines-v1:sha256:dfa375c6cdfc94c92f3a72084db35dacd8907278bb47059d5098eaffb635bc62:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5NzdmYmMzZDAyMDc5NTQ1MjFlNmM4MjY3YzVjZGI5MTQ3MzkwNTYwOGVkNWMxYzEzN2Y2MzkzYzliNWZmMGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5OTBlYjZjY2RiMGZlZmNjM2M5YTg4M2M4NzljOTg2NmJlMzM5MzFjYWFhYmYzNjYyZDdhYzRjNDEzZWM4YjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFlNzA0ODYxZDk0NjU1YWE4N2U0OTBjMjIwNDljOTljZWJmNWU4YWJmZTU5NWYxNWU0YTkxMTgzNGUyNzM0YzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg1NDk3ZGFlMWMzYmJmNTljMzI1N2Q5NTcwMjc0ZTlhNDkxYWExMmNhMjU0NWJiZWQ1ODFkMDIwMDFiYWVmZTIifQ"
         }
       ]
+    },
+    {
+      "id": "claim_7303c6750d8348d7a791d883b63a624a",
+      "statement": "Apollo context creation in `backend/src/server.ts` normalizes an array-valued `Authorization` header, resolves JWT auth, wires repositories and services, and creates request-scoped account and category DataLoaders that resolve the authenticated internal user id lazily.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/server.ts#L95-L172",
+          "version": "repo-lines-v1:sha256:a71218c5333d0ccd8d9d39c788c0e159ff26aed97ac3aa767cf09acd2850ec56:eyJzZWxlY3RlZExpbmVDb3VudCI6NzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5MDI4ZGMxZDJjNmJhODI1MWUyYjUyY2Q0Njk0NDg2OGMwMjdhMzQwZWEzZGRlMzEzNDRjOWQyNDA3NTkyY2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZiNjdiNGQ1OGU4MWZhNDNlN2YzOWViZGY5ZjhiYWJlNDAyNTRmNGE3ODY4MzgxNWQ1NmNmM2ZlMjE4MGNjNWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e36fd0d1c4304e1ea875c370511727b3",
+      "statement": "Apollo error formatting in `backend/src/server.ts` passes through intentional `GraphQLError` instances, maps invalid date and date-time strings to `BAD_USER_INPUT`, maps user-facing business or model errors to `BAD_REQUEST`, and logs all other errors before returning a generic internal server error.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/server.ts#L47-L88",
+          "version": "repo-lines-v1:sha256:556245982bcab1ead05d1d71b114073880b4535df0633494f80b0fcd162a6c27:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4ZWM3NzFiMjJjMzMxMGUxMTE2N2QzMTJhN2ZiZDNiZWFjMTliMGE2NTJlNTlkY2Q5NDczNzUzYjkxZTUzNWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3ZjFkNDhhYmI0ZTE4ODAyOWY1NzA4MjhjMWU5ZDBhZjczODhjMmRjZDRkZjdmNTg0YWY1MmNjMWEwYzU4ZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4YjdkNzgzMmE4MTQwYTJhYjMwYTJjYTI0OTk2NzEyYTc0NjIyMzFhOWYwMmMyYTA5N2YzNjI5NjZkNzQzYjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c8f048ec16cc497cbfb09fb78fe51454",
+      "statement": "`AssistantChatServiceImpl` reuses a provided session id or generates a UUID, loads recent messages for that user and session, passes them to `AssistantService`, persists the user question and assistant answer only after success, and returns the same session id on both success and failure.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/assistant-chat-service.ts#L54-L131",
+          "version": "repo-lines-v1:sha256:c7d6269f247d40fada563857f1d501cd3eb76d2e922f43c7f530b24b2699356d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiMTc0MTA2YmI3MWI1NjgyY2FjZWVmYzVhYWQ0YWI0Nzk0YzM1NjE4NTZjYzY0MzcwZGQyYTE2M2E5N2E1MDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmZDcxMmM4N2FjYzRmMDdlMzIyNGU2NDc4ODI5Zjc5MWRiZDU5NTE5NGRiNDNmMGMxZTZhYzUxMzcxZjc5M2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmNzM5YTA2YzFjYmIxMjQ0ZTMzNjNkMzhiY2Y5ZmE1MGNlODRmZWQzOTljMjE5M2EzYzdmMDhkNTk5MThiMmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_26a73bf58da24895a4c4c274a804dc4f",
+      "statement": "`CreateTransactionFromTextService` rejects empty user ids and blank text before invoking the agent, passes trimmed text plus user, voice, and today context to the agent, requires the create-transaction tool to run, logs malformed or failed tool output, and fetches the created transaction by id only after a successful tool result.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/create-transaction-from-text-service.ts#L56-L161",
+          "version": "repo-lines-v1:sha256:bf6072a880cf6843d94edaf53843e58234e47e8954d79f4703c1b4242be8cfa8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzYmVhYWZiZjdhZDg3MDA1NzFmMDUzN2E4ZDYwMDFhNmJhMTMyMjU5MzYxY2UxOTgxNzU4ZDAxYWRjMjZmZWRjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI3YjI3NDdjMDAzYTM5MzI5NDAwMTE1NTI3NDgwYzgwNmY0YWM4OTlhOGNiZTBkZGU1MGFhY2RlZGU0YzJiNTc3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkZmI3OTMwZjBhNDVhZWRiZGVkZTMwZmExYTUzYmRhNTE1OWQ3ODFjN2UxODAzYTE3NmQ3MzJlNTkzN2M1NDExIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MiwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkZjczOWEwNmMxY2JiMTI0NGUzMzYzZDM4YmNmOWZhNTBjZTg0ZmVkMzk5YzIxOTNhM2M3ZjA4ZDU5OTE4YjJhIn0"
+        }
+      ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.2",
-    "at": "2026-09-20T15:02:07.269Z"
+    "by": "openwiki/0.6.0",
+    "at": "2026-09-27T13:28:59.762Z"
   }
 }

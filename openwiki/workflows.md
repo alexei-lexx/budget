@@ -3,9 +3,6 @@ type: Reference
 title: Workflows and request flows
 description: End-to-end request and operator workflows for authentication, GraphQL calls, assistant chat, quick transaction entry, Telegram message handling, migrations, and deployment.
 tags: [workflows, requests, authentication, deployment, graphql]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-20T15:02:07.269Z
 sources:
   - id: openwiki-source-202b75e5aaf4da76cc18348e
     resource: repo://backend/src/dependencies.ts
@@ -27,6 +24,9 @@ sources:
     resource: repo://frontend/src/router/index.ts
   - id: openwiki-source-23775c3de52f3ab95a13cb8b
     resource: repo://README.md
+verified:
+  - by: openwiki/0.6.0
+    at: 2026-09-27T13:28:59.762Z
 generated: { by: "openwiki/0.5.2", at: "2026-09-20T15:02:07.269Z" }
 ---
 

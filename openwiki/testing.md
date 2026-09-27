@@ -1,11 +1,8 @@
 ---
 type: testing guide
 title: Testing and verification
-description: Repository test entrypoints and how to choose the smallest useful test scope for backend, frontend, and infrastructure changes.
+description: Repository test entrypoints and how to choose the smallest useful verification scope for backend, frontend, and infrastructure changes.
 tags: [testing, verification, backend, frontend, infrastructure, vitest]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-20T15:02:07.269Z
 sources:
   - id: openwiki-source-9a7277933ab0110af5cb7cbe
     resource: repo://backend/package.json
@@ -19,7 +16,10 @@ sources:
     resource: repo://infra-cdk/package.json
   - id: openwiki-source-76158408444ea2b1b27970df
     resource: repo://infra-cdk/test/backend-cdk.test.ts
-generated: { by: "openwiki/0.5.2", at: "2026-09-20T15:02:07.269Z" }
+generated: { by: "openwiki/0.6.0", at: "2026-09-27T13:28:59.762Z" }
+verified:
+  - by: openwiki/0.6.0
+    at: 2026-09-27T13:28:59.762Z
 ---
 
 # Testing and verification

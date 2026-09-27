@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:b273d6f37929d49247fd46474ec98a62e5354a496632df0a398fdb8eba26c18f",
+  "claims": [
+    {
+      "id": "claim_2be386af499147ba9dd853fcacdd7188",
+      "statement": "The web Lambda routes `/webhooks/telegram` to the Telegram handler, `/mcp` to the MCP handler, returns 404 for `/.well-known/*`, and otherwise forwards requests to Apollo after runtime environment injection.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/web.ts#L12-L60",
+          "version": "repo-lines-v1:sha256:4f74480f9ee34351a3f69edc9e623d31a6aa7fac3093fc03b427e38e0d31c2bf:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5MWM5ZmQ2NDNmMDYzYWVhM2Q1NjJlZjFkZGI5MmE2ZjBmMTJlMDk5OWM5NjA4MDk4NDFmOTFkMjkyNzFiZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZjc1ZGQxYjJmNTgxZjg5MjMwYmQzZDE3NzljOTMxZTQzNGE2NDg3MDA3MjAxYzU3Y2ZiMzhkODVkNDFkZWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMwMmM1MTQxMGY2NWY1ZDBiNzIyMTRhM2FlZDAwMWJlMzM0NzZiMzU2MjVlOGEzMjQ3ZjA4MDY3Njg4N2UzN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d900cb71fee54b3e9579cbc85e07308a",
+      "statement": "`backend/src/server.ts` creates a fresh Apollo Server context per request by normalizing the `Authorization` header, resolving JWT auth, wiring repositories and services, and instantiating request-scoped account and category DataLoaders with lazy user-id resolution.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/server.ts#L43-L172",
+          "version": "repo-lines-v1:sha256:c13aa9226d636197baa037490ce5e37180abd5808ff520eb6899c9ce931129ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1NzNiOWEzYmExNGUzY2EzY2IyM2I1OGEyMmY2NGRhYmUwOTAxZmI0ODYyYjhlNWQ5OWY3ZjFmYzgyMTQxN2Q0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MmEyY2IyNWExMjJiNDQyMjFhNjIzNGVjNjYwYTdiNWZiN2Y5YmRlN2IzYjllMmIzYzU1OWEwZDk2ZmFjNzM5IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4MTliMjc1NjQ3MDIxZGJlZGFhOTQyNjQ3YmI4ODMxZTZlY2IyYjdmNjViNTlmNTJlYzgzMWVjY2MyYTcwOGRlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_fb5285cfc46b449e999d481585394bd4",
+      "statement": "Apollo GraphQL errors are translated by `formatError` so intentional `GraphQLError` values pass through, user-facing validation and business-rule failures return safe client messages with `BAD_USER_INPUT` or `BAD_REQUEST`, and unexpected failures are logged server-side and rewritten to `Internal server error` with `INTERNAL_SERVER_ERROR`.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/server.ts#L43-L88",
+          "version": "repo-lines-v1:sha256:2d85f393483a4022b6722ec2ba25830f91ebbea0b41446ac106d7201943d3b99:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3M2I5YTNiYTE0ZTNjYTNjYjIzYjU4YTIyZjY0ZGFiZTA5MDFmYjQ4NjJiOGU1ZDk5ZjdmMWZjODIxNDE3ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxOWIyNzU2NDcwMjFkYmVkYWE5NDI2NDdiYjg4MzFlNmVjYjJiN2Y2NWI1OWY1MmVjODMxZWNjYzJhNzA4ZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4YjdkNzgzMmE4MTQwYTJhYjMwYTJjYTI0OTk2NzEyYTc0NjIyMzFhOWYwMmMyYTA5N2YzNjI5NjZkNzQzYjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9685d90fe3a84bd5a686b943a5987eb8",
+      "statement": "`backend/src/dependencies.ts` is the composition root that wires singleton repositories, services, providers, and async AI agents, including a development fallback that logs and skips background-job dispatch when `BACKGROUND_JOB_FUNCTION_NAME` is absent.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/dependencies.ts#L58-L259",
+          "version": "repo-lines-v1:sha256:8d0c39abeae6a195411212fb84d7be0c607576a9f549729ac706d57dd1b66fcc:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhYzBkYjY4NDA0ZjBmYTNiOTdmMmQ0YTFlZDYzM2Q5MTgxNWI1ZDZkNGQ2MDYxNGM3ZmVlMzkzYWMxZDk3YjBiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI2MTY0YWI2NzEwYmViYjZhNjQxMjAyMTQ4NDdmMzFhNjRjMWJmMGJkMmFiODg1M2Q1NzQxN2FhMjJkNGNiNGQyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3NGZjNmJlY2RiNzVlMjE4YTFmYmI5YjFmNTA5YTBkMmRjMjcyNTQxMzI5OWZjNGMxY2VmN2ZkYzQzYmY5MGUyIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0YWQzOWM2ZmVjNzQ2NTgxYzUwODY5ZGVkZTNhNTc2ODg1NjJkODdiOGMxYWZlNjdlYWE1ZDllZjkwYTAwNjc4In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_938e688b43fb412e9c43db91efd97829",
+      "statement": "`createAsyncSingleton` memoizes a promise but resets the cache if initialization rejects, so a failed async dependency can be retried instead of being permanently cached as broken.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/utils/dependency-injection.ts#L12-L25",
+          "version": "repo-lines-v1:sha256:56e874f92470d8a247819b69923214ad76ff6ec1cd7d0067e4d312526ecf4298:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjODU5NDRmYmUyODQ0NjYwOTdiMmVkMGFjMTNiZDczMmUzZWZkMzFkZmZlMWVmZGU5NGUxMWJhODI2ZmEwMjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_270932ce3e554bd4959657040678c898",
+      "statement": "`backend/src/repositories/dyn-base-repository.ts` requires a table name, hydrates query results through Zod parsing, and recursively paginates until the requested page is satisfied or no more DynamoDB results remain.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/repositories/dyn-base-repository.ts#L14-L96",
+          "version": "repo-lines-v1:sha256:534fcbe582f2cfaf4691b9e1478033e82bae6a525a79a92e502dd3348781f8aa:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ODdhOTYzOWQyNTczN2JmYzM3MjhiODZlMDE5ZmZjYTE2NDI1OGJlZjdlMWVlZjk5MmYwY2M4ZjE2MmM4NTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2NDAzNGY4MGRkZDZjYTE0NGUzZWI2N2YyODAwYWFjYTkzODNkZjQzZTViYmYyOGMyZWIxN2RhZDBmMzQ3MmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_588ab95f7b0b4aefb94ed7d2229c78d9",
+      "statement": "The MCP HTTP handler authenticates the token before server creation, returns `401 Unauthorized` when authentication fails, and adapts API Gateway requests and responses to the MCP transport.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/mcp-handler.ts#L8-L30",
+          "version": "repo-lines-v1:sha256:e2c60733d5baaa0d3fba0186db75530631cc78bc9b2a9c5494a019314f93a4d5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxNWZmNzg4ZGMwOTdlMzZhZjM4NGRlN2ZlMTU4ZTdkYTJiYjU3MmM2ZjNmNTM3YTU3ZGJjNzBmNWJkYWIwMmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlMTI1M2ZmOGYxMThmNDQyMGFlY2U0N2I2M2UyYjRjOGEyOGEwMjUxN2Y2ZDYyYjVlMmE5NzBlMjg1OGIzZWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5MzkzMTMxNGI3YWQwMTU5Y2MyNGE5NzIzNDUyMzYwNWEzYTJhZmMzNjNiMWYxNzBmNWMwNWNjOWZkNWFjZDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ3MzVlZDg3MjcxYjVlZDQxNGU4YmIxZWIxNTFjMDg0OTAwNDA3ZWEzMmEwMzQ0M2FlODQ1YzAzMGY3MDIyOGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1502c8356e1e4001a3704267e1b0a519",
+      "statement": "`backend/src/mcp/server.ts` only registers MCP tools after `authenticateMcpToken` resolves a user, making tool availability user-scoped rather than global.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/mcp/server.ts#L28-L58",
+          "version": "repo-lines-v1:sha256:b1203c3524cc77eaa8302b31adaf1c8460761878a7baa8df7f14a9ac56c5febf:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlNGUxYjM2ZTk3MjI5ZDgxZTYwNDdkZTZkNzgxZDRmYjJjNGQxNDQxZDk2YTgwNWUxY2FjNWU3OTY5OGYyNGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0MDE5MGEzMDU4ZDliMWU3NmIzYzU1MzdlNzI3YjViYzM2ZGIwNTU0Yjg3MWU1MGRiYjhkYzk1Yjg2OTgyNjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIyNmE3MjZhMjhiOWEzMjc4NmVhZDUyNjY0MmM5ZTg2YjBmNzJlMDNkYjUyZDE2YjI4NmJkZGFiN2U2NWUzMzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYyOWI0OWZhNWFhYTY3YjM0NTYyYzI5YmEyMzgzZDJjZTdmN2E5NGY4NTliZDdjOGZiNDM5YjEyMWIyNWQ2YmQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2e59592902374938aa5dabfcc0d76636",
+      "statement": "MCP tool execution preserves user-facing error messages for domain failures, but logs unexpected errors server-side and collapses them into generic tool failure responses.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/mcp/server.ts#L60-L82",
+          "version": "repo-lines-v1:sha256:2c3701203088b7d8157f46ffbfd984ceb30fecb2098bc7da7c129a16e6fa8658:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5ODZlZmUwNWQ5ZjNkN2M0N2FiODBlNTMwN2RkY2U5ZmEyZWY3OGQ4OTg3YmVjYzNhMDg4ZTFiZjgzMGUxMjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgwMTU4OWRiNWYxMDI3YjYzMmU5NDE4NTAyNGYwZjQwNWViNmFkZGNjOTZmYjY1MDdiMmNlMDM0ZDcxMzIxNDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhMzNkOTQ5NWY1NDcwMTc3MTczMjdkNzMwNjdhNmEwNTAwMTc2OTg5ZjNiMzQxMWZmZDVmOGQ1ZTVkODJhZjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_325f11fb92d34684bc6e5cd0efd9131f",
+      "statement": "The background-job Lambda validates incoming events with Zod before dispatch, logs invalid payloads, and throws on malformed input or failed downstream processing.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/background-job.ts#L10-L54",
+          "version": "repo-lines-v1:sha256:ecad50285f1dcb8ec6e2c93a7e08c95fa5f4e94189c667adae187d508c600034:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxNWY2YjI4ZTNmYmM4NDllOTk1NWVjNjAwMGFmZThjNWU5NTBhNTE1MTUwNmQxZjVlN2NmZmUxZmE1NzYyZWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFjMTY3MDFkMDE3MDhjOTVlMDE4N2FmYTI2NjM5ZjFhZDBlYTMyNGQ3MjY0YzJhOWYzZTAyMjU1MzA1NGMzODEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-09-27T13:28:59.762Z"
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:1bfc0054363a973225c69d121d940d51caa3bed3bbf050d512b2e70112ba2747",
+  "claims": [
+    {
+      "id": "claim_459d2fc7d0cb488eace38bdf408c11d4",
+      "statement": "The repository is organized around three ownership boundaries: the Vue SPA in `frontend/`, the application runtime in `backend/`, and AWS infrastructure and deployment wiring in `infra-cdk/`.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L42-L47",
+          "version": "repo-lines-v1:sha256:9b82a8222686f8f1726be060eaaf02db3207d981d284c608bbf04432de4fa80f:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGZiMjkwZDlmZGZiN2YyNGJlMjllMzcyODc4ZmZhZGI0NDI0OWMzZDFjMzgxMzUxNTUzZWM0M2UyYmFmNWJlZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTNiYzZhYzFhZWY4NmM3MGVhYThmYzVmMTU5NTc1NTEzZjZiNDRkOTQzMzE4ZGVlYjU0MjNlYTM2Yzg5OGVmZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODI1ZDkwMzAyY2RlNWE5NTVkM2M5Yzc2Y2VkOGQ5YzcyNTgwNThkMDIyNWNlNmUxNjk3NzVjNWVlZDQ1NzZjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDE4NGI1MDFlZWUyM2Q5ZDdiZjdlYTQxODUwZDQ4YjIxMjgyZTMyY2ViNzJjMzlhNzAxNjhhMTJmMjBhNDA1YyJ9"
+        },
+        {
+          "resource": "repo://backend/src/server.ts#L43-L45",
+          "version": "repo-lines-v1:sha256:7d37aa5fcf2872494b9ce40bd11f7ef5f0480bebc04b682f8bb42ed4d464319c:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTczYjlhM2JhMTRlM2NhM2NiMjNiNThhMjJmNjRkYWJlMDkwMWZiNDg2MmI4ZTVkOTlmN2YxZmM4MjE0MTdkNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGNlODE4OThiYjljY2FhYTY1M2QyNTJmNmEzMmQ2NmU2ZTMxNThlMmQyMDI3OTU2M2EzMzI4MGFkNTgyMzM2OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODE5YjI3NTY0NzAyMWRiZWRhYTk0MjY0N2JiODgzMWU2ZWNiMmI3ZjY1YjU5ZjUyZWM4MzFlY2NjMmE3MDhkZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjg3ZTJjYjUzNDVmMjkzMGI1NDhhM2ExNDMzNmM1NzFmZTdhYjdlMmE1ZjVkNzZlYjRjN2IyZGEzYThlNjFjMyJ9"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/auth-cdk-stack.ts#L44-L45",
+          "version": "repo-lines-v1:sha256:1be446acb89d3cde51a404b95fdc3cb44b15b9934114b46a97f54b3c70fc3bb0:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmU0ODA3NzViYmFjYWM0OTBjNDcxNDc3YzRkZDkyYmZjODc2Y2U5YTA2NDk2ZDA4NGI5NmMyNDA5ZDI4N2YwYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzUzNDQ2MmI0MTFiODQ1NGQ0MGYwOTMzYzFkODY2MTkxNjllZWUyMjk0MTJjNjI1ZWU2MDdlNGY1YjE0YjI3NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2Y5YWI0MDBiMTA1MTBkNmFlMDBiMDU0ZTNkZDUyMjhjYjM2MzlmYjhiMjUzNjYwYjEwNGQ5NWZmYzcyYjA1YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzk1MTIwNDhlYjFlNWJkNzk1MzhlN2Q0YWU1MTA3YmM3NDc4MjQ2NTRlYWU2ZDU2ZjJmOTE2ZDk0NGJkYmI0YiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_5f8e2176948041e683e693853cbaab28",
+      "statement": "`backend/src/server.ts` constructs the Apollo Server from the GraphQL schema, creates a fresh request context per request, and wires authentication, repositories, services, and request-scoped DataLoaders into that context.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/server.ts#L39-L45",
+          "version": "repo-lines-v1:sha256:85a72cae8116708c4bd7e16333739a43c9e65e364aa79d6de6b0c91c3eb66bd9:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGRhYTg4NmJlMzBjNDU1YzQxYmUyYjcxNWRhNWQ4MzYwZWY0OWM2MDY5ZWUyMjAwNDAwYTA0NzZlNjllZjVkNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGNlODE4OThiYjljY2FhYTY1M2QyNTJmNmEzMmQ2NmU2ZTMxNThlMmQyMDI3OTU2M2EzMzI4MGFkNTgyMzM2OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzFhMTY5ZTJiZmJjMzU5MGU4M2Y1YmFhYzc1MjAzNjI1ZTIzYjQzNTI2MGI4MDViYjM4MGU0OWMyNWZjOTE1OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjg3ZTJjYjUzNDVmMjkzMGI1NDhhM2ExNDMzNmM1NzFmZTdhYjdlMmE1ZjVkNzZlYjRjN2IyZGEzYThlNjFjMyJ9"
+        },
+        {
+          "resource": "repo://backend/src/server.ts#L95-L172",
+          "version": "repo-lines-v1:sha256:a71218c5333d0ccd8d9d39c788c0e159ff26aed97ac3aa767cf09acd2850ec56:eyJzZWxlY3RlZExpbmVDb3VudCI6NzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5MDI4ZGMxZDJjNmJhODI1MWUyYjUyY2Q0Njk0NDg2OGMwMjdhMzQwZWEzZGRlMzEzNDRjOWQyNDA3NTkyY2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZiNjdiNGQ1OGU4MWZhNDNlN2YzOWViZGY5ZjhiYWJlNDAyNTRmNGE3ODY4MzgxNWQ1NmNmM2ZlMjE4MGNjNWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6008d5380c274b60b024a936de4a15e1",
+      "statement": "`backend/src/lambdas/web.ts` is the main HTTP entrypoint and routes `/webhooks/telegram` to the Telegram handler, `/mcp` to the MCP handler, `/.well-known/*` to a 404 response, and all other traffic to Apollo GraphQL.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/web.ts#L34-L60",
+          "version": "repo-lines-v1:sha256:6a9727481f896d7b1fe2bb8b52ab9927204efa27474c8412b33f13f3d85f9991:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyOGI2MDQxMDYxOGYyYzUxN2VkNWY4YzI3OGRhMTYzMmJhMjIxYTRjODk2NWY5NGI0MmQ2MmE0YTBiZmQ1ZDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZjc1ZGQxYjJmNTgxZjg5MjMwYmQzZDE3NzljOTMxZTQzNGE2NDg3MDA3MjAxYzU3Y2ZiMzhkODVkNDFkZWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwYWE2MTVkMDkwNGZlOTQ2NTlkNjk1MTMzNWY3MTFkNTBlODQ1MmNiMDRlOGExZjI5ZDZiYWQ4MWY1ZTllZGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c11d4523191345edbb5dccc610360e70",
+      "statement": "The MCP surface is separately authenticated: `backend/src/lambdas/mcp-handler.ts` requires a token, returns `401 Unauthorized` when authentication fails, and converts the MCP server transport to and from API Gateway requests and responses.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/mcp-handler.ts#L33-L74",
+          "version": "repo-lines-v1:sha256:76a2a141ad9dcd0efaf9760fbbce100e5277343534442da716c76a97f483413c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0MTZjNTlkNjVjNTIxMTNmYTk4YjEyZmE3NTNiNzNlODUzMGY3ZTU2YzllOGMwNjA5YTYzMzdlMDhiNjlhMjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQzMDlhOTU1NzQyNDI0ZmJiMWYwZTFlMGQzZGU3MzRhNWYxYTgzM2UzYWFiMmNmMTAyNzk0NWYxZGJjNWE5ZGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://backend/src/lambdas/mcp-handler.ts#L8-L31",
+          "version": "repo-lines-v1:sha256:486af598a2d2911c9dc1a95cdc367ac8f92c562c13677ddd51dbb69218b44bbc:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxNWZmNzg4ZGMwOTdlMzZhZjM4NGRlN2ZlMTU4ZTdkYTJiYjU3MmM2ZjNmNTM3YTU3ZGJjNzBmNWJkYWIwMmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5MzkzMTMxNGI3YWQwMTU5Y2MyNGE5NzIzNDUyMzYwNWEzYTJhZmMzNjNiMWYxNzBmNWMwNWNjOWZkNWFjZDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFjYjFhMTBmMjY0MmM3NDk1NDZiMmY3ZTJhY2Y2ZDQxNTlmYzBlNWUwZmVkNjc3ZjY2NThlMDNjOWQ5ZjMzYTMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d9c72da1ce4c4d7d8df5b1a282c292be",
+      "statement": "`backend/src/mcp/server.ts` binds an authenticated user to an `McpServer` and registers tools that reuse backend services and repositories, making MCP an authenticated extension point over the same domain model rather than a generic data proxy.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/mcp/server.ts#L28-L58",
+          "version": "repo-lines-v1:sha256:b1203c3524cc77eaa8302b31adaf1c8460761878a7baa8df7f14a9ac56c5febf:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlNGUxYjM2ZTk3MjI5ZDgxZTYwNDdkZTZkNzgxZDRmYjJjNGQxNDQxZDk2YTgwNWUxY2FjNWU3OTY5OGYyNGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0MDE5MGEzMDU4ZDliMWU3NmIzYzU1MzdlNzI3YjViYzM2ZGIwNTU0Yjg3MWU1MGRiYjhkYzk1Yjg2OTgyNjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIyNmE3MjZhMjhiOWEzMjc4NmVhZDUyNjY0MmM5ZTg2YjBmNzJlMDNkYjUyZDE2YjI4NmJkZGFiN2U2NWUzMzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYyOWI0OWZhNWFhYTY3YjM0NTYyYzI5YmEyMzgzZDJjZTdmN2E5NGY4NTliZDdjOGZiNDM5YjEyMWIyNWQ2YmQifQ"
+        },
+        {
+          "resource": "repo://backend/src/mcp/server.ts#L60-L83",
+          "version": "repo-lines-v1:sha256:6a10e1e9efa1d150219391e92dcbe3ef5d614773692ecdd3ecfd34f10027060d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5ODZlZmUwNWQ5ZjNkN2M0N2FiODBlNTMwN2RkY2U5ZmEyZWY3OGQ4OTg3YmVjYzNhMDg4ZTFiZjgzMGUxMjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhMzNkOTQ5NWY1NDcwMTc3MTczMjdkNzMwNjdhNmEwNTAwMTc2OTg5ZjNiMzQxMWZmZDVmOGQ1ZTVkODJhZjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7fe3e493f7fc4378bbf9394654094754",
+      "statement": "The auth stack creates a Cognito user pool and SPA client for email-based sign-in, requires immutable email, uses an authorization-code OAuth flow, and adds a pre-token-generation Lambda to inject a namespaced email claim into access tokens.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/auth-cdk-stack.ts#L111-L145",
+          "version": "repo-lines-v1:sha256:c26b24660a870ded800d9565c3a5887f78de18a05c4dbc981c070fae6317a117:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJlMmU2ZDA3MGVjNjk1ZGM3NzNmM2U4ZjdlMzkwM2RlZjkyYzZmZGI0NWFhMjBkY2M2ZDBhYjIxZmM0NWQ2YTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5M2MzZDgwNWJmNzg2YWUyODAxNTIyODBkZGE0ODViZWNkM2FkYjYzNWZhZWEwMDdhNjg4NDgzZGZkYzMzOTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2ZWRiM2VlMjM2NTI5ZjhjNmEwYzA2ZGZkZDY3ZTI3MTQ4Yzc2OWM2NWQ3YmRhNGU0MWRlZGFiMDE4NDAxMjYifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/auth-cdk-stack.ts#L152-L200",
+          "version": "repo-lines-v1:sha256:5c62dc4a41d578da3388b93c38cee29c6c68427a70d153abd1e06ca3b9c27c85:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MGIzZGI4YmFiZWRlMmQxZTE2M2FmNmNkZTdkODdmMDI0Yzk1NzcwMDBmNDhlMWM3MmM3MmU5OTBkYTRiYzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNlNjViYThlMDljODlhNjZmMzFiMDRiOGE1M2IwZTI5ZDdjZjQzYzI2MDhmN2JjMzU3MjNiYTg1OGY5ODAwNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyZGQ4MWU1NDA0NTFjMTM0ODg1ZDYzMDJjZTYyYTViYTUwNzZhMTE4ZGM2ZDUyNWY3NmNkNDE1OTQ0YzZmZGQifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/auth-cdk-stack.ts#L62-L109",
+          "version": "repo-lines-v1:sha256:f312ec933e35e27897009ff60dc0022a2c3c5578b2dd0fa43661f018b4d3bce8:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYzOTY2MDZlYzkxMTM4NjRkYWY3OTMyY2IzODA1ZTA5OGU5MmIzNmFlZjI5ODEwNWZjM2E5M2MxYzA4MmZiYzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYyODg2ZTBiNGQxMjYwMTBlOTYwZTY3ZDEzMGQ4YzZlMmIwZmE4MWE3ZjAxMWE1NzUzMzRlYWUyYWJiMmMzY2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjMDI0MDlmOWJlMDNhNzRkZTE2ODE3ZTUwYjk3NWNkN2JiZDA1MzE5OGZmZjRiNzk2NDg3ZTMzZTc2NDdhZmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4c9896c730ab411a8cbdd10798d23df2",
+      "statement": "The backend stack provisions separate DynamoDB tables for users, accounts, categories, transactions, migrations, chat messages, Telegram bots, and trend presets, with GSIs for email, MCP token, transaction ordering, date lookup, and Telegram webhook secret lookup.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L58-L159",
+          "version": "repo-lines-v1:sha256:ecc46f193c9c6c23365857704c99bf577ed05d74474af5ed7e666f7b963113a8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0MmFiMWE3MjcyODY0ODQzNWViMTdiMThmYjJmOTYzY2ViOTI5ZDYzNmY4OGViZjkyOWJiNWRlYjMzMTllYzE0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3NGExMzQ2MDhlNDBjZmI3MjhkNmNjNzc5YWE1ZTBjNzJhMDFiYjVkNWY5NzMwNmI1NWFiNDFhNjZjYTA3Mjg0IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0NzZiMWU4MjU3YTJiZGZkNDk4ZjUxM2E4OGFlZTZlMTI3MzkzMWYzZjlhNmNkY2QyOGI1NGY2OGE0ODJhNjhhIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_fc829826d0b344f7b8f39106572f7c27",
+      "statement": "The backend stack wires shared Lambda environment variables for auth and table names, grants the web Lambda permission to invoke the background job Lambda and Bedrock models, and gives the migration Lambda table access needed for schema/data changes.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L192-L210",
+          "version": "repo-lines-v1:sha256:93d651afe8cb733c937e0e74e1ff3c993469dda7e243efff0c68bb9aac4d9368:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzN2M4MjQ0YWJhYTMxMWExNmRkNjdlOTZmM2U0NDZiM2I1ODRiN2FiNDhlZjM1ZGE1NjRhMzNjOGNiNzcxZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzOTg2ZmY2Yzg5MTA5OGZlNWM1NzM1YjIxODkxNjMzZTE0ZTBkYTMxM2JhNWRhN2Y3NGY0MjJiN2I2NDdhYTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJiOGQ3ZTE3N2I0ODM2YTVkMzU2YjJiNDU4NjI2NzdkNGZkYWRlZjUyYzkwYWI1Y2IyNjA2Yzk1MzZkYTQ1MjgifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L226-L304",
+          "version": "repo-lines-v1:sha256:b57e8b76eec84cfbc11895af1f6c80b335311a5fb719bb4134bd0d95c2078f9d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2MDAyNDU1MWQyZDk4OTdjOTYxODkwOWVjMmUyMzIwZDhiZjhhMmZhNDUxNmEyY2NjNzM3YzEzMzc1ZjE1MGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI1N2EzNmI0YTgyMGY3OTcxNjg4M2EyZmI4MzJhODFmNDFhOGQxYTgyYmVhNjYzYWRlZTE0YzIwNmVhMWFiZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3YzZhNTQzZTNkMjc2YzZiNDA1YmM1ZDYwODEwNDFhYjQzYTYwYWFmYmIyNTFkMmFiNTgxYjg3ZGRkYzY2ZjMifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L316-L333",
+          "version": "repo-lines-v1:sha256:24bb67b456edaf2b11ed2c90451c68df9ef8edc35390403d12a788d90f21aeb5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwOGFkMTA5YWI1NzczOTBiODg5MGE5NGZmMDFmOWQzZGJjNGUzYzVkNzk3YmEwM2Y3NjljNDY1NjIxZDIyNzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM0OTc3M2IzMjU2M2Y0NzFmMGIwMmNhNjVhN2M2ODJhYmUyM2VjMTY1NTg4OTM4MTE2YWEyMzY4ZmE4MTZjMWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExNmIyMWUxM2RjMzhjNWUyNjYzNWViMzAxODQwZDg5OTI5NjUzMWE4ZTUyOTRhYTYzNjQwZDFiZTUxOWUxYzYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_78de9d1fa4d64223abe1bb0e25dc0852",
+      "statement": "The frontend stack creates a CloudFront distribution backed by an S3 static website origin, forwards `/graphql*` and `/mcp*` to the HTTP API, and optionally provisions a custom domain with Route 53 and ACM in `us-east-1`.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts#L17-L57",
+          "version": "repo-lines-v1:sha256:9e070c9a9617bc1e22f56bd7b4770ea3e31c916d4892bb40e3b9ee26745c9a5d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1NGRlNGUxNTVhM2E1OGU5ZDUzOTM5NGJhOTYwNDY5MTkwODNjMjY1M2ZjNDIzNmQwN2I3YTYxMjAzM2U1Y2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY3N2NhNzI0NDUwMzNmNmQ0NmY2YTUxYjRiODJhOWI0OGJkOTQ1NDRlZDRiODZlZmQ4YTNlYjI4ZjIzY2IyZjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxYTkwYTFkMGI4NGU5MjFmNGVkZGZmNTViNDQ3MzVhODE0YzFhNzI3NzBiYjQ1MmE0MGQ4YWViMDliZDg2MzcifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts#L59-L72",
+          "version": "repo-lines-v1:sha256:7df3846f65dd4a321668287d602388ec9452d355945ee68c9ca40146892900d8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YTk5NjNiMGMyYmQ1NjhmOTZmNTJiYzJjOWQ0ZjFhM2M1ZWE0ZTZiNDdhNzIzZTYwNzMxZmU3ZGI0MmFjNzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBlY2JlZjVkNjliNDMxNGI4NWVkYjE1MDdmMGJiNzBkNWRhZjhiNTBiMWYxNjNhYjFmNTViZmNhYWMxZDFiNWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEyYTNmMjc0MTMwNjUzNGZiM2FmYjNmYTEzYWU5NTMyNjY2YzI2OTY3ZGRjYTMwY2RlNzkzZTRjZGMyOGFlMTQifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts#L74-L161",
+          "version": "repo-lines-v1:sha256:544e3b17a978df4697ab245af016bb8126738327f7ef2fe9f05821d866dcd306:eyJzZWxlY3RlZExpbmVDb3VudCI6ODgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzMDU1YTM4ZTI1YjUyYzIxYzVmN2NjZDAzNzQ3ZDc5NmMxNzAwODk4OGZiYzE4MWE4NWQwNmZiZGZiOTMyNmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhNDczNzZlMzI4NWQ2ZTI1MTA4MGFhYjBhOTJmYjZkNzc0NDY5Mjc1NTg2Y2M3NDY3ZTcxYzdkNGY3OTRkN2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxMTg4ZTdhZmE5NTE1YmM5YjI0YjUzMDIyYmE4ZWI2NjhhNDJjMDFlMDhjZjlkODUyNmE0YjE2OTlmMjZlMDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_aa2084c21d794bc38f41bd98613874ff",
+      "statement": "CloudFront is the public edge entrypoint for both the SPA and API traffic, while the web Lambda sits at the intersection of GraphQL, MCP, and Telegram request paths.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/web.ts#L34-L60",
+          "version": "repo-lines-v1:sha256:6a9727481f896d7b1fe2bb8b52ab9927204efa27474c8412b33f13f3d85f9991:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyOGI2MDQxMDYxOGYyYzUxN2VkNWY4YzI3OGRhMTYzMmJhMjIxYTRjODk2NWY5NGI0MmQ2MmE0YTBiZmQ1ZDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZjc1ZGQxYjJmNTgxZjg5MjMwYmQzZDE3NzljOTMxZTQzNGE2NDg3MDA3MjAxYzU3Y2ZiMzhkODVkNDFkZWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwYWE2MTVkMDkwNGZlOTQ2NTlkNjk1MTMzNWY3MTFkNTBlODQ1MmNiMDRlOGExZjI5ZDZiYWQ4MWY1ZTllZGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts#L112-L142",
+          "version": "repo-lines-v1:sha256:f725f1038cb62b0d1d0cccf70cd7b3644577c40ce986cd9970d84f7d9e03a7ca:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3ZWMyMGQwYWYyZTgzM2E3MzYyNGM3YzQzMDU5MzY3ZjRlOTkyYWYxODNhMjRjYzQ3MjhmODQ1NWVkM2NhYjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMwNjNiZjJlNzlmMDBjMDliZmUwNGExMzVkZmRjNmY4NTk1ZjUyODU2MmIzMWFlNDIzY2ZkN2MxNGI2MDlhNWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZhYzhhMDU2ODBiZGEzOWQ4NzcxOTExYjVlYTg4OGE1MWQxMWFlZDczYjcwMWMzNjk3OTVhNTIxZDlmZjc2MWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5b06ed02d99040b288f35540e5bdb48c",
+      "statement": "Backend request handling keeps GraphQL context request-scoped and user-scoped by rebuilding DataLoaders per request and resolving the authenticated user lazily from the current context.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/server.ts#L95-L172",
+          "version": "repo-lines-v1:sha256:a71218c5333d0ccd8d9d39c788c0e159ff26aed97ac3aa767cf09acd2850ec56:eyJzZWxlY3RlZExpbmVDb3VudCI6NzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5MDI4ZGMxZDJjNmJhODI1MWUyYjUyY2Q0Njk0NDg2OGMwMjdhMzQwZWEzZGRlMzEzNDRjOWQyNDA3NTkyY2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZiNjdiNGQ1OGU4MWZhNDNlN2YzOWViZGY5ZjhiYWJlNDAyNTRmNGE3ODY4MzgxNWQ1NmNmM2ZlMjE4MGNjNWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b24164d2037549489e8f757cf602b21b",
+      "statement": "The architecture depends on email remaining the stable user identifier because Cognito email is immutable and the backend persists user-owned data keyed by that identity.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L87-L93",
+          "version": "repo-lines-v1:sha256:b2dd8ac5fac24b2d2002170628d5105cedea4e9ce063c1d0c3f5aa0fbd550914:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTA0YzFmZTQwZGE2MzA4NjUwYWUxNGQwYzUzNjY0ZTI1NTFiNWZjNjRjYWQ0MzM4NDE4MzJmNDUzNTkxN2NhNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWYwNDE2Nzk2MjVkNmU4N2M3YzJkMTI0NjU5MzgyZGYwMjRhZjFmNTBlMGEzMjdkYjkyZDM3YjdhMzNkMDRmOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTBjMDM0MTZkYzFiNWU0Y2M3NDMzYmM3OGUyZGQwOWQ3MWM3Yzg2NTY0NjAzYjY0ZWFhYTRjYzc1NTY4ZjczYSJ9"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/auth-cdk-stack.ts#L78-L85",
+          "version": "repo-lines-v1:sha256:b414bac7593a74bebd570a52a0a775bbb7fc410a737ceff62039048db055bc60:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWI2Yzk1MTdkMWM1NDViNjYzNjhlOTczNjViNmM2ZjA5MjdjNDdhYzhhYzY2ZDJkM2QzZTJjNzljOGM3Nzk1ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjk3OGUyNTAzYjhjZjM3YTA2ZjdkNmYwYTNhNmI2ZmUzNTY5MWZiY2FiNTBiODc3NWNhYjZmYWJjNzFjNTkyYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDNmYmViNzJmNzBjYWY4ODg5YjFlMjE4ZTNlMWU3NGNmZmQ1ZTE4ZTQ0Njk1MzMwZjkzYjZhYmNlYjAwNDk4MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWM2YmE0ZTAxYmJmZDY5ZDdhNmQwMWM5MDUxMGRlNWJjMmYyYjhkOTAzZWIwYzdkODI4ZWJkMzcxZjY4ODRkMSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-09-27T13:28:59.762Z"
+  }
+}

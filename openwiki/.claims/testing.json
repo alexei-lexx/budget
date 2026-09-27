@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:68e65e0d50826caefe70a6baf2ca048f107864e5ebf57074062e40ce57cd7317",
+  "pageVersion": "sha256:5a0f494661c5865ef54ad33a3b08f18fa2d44bae2f6d2a1793ca1858684220f8",
   "claims": [
     {
       "id": "claim_1b823afe5b0742ba8198a7939424fbcf",
@@ -27,8 +27,8 @@
       "statement": "Backend unit tests for `AssistantChatService` verify session-id creation and reuse, history loading into `AssistantService`, persistence of user and assistant messages on success, `isVoiceInput` forwarding, and failure behavior that avoids saving messages when the assistant call fails.",
       "evidence": [
         {
-          "resource": "repo://backend/src/services/assistant-chat-service.test.ts#L13-L267",
-          "version": "repo-lines-v1:sha256:04c90ea09ff40862cd3f1e7574da26dacaaf19dc5ab26070436ccbc4432233ae:eyJzZWxlY3RlZExpbmVDb3VudCI6MjU1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI3NjAwMGY0YzAyZmFlOTY0YmFkZGUxYWE4ZWMzYzQyMGJmMDU1ZDY2NDYwZGNkOTYyODRhNDczY2M0N2ZkN2FiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzYTNlNDZmOTQyNzZiNmY2ZjRlZDFmMDJhZjc4YmVmNmEyZWUxYzQzOWRkNTU4NGI5NzM5NDgzMTMyMTRkMmI3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkMjcwYTYxZDYwYzJmY2RjZjdkOWQ5ZmNiOTBlZTllMjJkYjM3ZTJiZGJlY2Q0OGY3OWViODI1MTJiOWYxNjc1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIn0"
+          "resource": "repo://backend/src/services/assistant-chat-service.test.ts#L14-L283",
+          "version": "repo-lines-v1:sha256:9f80db565cf68bb3a69096acb8bbbabb882b2f817a7a353679ba677c644ea799:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI3NjAwMGY0YzAyZmFlOTY0YmFkZGUxYWE4ZWMzYzQyMGJmMDU1ZDY2NDYwZGNkOTYyODRhNDczY2M0N2ZkN2FiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkMjcwYTYxZDYwYzJmY2RjZjdkOWQ5ZmNiOTBlZTllMjJkYjM3ZTJiZGJlY2Q0OGY3OWViODI1MTJiOWYxNjc1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MiwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkODE3ZmJiNzNjOTJiMzZkNWU0ODk2ZmY1MWMxYjU4ZWVjMzMwYmJlOTYxYmEwNWZjNjIwNWY4NjdlYTFiY2Y2In0"
         }
       ]
     },
@@ -71,12 +71,12 @@
       "statement": "For backend changes, the narrowest useful check is to start with unit tests, add repository tests only when persistence changes, and escalate to integration tests only when the behavior crosses layers or needs real infrastructure wiring.",
       "evidence": [
         {
-          "resource": "repo://backend/package.json#L29-L39",
-          "version": "repo-lines-v1:sha256:fbd76a971bbc36f9539b096b74d15f9fb45407c97cec87c90b56af7236f53152:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NmY1MmVkZTFiMjRlY2FmYjkwYzJlYWFmOTc4MzIyMmY0OWFiNGU5NmM2YjVhYzQxOTE4NTk5NjlmOTZkZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0YWVjYmY0Njg5ZWZjZGJiMTlkMGRmODZmMjUzZjBhNzAwOTQ1NTFmMzNlYmNkZjA4Zjg1MjAzYzZkMTUyZmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJjZTVmNjhkZGRiYjRhOWE0Y2YyYjZhNmYxYzA1OGIyZDBiNTMzMWNjM2ZkM2IyMWFjMjA2NWY1MmQzZGJiOTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA1MDNiNTE3MGVjOTIwYmI5ZDg1MzY5YTBlZTRmNjNkYzUxMjk2NmRiYmU1OTZkYzhiZjgxN2E4MzE2MzRhMDMifQ"
+          "resource": "repo://backend/package.json#L29-L40",
+          "version": "repo-lines-v1:sha256:71999b26b5201965126ff54b2967f0bf8e361cf853fed53b8f8d29bafa8fffcf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NmY1MmVkZTFiMjRlY2FmYjkwYzJlYWFmOTc4MzIyMmY0OWFiNGU5NmM2YjVhYzQxOTE4NTk5NjlmOTZkZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViNmIyNGE2MjM5NGFlMjZhYjY1NWI3YjZmNTRkNmE0ZjNlMmFjZWNjMDczYzdhNmZlOWI0YWY0YmI2NDgyMjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJjZTVmNjhkZGRiYjRhOWE0Y2YyYjZhNmYxYzA1OGIyZDBiNTMzMWNjM2ZkM2IyMWFjMjA2NWY1MmQzZGJiOTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyMTliNmUzYjI1NzY0NGZhM2RhZTQzMzFiMzllZmQ1NWNmNjE3MTdhZjNlZmE1ZDg5M2IxNGIwMzg5NzdiMDUifQ"
         },
         {
-          "resource": "repo://backend/src/services/assistant-chat-service.test.ts#L13-L267",
-          "version": "repo-lines-v1:sha256:04c90ea09ff40862cd3f1e7574da26dacaaf19dc5ab26070436ccbc4432233ae:eyJzZWxlY3RlZExpbmVDb3VudCI6MjU1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI3NjAwMGY0YzAyZmFlOTY0YmFkZGUxYWE4ZWMzYzQyMGJmMDU1ZDY2NDYwZGNkOTYyODRhNDczY2M0N2ZkN2FiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzYTNlNDZmOTQyNzZiNmY2ZjRlZDFmMDJhZjc4YmVmNmEyZWUxYzQzOWRkNTU4NGI5NzM5NDgzMTMyMTRkMmI3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkMjcwYTYxZDYwYzJmY2RjZjdkOWQ5ZmNiOTBlZTllMjJkYjM3ZTJiZGJlY2Q0OGY3OWViODI1MTJiOWYxNjc1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIn0"
+          "resource": "repo://backend/src/services/assistant-chat-service.test.ts#L14-L283",
+          "version": "repo-lines-v1:sha256:9f80db565cf68bb3a69096acb8bbbabb882b2f817a7a353679ba677c644ea799:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI3NjAwMGY0YzAyZmFlOTY0YmFkZGUxYWE4ZWMzYzQyMGJmMDU1ZDY2NDYwZGNkOTYyODRhNDczY2M0N2ZkN2FiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkMjcwYTYxZDYwYzJmY2RjZjdkOWQ5ZmNiOTBlZTllMjJkYjM3ZTJiZGJlY2Q0OGY3OWViODI1MTJiOWYxNjc1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MiwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkODE3ZmJiNzNjOTJiMzZkNWU0ODk2ZmY1MWMxYjU4ZWVjMzMwYmJlOTYxYmEwNWZjNjIwNWY4NjdlYTFiY2Y2In0"
         }
       ]
     },
@@ -107,10 +107,44 @@
           "version": "repo-lines-v1:sha256:3ec88a56e715593d90647b6ebfb9612f8b3ed365e86d547492abbbe4ecee9fe7:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4MzJhZTI5ZWU3MjQ1ODFiNjdmNjhhNmFjMTBiMWI0YTkwMmMxNmM4Yzk5OTdlZjYzMDdiZWE1NGYxZWExYWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM0ZmJkYTQ3ZTMwZjI0YjAxMjY3ZTc4NTljZWI5MTQwYmY2YmEwZTQ3YjM0ZTI1MDMxODczNDgwOTFhYjBiNDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
         }
       ]
+    },
+    {
+      "id": "claim_97ade4313603432a8ffd1a195fd49f3b",
+      "statement": "The page documents repository test entrypoints by layer and recommends the narrowest useful verification scope: start with a unit test for local behavior, add repository tests only when persistence changes, escalate to integration tests only when behavior crosses layers or depends on real infrastructure, and use eval or CDK checks only for those specialized concerns.",
+      "evidence": [
+        {
+          "resource": "repo://backend/package.json#L29-L40",
+          "version": "repo-lines-v1:sha256:71999b26b5201965126ff54b2967f0bf8e361cf853fed53b8f8d29bafa8fffcf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NmY1MmVkZTFiMjRlY2FmYjkwYzJlYWFmOTc4MzIyMmY0OWFiNGU5NmM2YjVhYzQxOTE4NTk5NjlmOTZkZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViNmIyNGE2MjM5NGFlMjZhYjY1NWI3YjZmNTRkNmE0ZjNlMmFjZWNjMDczYzdhNmZlOWI0YWY0YmI2NDgyMjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJjZTVmNjhkZGRiYjRhOWE0Y2YyYjZhNmYxYzA1OGIyZDBiNTMzMWNjM2ZkM2IyMWFjMjA2NWY1MmQzZGJiOTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyMTliNmUzYjI1NzY0NGZhM2RhZTQzMzFiMzllZmQ1NWNmNjE3MTdhZjNlZmE1ZDg5M2IxNGIwMzg5NzdiMDUifQ"
+        },
+        {
+          "resource": "repo://backend/src/services/assistant-chat-service.test.ts#L14-L283",
+          "version": "repo-lines-v1:sha256:9f80db565cf68bb3a69096acb8bbbabb882b2f817a7a353679ba677c644ea799:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI3NjAwMGY0YzAyZmFlOTY0YmFkZGUxYWE4ZWMzYzQyMGJmMDU1ZDY2NDYwZGNkOTYyODRhNDczY2M0N2ZkN2FiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkMjcwYTYxZDYwYzJmY2RjZjdkOWQ5ZmNiOTBlZTllMjJkYjM3ZTJiZGJlY2Q0OGY3OWViODI1MTJiOWYxNjc1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MiwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkODE3ZmJiNzNjOTJiMzZkNWU0ODk2ZmY1MWMxYjU4ZWVjMzMwYmJlOTYxYmEwNWZjNjIwNWY4NjdlYTFiY2Y2In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_f7263f30d5494b9da122fb64632baf03",
+      "statement": "Backend unit tests are the first-choice scope for isolated service logic, request shaping, and data flow, and `backend/src/services/assistant-chat-service.test.ts` demonstrates this by covering session-id generation and reuse, history loading into `AssistantService`, persistence of user and assistant messages after success, `isVoiceInput` forwarding, validation failure handling, and the no-save path when the assistant call fails.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/assistant-chat-service.test.ts#L14-L283",
+          "version": "repo-lines-v1:sha256:9f80db565cf68bb3a69096acb8bbbabb882b2f817a7a353679ba677c644ea799:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI3NjAwMGY0YzAyZmFlOTY0YmFkZGUxYWE4ZWMzYzQyMGJmMDU1ZDY2NDYwZGNkOTYyODRhNDczY2M0N2ZkN2FiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkMjcwYTYxZDYwYzJmY2RjZjdkOWQ5ZmNiOTBlZTllMjJkYjM3ZTJiZGJlY2Q0OGY3OWViODI1MTJiOWYxNjc1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MiwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkODE3ZmJiNzNjOTJiMzZkNWU0ODk2ZmY1MWMxYjU4ZWVjMzMwYmJlOTYxYmEwNWZjNjIwNWY4NjdlYTFiY2Y2In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_1bf46f001b7749f78e193dbb3cf6a8af",
+      "statement": "Backend test commands run under `dotenvx run -f .env.test -- ...`; `npm run test` executes the default `unit` and `repositories` Vitest projects, while `test:unit`, `test:repositories`, `test:integration`, and `test:evals` target those projects individually.",
+      "evidence": [
+        {
+          "resource": "repo://backend/package.json#L29-L40",
+          "version": "repo-lines-v1:sha256:71999b26b5201965126ff54b2967f0bf8e361cf853fed53b8f8d29bafa8fffcf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NmY1MmVkZTFiMjRlY2FmYjkwYzJlYWFmOTc4MzIyMmY0OWFiNGU5NmM2YjVhYzQxOTE4NTk5NjlmOTZkZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViNmIyNGE2MjM5NGFlMjZhYjY1NWI3YjZmNTRkNmE0ZjNlMmFjZWNjMDczYzdhNmZlOWI0YWY0YmI2NDgyMjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJjZTVmNjhkZGRiYjRhOWE0Y2YyYjZhNmYxYzA1OGIyZDBiNTMzMWNjM2ZkM2IyMWFjMjA2NWY1MmQzZGJiOTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyMTliNmUzYjI1NzY0NGZhM2RhZTQzMzFiMzllZmQ1NWNmNjE3MTdhZjNlZmE1ZDg5M2IxNGIwMzg5NzdiMDUifQ"
+        }
+      ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.2",
-    "at": "2026-09-20T15:02:07.269Z"
+    "by": "openwiki/0.6.0",
+    "at": "2026-09-27T13:28:59.762Z"
   }
 }
