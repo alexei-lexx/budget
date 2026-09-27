@@ -1,7 +1,7 @@
 class SuccessResult<TData> {
-  public success = true as const;
+  public readonly success = true as const;
 
-  constructor(public data: TData) {}
+  constructor(public readonly data: TData) {}
 
   map<TNewData>(callback: (data: TData) => TNewData): SuccessResult<TNewData> {
     return new SuccessResult(callback(this.data));
@@ -15,9 +15,9 @@ class SuccessResult<TData> {
 }
 
 class FailureResult<TError> {
-  public success = false as const;
+  public readonly success = false as const;
 
-  constructor(public error: TError) {}
+  constructor(public readonly error: TError) {}
 
   map<TNewData>(_callback: (data: never) => TNewData): FailureResult<TError> {
     return this;
