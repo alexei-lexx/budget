@@ -10,14 +10,3 @@
 
 export * as migration_20250101000000 from "./20250101000000-example-count-categories";
 export * as migration_20250101000100 from "./20250101000100-example-update-categories";
-export * as migration_20251207120000 from "./20251207120000-remove-null-descriptions";
-export * as migration_20251207120100 from "./20251207120100-remove-null-category-ids";
-export * as migration_20251210152507 from "./20251210152507-populate-created-at-sortable";
-export * as migration_20251230120000 from "./20251230120000-remove-auth0-user-id";
-export * as migration_20260119201355 from "./20260119201355-add-exclude-from-reports";
-export * as migration_20260423093628 from "./20260423093628-add-transaction-version";
-export * as migration_20260425213107 from "./20260425213107-add-account-version";
-export * as migration_20260426204239 from "./20260426204239-add-account-transaction-balance";
-export * as migration_20260727120000 from "./20260727120000-backfill-mcp-token";
-export * as migration_20260831092924 from "./20260831092924-remove-false-include-uncategorized";
-export * as migration_20260910120000 from "./20260910120000-add-category-version";
