@@ -21,7 +21,7 @@ import {
  * needed and have been removed from the schema and CDK configuration.
  */
 export async function up(client: DynamoDBClient): Promise<void> {
-  const tableName = process.env.USERS_TABLE_NAME;
+  const tableName = process.env["USERS_TABLE_NAME"];
 
   if (!tableName) {
     throw new Error("USERS_TABLE_NAME environment variable not set");
@@ -61,7 +61,7 @@ export async function up(client: DynamoDBClient): Promise<void> {
           new UpdateCommand({
             TableName: tableName,
             Key: {
-              id: item.id,
+              id: item["id"],
             },
             UpdateExpression: "REMOVE auth0UserId",
             ConditionExpression: "attribute_exists(auth0UserId)",
@@ -74,7 +74,9 @@ export async function up(client: DynamoDBClient): Promise<void> {
           error.name === "ConditionalCheckFailedException"
         ) {
           // Attribute was already removed by another process (idempotency)
-          console.log(`Skipping user ${item.id} - auth0UserId already removed`);
+          console.log(
+            `Skipping user ${item["id"]} - auth0UserId already removed`,
+          );
         } else {
           throw error;
         }

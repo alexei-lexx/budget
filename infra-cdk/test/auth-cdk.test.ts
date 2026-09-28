@@ -41,7 +41,11 @@ describe("AuthCdkStack", () => {
       // Verify ExplicitAuthFlows contains required flows (order may vary)
       const resources = template.findResources("AWS::Cognito::UserPoolClient");
       const clientResource = Object.values(resources)[0];
-      const authFlows = clientResource.Properties.ExplicitAuthFlows as string[];
+      if (!clientResource) {
+        throw new Error("Expected UserPoolClient resource to exist");
+      }
+      const authFlows = clientResource["Properties"]
+        .ExplicitAuthFlows as string[];
       expect(authFlows).toContain("ALLOW_USER_AUTH");
       expect(authFlows).toContain("ALLOW_USER_PASSWORD_AUTH");
       expect(authFlows).toContain("ALLOW_REFRESH_TOKEN_AUTH");
@@ -61,10 +65,13 @@ describe("AuthCdkStack", () => {
       expect(lambdaName).toBeDefined();
 
       const lambda = lambdas[lambdaName || ""];
+      if (!lambda) {
+        throw new Error("Expected PreTokenGeneration Lambda resource to exist");
+      }
 
       // Verify Lambda function is created with Node.js runtime
-      expect(lambda.Properties.Runtime).toBe("nodejs24.x");
-      expect(lambda.Properties.Handler).toBe("index.handler");
+      expect(lambda["Properties"].Runtime).toBe("nodejs24.x");
+      expect(lambda["Properties"].Handler).toBe("index.handler");
 
       // Verify User Pool has Lambda trigger configured with V2_0 for access token customization
       template.hasResourceProperties("AWS::Cognito::UserPool", {

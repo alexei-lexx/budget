@@ -16,7 +16,7 @@ import {
  * Idempotency: Safe to run multiple times (condition checks prevent redundant updates)
  */
 export async function up(client: DynamoDBClient): Promise<void> {
-  const tableName = process.env.TREND_PRESETS_TABLE_NAME;
+  const tableName = process.env["TREND_PRESETS_TABLE_NAME"];
 
   if (!tableName) {
     throw new Error("TREND_PRESETS_TABLE_NAME environment variable not set");
@@ -57,8 +57,8 @@ export async function up(client: DynamoDBClient): Promise<void> {
           new UpdateCommand({
             TableName: tableName,
             Key: {
-              userId: item.userId,
-              id: item.id,
+              userId: item["userId"],
+              id: item["id"],
             },
             UpdateExpression: "REMOVE includeUncategorized",
             ConditionExpression: "includeUncategorized = :falseValue",
@@ -75,7 +75,7 @@ export async function up(client: DynamoDBClient): Promise<void> {
         ) {
           // Attribute was already removed or changed by another process (idempotency)
           console.log(
-            `Skipping trend preset ${item.id} - includeUncategorized already removed or modified`,
+            `Skipping trend preset ${item["id"]} - includeUncategorized already removed or modified`,
           );
         } else {
           throw error;

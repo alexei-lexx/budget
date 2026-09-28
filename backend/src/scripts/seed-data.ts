@@ -48,16 +48,16 @@ async function truncateTables(): Promise<void> {
         for (const item of result.Items) {
           // Get primary keys from item based on table structure
           let deleteCommand;
-          if (tableName === process.env.USERS_TABLE_NAME) {
+          if (tableName === process.env["USERS_TABLE_NAME"]) {
             deleteCommand = new DeleteCommand({
               TableName: tableName,
-              Key: { id: item.id },
+              Key: { id: item["id"] },
             });
           } else {
             // Accounts, Categories, Transactions all use userId + id
             deleteCommand = new DeleteCommand({
               TableName: tableName,
-              Key: { userId: item.userId, id: item.id },
+              Key: { userId: item["userId"], id: item["id"] },
             });
           }
           await dynamoClient.send(deleteCommand);
@@ -301,12 +301,12 @@ async function createTransactions(
 async function main() {
   try {
     // Validate environment
-    if (process.env.NODE_ENV !== "development") {
+    if (process.env["NODE_ENV"] !== "development") {
       console.error(
         "❌ Error: Database seeding is only allowed in development mode",
       );
       console.error(
-        `Current environment: ${process.env.NODE_ENV || "unknown"}`,
+        `Current environment: ${process.env["NODE_ENV"] || "unknown"}`,
       );
       console.error("Set NODE_ENV=development to run this script");
       process.exit(1);

@@ -17,7 +17,7 @@ import {
  * Transactions without a categoryId attribute or with UUID values are not affected.
  */
 export async function up(client: DynamoDBClient): Promise<void> {
-  const tableName = process.env.TRANSACTIONS_TABLE_NAME;
+  const tableName = process.env["TRANSACTIONS_TABLE_NAME"];
 
   if (!tableName) {
     throw new Error("TRANSACTIONS_TABLE_NAME environment variable not set");
@@ -60,8 +60,8 @@ export async function up(client: DynamoDBClient): Promise<void> {
           new UpdateCommand({
             TableName: tableName,
             Key: {
-              userId: item.userId,
-              id: item.id,
+              userId: item["userId"],
+              id: item["id"],
             },
             UpdateExpression: "REMOVE categoryId",
             ConditionExpression: "attribute_type(categoryId, :nullType)",
@@ -78,7 +78,7 @@ export async function up(client: DynamoDBClient): Promise<void> {
         ) {
           // Attribute was already removed or changed by another process (idempotency)
           console.log(
-            `Skipping transaction ${item.id} - categoryId already removed or modified`,
+            `Skipping transaction ${item["id"]} - categoryId already removed or modified`,
           );
         } else {
           throw error;

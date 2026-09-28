@@ -86,35 +86,35 @@ function buildDefaultSelection(): TrendSelection {
 
 function hasSelectionInUrlQuery(): boolean {
   return (
-    route.query.periodUnit !== undefined ||
-    route.query.lookback !== undefined ||
-    route.query.currency !== undefined ||
-    route.query.categories !== undefined ||
-    route.query.uncategorized !== undefined
+    route.query["periodUnit"] !== undefined ||
+    route.query["lookback"] !== undefined ||
+    route.query["currency"] !== undefined ||
+    route.query["categories"] !== undefined ||
+    route.query["uncategorized"] !== undefined
   );
 }
 
 // Falls back to defaults when a URL parameter is absent or invalid
 function readSelectionFromUrlQuery(): TrendSelection {
   const periodUnit =
-    route.query.periodUnit === "WEEK" || route.query.periodUnit === "MONTH"
-      ? route.query.periodUnit
+    route.query["periodUnit"] === "WEEK" || route.query["periodUnit"] === "MONTH"
+      ? route.query["periodUnit"]
       : DEFAULT_PERIOD_UNIT;
 
-  const lookbackNumber = Number(route.query.lookback);
+  const lookbackNumber = Number(route.query["lookback"]);
   const lookback =
     Number.isInteger(lookbackNumber) && lookbackNumber >= 1 && lookbackNumber <= 12
       ? lookbackNumber
       : DEFAULT_LOOKBACK;
 
-  const currency = typeof route.query.currency === "string" ? route.query.currency : "";
+  const currency = typeof route.query["currency"] === "string" ? route.query["currency"] : "";
 
   const categoryIds =
-    typeof route.query.categories === "string" && route.query.categories !== ""
-      ? route.query.categories.split(",")
+    typeof route.query["categories"] === "string" && route.query["categories"] !== ""
+      ? route.query["categories"].split(",")
       : [];
 
-  const includeUncategorized = route.query.uncategorized === "1" || undefined;
+  const includeUncategorized = route.query["uncategorized"] === "1" || undefined;
 
   return {
     periodUnit,

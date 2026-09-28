@@ -46,13 +46,13 @@ const authClaimNamespace = requireEnv(
 const authStack = new AuthCdkStack(app, "AuthCdkStack", {
   ...lambdaProps,
   authClaimNamespace,
-  callbackUrls: (process.env.AUTH_CALLBACK_URLS || undefined)?.split(","),
+  callbackUrls: (process.env["AUTH_CALLBACK_URLS"] || undefined)?.split(","),
   domainPrefix: requireEnv(
     "AUTH_DOMAIN_PREFIX",
     `${nodeEnv.toLowerCase()}-budget-auth`,
   ),
   env,
-  logoutUrls: (process.env.AUTH_LOGOUT_URLS || undefined)?.split(","),
+  logoutUrls: (process.env["AUTH_LOGOUT_URLS"] || undefined)?.split(","),
   retainUserPoolOnDestroy: nodeEnv === "production",
   selfSignUpEnabled:
     requireEnv(

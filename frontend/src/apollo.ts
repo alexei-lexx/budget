@@ -13,8 +13,8 @@ export const clearGlobalError = () => {
 
 const getGraphQLEndpoint = (): string => {
   // Always check for explicit environment variable first
-  if (import.meta.env.VITE_GRAPHQL_ENDPOINT) {
-    return import.meta.env.VITE_GRAPHQL_ENDPOINT;
+  if (import.meta.env["VITE_GRAPHQL_ENDPOINT"]) {
+    return import.meta.env["VITE_GRAPHQL_ENDPOINT"];
   }
 
   // Fallback to the default endpoint
@@ -23,8 +23,8 @@ const getGraphQLEndpoint = (): string => {
 
 export const getMcpEndpoint = (): string => {
   // Always check for explicit environment variable first
-  if (import.meta.env.VITE_MCP_ENDPOINT) {
-    return import.meta.env.VITE_MCP_ENDPOINT;
+  if (import.meta.env["VITE_MCP_ENDPOINT"]) {
+    return import.meta.env["VITE_MCP_ENDPOINT"];
   }
 
   // Fallback to the default endpoint

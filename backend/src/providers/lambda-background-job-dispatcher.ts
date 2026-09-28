@@ -13,7 +13,7 @@ export class LambdaBackgroundJobDispatcher implements BackgroundJobDispatcher {
   ) {
     this.backgroundJobFunctionName =
       this.backgroundJobFunctionName ??
-      (process.env.BACKGROUND_JOB_FUNCTION_NAME || undefined);
+      (process.env["BACKGROUND_JOB_FUNCTION_NAME"] || undefined);
 
     if (!this.backgroundJobFunctionName) {
       throw new Error(

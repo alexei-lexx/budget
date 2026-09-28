@@ -55,14 +55,14 @@ export async function injectRuntimeEnv(
 ): Promise<void> {
   // AWS_LAMBDA_FUNCTION_NAME is set by the Lambda runtime, never in local dev.
   // Local dev loads its config from .env via dotenvx and must not hit SSM.
-  if (!processEnv.AWS_LAMBDA_FUNCTION_NAME) {
+  if (!processEnv["AWS_LAMBDA_FUNCTION_NAME"]) {
     console.warn(
       "Skipping SSM parameter injection: AWS_LAMBDA_FUNCTION_NAME is not set",
     );
     return;
   }
 
-  const nodeEnv = processEnv.NODE_ENV;
+  const nodeEnv = processEnv["NODE_ENV"];
   if (!nodeEnv) {
     console.warn("Skipping SSM parameter injection: NODE_ENV is not set");
     return;

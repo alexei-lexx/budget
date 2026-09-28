@@ -186,7 +186,7 @@ export const resolveTrendPresetService = createSingleton(
 
 // Providers
 const resolveBackgroundJobDispatcher = createSingleton(() =>
-  process.env.BACKGROUND_JOB_FUNCTION_NAME
+  process.env["BACKGROUND_JOB_FUNCTION_NAME"]
     ? new LambdaBackgroundJobDispatcher()
     : {
         dispatch: async (job: unknown) =>

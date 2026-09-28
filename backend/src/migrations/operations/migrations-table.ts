@@ -73,8 +73,8 @@ export async function getExecutedMigrations(
   );
 
   const timestamps = (result.Items || [])
-    .filter((item) => item.PK !== "LOCK")
-    .map((item) => item.PK)
+    .filter((item) => item["PK"] !== "LOCK")
+    .map((item) => item["PK"])
     .sort();
 
   return timestamps;

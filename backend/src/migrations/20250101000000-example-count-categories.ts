@@ -12,7 +12,7 @@ import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
  * It demonstrates how to safely read data from DynamoDB without modifications.
  */
 export async function up(client: DynamoDBClient): Promise<void> {
-  const tableName = process.env.CATEGORIES_TABLE_NAME;
+  const tableName = process.env["CATEGORIES_TABLE_NAME"];
 
   if (!tableName) {
     throw new Error("CATEGORIES_TABLE_NAME environment variable not set");

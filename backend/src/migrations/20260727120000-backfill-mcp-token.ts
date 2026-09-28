@@ -42,7 +42,7 @@ export async function up(client: DynamoDBClient): Promise<void> {
         await docClient.send(
           new UpdateCommand({
             TableName: usersTable,
-            Key: { id: user.id },
+            Key: { id: user["id"] },
             UpdateExpression: "SET mcpToken = :mcpToken",
             ConditionExpression: "attribute_not_exists(mcpToken)",
             ExpressionAttributeValues: {

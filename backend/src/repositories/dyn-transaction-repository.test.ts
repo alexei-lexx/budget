@@ -1747,7 +1747,7 @@ describe("DynTransactionRepository", () => {
       );
 
       expect(rawItem).toBeDefined();
-      expect(rawItem?.createdAtSortable).toMatch(
+      expect(rawItem?.["createdAtSortable"]).toMatch(
         new RegExp(`^${transaction.createdAt}#.+`),
       );
     });
@@ -1889,7 +1889,7 @@ describe("DynTransactionRepository", () => {
           Key: { userId, id: created.id },
         }),
       );
-      expect(after?.createdAtSortable).toBe(before?.createdAtSortable);
+      expect(after?.["createdAtSortable"]).toBe(before?.["createdAtSortable"]);
     });
 
     // Validation failures

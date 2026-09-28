@@ -5,5 +5,8 @@
 // esbuild's __require helper reads `require` from this scope at bundle init.
 
 import { createRequire } from "module";
+// @ts-expect-error -- unused from TS's perspective,
+// but esbuild's bundler shim reads `require` from this lexical scope at runtime
+//
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const require = createRequire(import.meta.url);

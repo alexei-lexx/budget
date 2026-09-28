@@ -33,10 +33,10 @@ import type { App } from "vue";
 export function createAuth() {
   // Load authentication configuration from environment variables
   // These are set in .env file and injected at build time by Vite
-  const issuer = import.meta.env.VITE_AUTH_ISSUER;
-  const clientId = import.meta.env.VITE_AUTH_CLIENT_ID;
-  const audience = import.meta.env.VITE_AUTH_AUDIENCE;
-  const scope = import.meta.env.VITE_AUTH_SCOPE;
+  const issuer = import.meta.env["VITE_AUTH_ISSUER"];
+  const clientId = import.meta.env["VITE_AUTH_CLIENT_ID"];
+  const audience = import.meta.env["VITE_AUTH_AUDIENCE"];
+  const scope = import.meta.env["VITE_AUTH_SCOPE"];
 
   // Validate required environment variables
   if (!issuer) {

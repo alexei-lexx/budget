@@ -181,7 +181,7 @@ export async function executeMigrations(
 export async function runMigrations(
   client: DynamoDBClient,
 ): Promise<RunnerStatistics> {
-  const migrationsTableName = process.env.MIGRATIONS_TABLE_NAME;
+  const migrationsTableName = process.env["MIGRATIONS_TABLE_NAME"];
 
   if (!migrationsTableName) {
     throw new MigrationRunnerError(
