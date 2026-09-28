@@ -52,9 +52,9 @@ export class JwtAuthService {
    * @throws Error if required environment variables are missing
    */
   constructor() {
-    this.issuer = process.env.AUTH_ISSUER || "";
-    this.audience = process.env.AUTH_AUDIENCE;
-    this.clientId = process.env.AUTH_CLIENT_ID;
+    this.issuer = process.env["AUTH_ISSUER"] || "";
+    this.audience = process.env["AUTH_AUDIENCE"];
+    this.clientId = process.env["AUTH_CLIENT_ID"];
 
     if (!this.issuer) {
       throw new Error("AUTH_ISSUER environment variable is required");
@@ -223,7 +223,7 @@ export class JwtAuthService {
       const payload = await this.verifyToken(token);
 
       // Read email from custom namespaced claim
-      const namespace = process.env.AUTH_CLAIM_NAMESPACE;
+      const namespace = process.env["AUTH_CLAIM_NAMESPACE"];
       if (!namespace) {
         throw new Error(
           "AUTH_CLAIM_NAMESPACE environment variable must be configured",

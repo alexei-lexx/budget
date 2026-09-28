@@ -58,8 +58,8 @@ export async function up(client: DynamoDBClient): Promise<void> {
             FilterExpression:
               "accountId = :accountId AND isArchived = :isArchived",
             ExpressionAttributeValues: {
-              ":userId": account.userId,
-              ":accountId": account.id,
+              ":userId": account["userId"],
+              ":accountId": account["id"],
               ":isArchived": false,
             },
             ExclusiveStartKey: transactionsLastEvaluatedKey,
@@ -67,8 +67,8 @@ export async function up(client: DynamoDBClient): Promise<void> {
         );
         for (const transaction of transactionsQueryResult.Items ?? []) {
           signedAmountSum += signedAmount(
-            transaction.type as string,
-            transaction.amount as number,
+            transaction["type"] as string,
+            transaction["amount"] as number,
           );
         }
         transactionsLastEvaluatedKey = transactionsQueryResult.LastEvaluatedKey;
@@ -78,7 +78,7 @@ export async function up(client: DynamoDBClient): Promise<void> {
         await docClient.send(
           new UpdateCommand({
             TableName: accountsTable,
-            Key: { userId: account.userId, id: account.id },
+            Key: { userId: account["userId"], id: account["id"] },
             UpdateExpression: "SET transactionBalance = :transactionBalance",
             ConditionExpression: "attribute_not_exists(transactionBalance)",
             ExpressionAttributeValues: {

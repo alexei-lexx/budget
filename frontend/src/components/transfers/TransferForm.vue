@@ -97,7 +97,6 @@ watch(
 // Form validation
 const formValid = ref(false);
 const formRef = ref();
-const amountFieldRef = ref();
 
 // Validation rules
 const fromAccountRules: CheckRule[] = [
@@ -260,7 +259,6 @@ const handleSwapAccounts = () => {
           <v-col cols="12" md="6">
             <!-- Amount -->
             <v-text-field
-              ref="amountFieldRef"
               v-model.number="formData.amount"
               type="number"
               step="1"

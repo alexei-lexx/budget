@@ -40,8 +40,8 @@ const appBarTitle = computed(() => {
 
 // Passkey registration URL
 const passkeyRegistrationUrl = computed(() => {
-  const authUiUrl = import.meta.env.VITE_AUTH_UI_URL;
-  const clientId = import.meta.env.VITE_AUTH_CLIENT_ID;
+  const authUiUrl = import.meta.env["VITE_AUTH_UI_URL"];
+  const clientId = import.meta.env["VITE_AUTH_CLIENT_ID"];
   const redirectUri = window.location.origin;
 
   if (!authUiUrl || !clientId) {

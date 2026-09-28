@@ -156,8 +156,8 @@ watch(viewMode, (mode) => {
 
 // Initialize from URL parameters on mount
 onMounted(() => {
-  const yearParam = route.query.year;
-  const monthParam = route.query.month;
+  const yearParam = route.query["year"];
+  const monthParam = route.query["month"];
 
   if (yearParam && monthParam) {
     const year = parseInt(yearParam as string);

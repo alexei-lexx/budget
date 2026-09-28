@@ -17,7 +17,7 @@ import {
  * Categories that already have the field are skipped.
  */
 export async function up(client: DynamoDBClient): Promise<void> {
-  const tableName = process.env.CATEGORIES_TABLE_NAME;
+  const tableName = process.env["CATEGORIES_TABLE_NAME"];
 
   if (!tableName) {
     throw new Error("CATEGORIES_TABLE_NAME environment variable not set");
@@ -54,8 +54,8 @@ export async function up(client: DynamoDBClient): Promise<void> {
           new UpdateCommand({
             TableName: tableName,
             Key: {
-              userId: item.userId,
-              id: item.id,
+              userId: item["userId"],
+              id: item["id"],
             },
             UpdateExpression: "SET excludeFromReports = :false",
             ConditionExpression: "attribute_not_exists(excludeFromReports)",
@@ -65,7 +65,7 @@ export async function up(client: DynamoDBClient): Promise<void> {
           }),
         );
         updatedCount++;
-        console.log(`✓ Updated category ${item.id} (${item.name})`);
+        console.log(`✓ Updated category ${item["id"]} (${item["name"]})`);
       } catch (error) {
         if (
           error instanceof Error &&
@@ -73,7 +73,7 @@ export async function up(client: DynamoDBClient): Promise<void> {
         ) {
           // Attribute already exists (idempotency)
           console.log(
-            `Skipping category ${item.id} (${item.name}) - excludeFromReports already exists`,
+            `Skipping category ${item["id"]} (${item["name"]}) - excludeFromReports already exists`,
           );
         } else {
           throw error;

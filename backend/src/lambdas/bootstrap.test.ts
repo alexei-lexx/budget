@@ -58,8 +58,8 @@ describe("injectRuntimeEnv", () => {
     await injectRuntimeEnv(processEnv, () => bindings);
 
     // Assert
-    expect(processEnv.FEATURE_X).toBe("value-x");
-    expect(processEnv.FEATURE_Y).toBe("value-y");
+    expect(processEnv["FEATURE_X"]).toBe("value-x");
+    expect(processEnv["FEATURE_Y"]).toBe("value-y");
     expect(sendMock).toHaveBeenCalledTimes(1);
   });
 
@@ -134,9 +134,9 @@ describe("injectRuntimeEnv", () => {
     await injectRuntimeEnv(processEnv, () => bindings);
 
     // Assert
-    expect(processEnv.FEATURE_X).toBe("value-x");
-    expect(processEnv.FEATURE_Y).toBeUndefined();
-    expect(processEnv.FEATURE_Z).toBe("value-z");
+    expect(processEnv["FEATURE_X"]).toBe("value-x");
+    expect(processEnv["FEATURE_Y"]).toBeUndefined();
+    expect(processEnv["FEATURE_Z"]).toBe("value-z");
   });
 
   it("requests SSM parameters with decryption enabled", async () => {
@@ -173,7 +173,7 @@ describe("injectRuntimeEnv", () => {
     await injectRuntimeEnv(processEnv, () => bindings);
 
     // Assert
-    expect(processEnv.FEATURE_X).toBeUndefined();
+    expect(processEnv["FEATURE_X"]).toBeUndefined();
     expect(sendMock).not.toHaveBeenCalled();
   });
 
@@ -190,7 +190,7 @@ describe("injectRuntimeEnv", () => {
     await injectRuntimeEnv(processEnv, () => bindings);
 
     // Assert
-    expect(processEnv.FEATURE_X).toBeUndefined();
+    expect(processEnv["FEATURE_X"]).toBeUndefined();
     expect(sendMock).not.toHaveBeenCalled();
   });
 
@@ -216,7 +216,7 @@ describe("injectRuntimeEnv", () => {
     await injectRuntimeEnv(processEnv, () => bindings);
 
     // Assert
-    expect(processEnv.FEATURE_X).toBe("preset");
+    expect(processEnv["FEATURE_X"]).toBe("preset");
   });
 
   it("skips SSM fetch when bindings are empty", async () => {

@@ -13,7 +13,7 @@ import {
 
 describe("Migrations Table Operations", () => {
   let client: DynamoDBDocumentClient;
-  const tableName = process.env.MIGRATIONS_TABLE_NAME || "";
+  const tableName = process.env["MIGRATIONS_TABLE_NAME"] || "";
 
   beforeAll(() => {
     client = createDynamoDBDocumentClient();

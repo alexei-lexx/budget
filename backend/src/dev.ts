@@ -23,7 +23,8 @@ const PORT = 4000;
   );
 
   app.all("/mcp", bodyParser.json(), async (req, res) => {
-    const token = typeof req.query.token === "string" ? req.query.token : null;
+    const token =
+      typeof req.query["token"] === "string" ? req.query["token"] : null;
     const mcpServer = await createAuthenticatedMcpServer(token);
 
     if (!mcpServer) {

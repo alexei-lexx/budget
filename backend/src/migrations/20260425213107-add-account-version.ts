@@ -40,7 +40,7 @@ export async function up(client: DynamoDBClient): Promise<void> {
         await docClient.send(
           new UpdateCommand({
             TableName: tableName,
-            Key: { userId: item.userId, id: item.id },
+            Key: { userId: item["userId"], id: item["id"] },
             UpdateExpression: "SET version = :zero",
             ConditionExpression: "attribute_not_exists(version)",
             ExpressionAttributeValues: { ":zero": 0 },

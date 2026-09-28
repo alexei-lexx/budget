@@ -43,7 +43,7 @@ const typeDefs = readFileSync(join(currentDir, "graphql/schema.graphql"), {
 export const server = new ApolloServer<GraphQLContext>({
   typeDefs,
   resolvers,
-  introspection: process.env.NODE_ENV === "development", // Enable introspection for development
+  introspection: process.env["NODE_ENV"] === "development", // Enable introspection for development
   formatError: (formattedError, error) => {
     const original = unwrapResolverError(error);
 
@@ -95,7 +95,7 @@ export const server = new ApolloServer<GraphQLContext>({
 export async function createContext(req: {
   headers: Record<string, string | string[] | undefined>;
 }): Promise<GraphQLContext> {
-  const authHeader = req.headers.authorization;
+  const authHeader = req.headers["authorization"];
   // Handle both string and string[] types from different contexts
   const authHeaderString = Array.isArray(authHeader)
     ? authHeader[0]

@@ -8,13 +8,13 @@ type TableDefinition = CreateTableCommandInput & { ttlAttribute?: string };
 
 export const tables: TableDefinition[] = [
   {
-    TableName: process.env.MIGRATIONS_TABLE_NAME,
+    TableName: process.env["MIGRATIONS_TABLE_NAME"],
     AttributeDefinitions: [{ AttributeName: "PK", AttributeType: "S" }],
     KeySchema: [{ AttributeName: "PK", KeyType: "HASH" }],
     BillingMode: "PAY_PER_REQUEST",
   },
   {
-    TableName: process.env.USERS_TABLE_NAME,
+    TableName: process.env["USERS_TABLE_NAME"],
     AttributeDefinitions: [
       { AttributeName: "id", AttributeType: "S" },
       { AttributeName: "email", AttributeType: "S" },
@@ -36,7 +36,7 @@ export const tables: TableDefinition[] = [
     ],
   },
   {
-    TableName: process.env.ACCOUNTS_TABLE_NAME,
+    TableName: process.env["ACCOUNTS_TABLE_NAME"],
     AttributeDefinitions: [
       { AttributeName: "userId", AttributeType: "S" },
       { AttributeName: "id", AttributeType: "S" },
@@ -48,7 +48,7 @@ export const tables: TableDefinition[] = [
     BillingMode: "PAY_PER_REQUEST",
   },
   {
-    TableName: process.env.CATEGORIES_TABLE_NAME,
+    TableName: process.env["CATEGORIES_TABLE_NAME"],
     AttributeDefinitions: [
       { AttributeName: "userId", AttributeType: "S" },
       { AttributeName: "id", AttributeType: "S" },
@@ -60,7 +60,7 @@ export const tables: TableDefinition[] = [
     BillingMode: "PAY_PER_REQUEST",
   },
   {
-    TableName: process.env.TRANSACTIONS_TABLE_NAME,
+    TableName: process.env["TRANSACTIONS_TABLE_NAME"],
     AttributeDefinitions: [
       { AttributeName: "userId", AttributeType: "S" },
       { AttributeName: "id", AttributeType: "S" },
@@ -92,7 +92,7 @@ export const tables: TableDefinition[] = [
     ],
   },
   {
-    TableName: process.env.CHAT_MESSAGES_TABLE_NAME,
+    TableName: process.env["CHAT_MESSAGES_TABLE_NAME"],
     AttributeDefinitions: [
       { AttributeName: "userId", AttributeType: "S" },
       { AttributeName: "sessionSortKey", AttributeType: "S" },
@@ -105,7 +105,7 @@ export const tables: TableDefinition[] = [
     ttlAttribute: "expiresAt",
   },
   {
-    TableName: process.env.TREND_PRESETS_TABLE_NAME,
+    TableName: process.env["TREND_PRESETS_TABLE_NAME"],
     AttributeDefinitions: [
       { AttributeName: "userId", AttributeType: "S" },
       { AttributeName: "id", AttributeType: "S" },
@@ -117,7 +117,7 @@ export const tables: TableDefinition[] = [
     BillingMode: "PAY_PER_REQUEST",
   },
   {
-    TableName: process.env.TELEGRAM_BOTS_TABLE_NAME,
+    TableName: process.env["TELEGRAM_BOTS_TABLE_NAME"],
     AttributeDefinitions: [
       { AttributeName: "userId", AttributeType: "S" },
       { AttributeName: "id", AttributeType: "S" },

@@ -18,7 +18,7 @@ import { monotonicFactory } from "ulidx";
  * The field combines the ISO8601 createdAt timestamp with a monotonic ULID.
  */
 export async function up(client: DynamoDBClient): Promise<void> {
-  const tableName = process.env.TRANSACTIONS_TABLE_NAME;
+  const tableName = process.env["TRANSACTIONS_TABLE_NAME"];
 
   if (!tableName) {
     throw new Error("TRANSACTIONS_TABLE_NAME environment variable not set");
@@ -50,7 +50,7 @@ export async function up(client: DynamoDBClient): Promise<void> {
     console.log(`Scanned ${items.length} transactions`);
 
     // Filter items that need createdAtSortable populated (idempotency check)
-    const itemsToUpdate = items.filter((item) => !item.createdAtSortable);
+    const itemsToUpdate = items.filter((item) => !item["createdAtSortable"]);
 
     console.log(`Found ${itemsToUpdate.length} transactions to update`);
 
@@ -59,10 +59,10 @@ export async function up(client: DynamoDBClient): Promise<void> {
         await docClient.send(
           new UpdateCommand({
             TableName: tableName,
-            Key: { userId: item.userId, id: item.id },
+            Key: { userId: item["userId"], id: item["id"] },
             UpdateExpression: "SET createdAtSortable = :createdAtSortable",
             ExpressionAttributeValues: {
-              ":createdAtSortable": `${item.createdAt}#${ulid()}`,
+              ":createdAtSortable": `${item["createdAt"]}#${ulid()}`,
             },
             ConditionExpression: "attribute_not_exists(createdAtSortable)",
           }),
@@ -76,7 +76,7 @@ export async function up(client: DynamoDBClient): Promise<void> {
         ) {
           // Attribute was already removed or changed by another process (idempotency)
           console.log(
-            `Skipping transaction ${item.id} - createdAtSortable already exists`,
+            `Skipping transaction ${item["id"]} - createdAtSortable already exists`,
           );
         } else {
           throw error;

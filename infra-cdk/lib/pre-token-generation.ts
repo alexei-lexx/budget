@@ -9,11 +9,16 @@ export const handler: PreTokenGenerationV2TriggerHandler = async (
 ) => {
   const namespace = requireEnv("AUTH_CLAIM_NAMESPACE");
 
+  const email = event.request.userAttributes["email"];
+  if (!email) {
+    throw new Error("User is missing required email attribute");
+  }
+
   event.response = {
     claimsAndScopeOverrideDetails: {
       accessTokenGeneration: {
         claimsToAddOrOverride: {
-          [`${namespace}/email`]: event.request.userAttributes.email,
+          [`${namespace}/email`]: email,
         },
       },
     },

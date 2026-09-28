@@ -43,7 +43,7 @@ export function extractAgentTraceTexts(
       if ("text" in block) {
         text = block.text;
       } else if ("reasoning" in block) {
-        text = block.reasoning;
+        text = block["reasoning"];
       }
 
       if (text) {

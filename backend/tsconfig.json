@@ -1,8 +1,12 @@
 {
-  "extends": "@tsconfig/node24/tsconfig.json",
+  "extends": [
+    "@tsconfig/node24/tsconfig.json",
+    "@tsconfig/strictest/tsconfig.json"
+  ],
   "compilerOptions": {
     "moduleResolution": "bundler",
     "module": "esnext",
+    "exactOptionalPropertyTypes": false,
     "noUncheckedIndexedAccess": true,
     // Explicit override so VS Code resolves lib types without following the extends chain
     "lib": ["es2024"],

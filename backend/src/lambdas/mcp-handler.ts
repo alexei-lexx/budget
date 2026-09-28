@@ -9,7 +9,7 @@ export async function mcpHandler(
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyStructuredResultV2> {
   const mcpServer = await createAuthenticatedMcpServer(
-    event.queryStringParameters?.token ?? null,
+    event.queryStringParameters?.["token"] ?? null,
   );
 
   if (!mcpServer) {
