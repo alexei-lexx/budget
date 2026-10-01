@@ -298,16 +298,16 @@ onMounted(() => {
         />
         <v-list-item
           v-if="isAuthenticated"
-          :to="{ name: 'ByCategoryReport' }"
+          :to="{ name: 'ExpenseBreakdown' }"
           prepend-icon="mdi-table-large"
-          :title="t('nav.reports')"
+          :title="t('nav.expenseBreakdown')"
           @click="mobile && (drawer = false)"
         />
         <v-list-item
           v-if="isAuthenticated"
-          :to="{ name: 'Trends' }"
+          :to="{ name: 'ExpenseTrends' }"
           prepend-icon="mdi-chart-bar"
-          :title="t('nav.trends')"
+          :title="t('nav.expenseTrends')"
           @click="mobile && (drawer = false)"
         />
         <v-list-item
