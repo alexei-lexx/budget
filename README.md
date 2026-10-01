@@ -38,7 +38,7 @@ A self-hosted personal finance tracker you deploy to your own AWS account. Track
 - Serverless, free-tier friendly
 - [TypeScript](https://www.typescriptlang.org/) throughout
 - [Spec-driven development](https://github.com/Fission-AI/OpenSpec)
-- AI agent skills from [alexei-lexx/skills](https://github.com/alexei-lexx/skills)
+- _Note:_ [agent skills used for development](https://github.com/alexei-lexx/skills).
 
 ## Repository Structure
 
