@@ -75,7 +75,7 @@ describe("deleteTransaction", () => {
 
   // Validation failures
 
-  it("fails without valid basics guide token and does not call service", async () => {
+  it("fails without valid basics guide token", async () => {
     // Act
     const result = await deleteTransaction(
       { id: faker.string.uuid(), guideTokens: [] },

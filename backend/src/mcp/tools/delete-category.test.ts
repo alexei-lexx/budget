@@ -73,7 +73,7 @@ describe("deleteCategory", () => {
 
   // Validation failures
 
-  it("fails without valid basics guide token and does not call service", async () => {
+  it("fails without valid basics guide token", async () => {
     // Act
     const result = await deleteCategory(
       { id: faker.string.uuid(), guideTokens: [] },
