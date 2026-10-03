@@ -99,7 +99,7 @@ describe("createAuthenticatedMcpServer", () => {
     const destructiveHints =
       server &&
       (await listTools(server))
-        ?.filter((tool) => tool.name.startsWith("delete_"))
+        .filter((tool) => tool.name.startsWith("delete_"))
         .map((tool) => tool.annotations?.destructiveHint);
 
     expect(destructiveHints).toEqual([true, true, true]);
