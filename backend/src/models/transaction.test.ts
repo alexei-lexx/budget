@@ -585,6 +585,30 @@ describe("Transaction", () => {
     });
   });
 
+  describe("isTransfer", () => {
+    // Happy path
+
+    it("returns true for TRANSFER_IN transactions", () => {
+      expect(fakeTransferIn().isTransfer()).toBe(true);
+    });
+
+    it("returns true for TRANSFER_OUT transactions", () => {
+      expect(fakeTransferOut().isTransfer()).toBe(true);
+    });
+
+    it("returns false for INCOME transactions", () => {
+      expect(fakeIncome().isTransfer()).toBe(false);
+    });
+
+    it("returns false for EXPENSE transactions", () => {
+      expect(fakeExpense().isTransfer()).toBe(false);
+    });
+
+    it("returns false for REFUND transactions", () => {
+      expect(fakeRefund().isTransfer()).toBe(false);
+    });
+  });
+
   describe("toData", () => {
     // Happy path
 

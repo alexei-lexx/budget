@@ -356,6 +356,10 @@ export class TransactionServiceImpl implements TransactionService {
       return Failure("Transaction not found or doesn't belong to user");
     }
 
+    if (existingTransaction.isTransfer()) {
+      return Failure("Transfer transactions can only be edited as a transfer");
+    }
+
     let newAccount: Account | undefined;
     if (input.accountId) {
       const accountResult = await this.validateAccount(input.accountId, userId);
@@ -474,6 +478,10 @@ export class TransactionServiceImpl implements TransactionService {
     });
     if (!existingTransaction) {
       return Failure("Transaction not found or doesn't belong to user");
+    }
+
+    if (existingTransaction.isTransfer()) {
+      return Failure("Transfer transactions can only be deleted as a transfer");
     }
 
     // Check if transaction is already archived - if so, return it as-is

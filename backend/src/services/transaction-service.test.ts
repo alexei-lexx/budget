@@ -26,6 +26,7 @@ import {
   fakeIncome,
   fakeTransaction,
   fakeTransactionPattern,
+  fakeTransferOut,
 } from "../utils/test-utils/models/transaction-fakes";
 import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository-mocks";
 import { createMockAtomicWriter } from "../utils/test-utils/repositories/atomic-writer-mocks";
@@ -1703,6 +1704,28 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
+    it("fails when transaction belongs to transfer", async () => {
+      // Arrange
+      const existingTransaction = fakeTransferOut({ userId });
+      // Returns transfer leg
+      mockTransactionRepository.findOneById.mockResolvedValue(
+        existingTransaction,
+      );
+
+      // Act
+      const result = await service.updateTransaction(
+        existingTransaction.id,
+        userId,
+        { amount: 1 },
+      );
+
+      // Assert
+      expect(result).toBeFailure(
+        "Transfer transactions can only be edited as a transfer",
+      );
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+
     it("fails when account not found", async () => {
       // Arrange
       const existingTransaction = fakeTransaction({ userId });
@@ -1857,6 +1880,51 @@ describe("TransactionService", () => {
       // Assert
       expect(result).toBeFailure(
         "Transaction not found or doesn't belong to user",
+      );
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+
+    it("fails when active transaction belongs to transfer", async () => {
+      // Arrange
+      const existingTransaction = fakeTransferOut({
+        userId,
+        isArchived: false,
+      });
+      // Returns active transfer leg
+      mockTransactionRepository.findOneById.mockResolvedValue(
+        existingTransaction,
+      );
+
+      // Act
+      const result = await service.deleteTransaction(
+        existingTransaction.id,
+        userId,
+      );
+
+      // Assert
+      expect(result).toBeFailure(
+        "Transfer transactions can only be deleted as a transfer",
+      );
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+
+    it("fails when archived transaction belongs to transfer", async () => {
+      // Arrange
+      const existingTransaction = fakeTransferOut({ userId, isArchived: true });
+      // Returns archived transfer leg
+      mockTransactionRepository.findOneById.mockResolvedValue(
+        existingTransaction,
+      );
+
+      // Act
+      const result = await service.deleteTransaction(
+        existingTransaction.id,
+        userId,
+      );
+
+      // Assert
+      expect(result).toBeFailure(
+        "Transfer transactions can only be deleted as a transfer",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
