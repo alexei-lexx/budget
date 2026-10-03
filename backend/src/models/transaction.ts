@@ -157,6 +157,10 @@ export class Transaction implements TransactionData {
     }
   }
 
+  isTransfer(): boolean {
+    return this.type === "TRANSFER_IN" || this.type === "TRANSFER_OUT";
+  }
+
   toData(): Readonly<TransactionData> {
     return {
       ...this.data,
@@ -330,10 +334,6 @@ export class Transaction implements TransactionData {
         );
       }
     }
-  }
-
-  private isTransfer() {
-    return this.type === "TRANSFER_IN" || this.type === "TRANSFER_OUT";
   }
 }
 
