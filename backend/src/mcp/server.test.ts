@@ -1,5 +1,9 @@
 import { Client } from "@modelcontextprotocol/client";
-import { InMemoryTransport, McpServer } from "@modelcontextprotocol/server";
+import {
+  InMemoryTransport,
+  McpServer,
+  Tool,
+} from "@modelcontextprotocol/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { resolveUserRepository } from "../dependencies";
 import { fakeUser } from "../utils/test-utils/models/user-fakes";
@@ -10,7 +14,7 @@ vi.mock("../dependencies");
 
 // McpServer has no public accessor for its registered tools.
 // Ask over the real protocol instead, the same way a real client would.
-async function listToolNames(server: McpServer): Promise<string[]> {
+async function listTools(server: McpServer): Promise<Tool[]> {
   // In-process transport pair: writes on one side arrive directly on the other.
   const [clientTransport, serverTransport] =
     InMemoryTransport.createLinkedPair();
@@ -26,6 +30,12 @@ async function listToolNames(server: McpServer): Promise<string[]> {
   // Sends a real tools/list request.
   // The server answers with its registered tools.
   const { tools } = await client.listTools();
+
+  return tools;
+}
+
+async function listToolNames(server: McpServer): Promise<string[]> {
+  const tools = await listTools(server);
 
   return tools.map((tool) => tool.name);
 }
@@ -54,7 +64,7 @@ describe("createAuthenticatedMcpServer", () => {
     if (!server) throw new Error("expected server to be created");
 
     const toolNames = await listToolNames(server);
-    expect(toolNames).toHaveLength(12);
+    expect(toolNames).toHaveLength(15);
     expect(toolNames).toEqual(
       expect.arrayContaining([
         "aggregate_transactions",
@@ -62,6 +72,9 @@ describe("createAuthenticatedMcpServer", () => {
         "create_category",
         "create_compound_transaction",
         "create_transaction",
+        "delete_account",
+        "delete_category",
+        "delete_transaction",
         "get_accounts",
         "get_categories",
         "get_transactions",
@@ -71,6 +84,25 @@ describe("createAuthenticatedMcpServer", () => {
         "update_transaction",
       ]),
     );
+  });
+
+  it("marks delete tools as destructive", async () => {
+    // Arrange
+    const user = fakeUser();
+    // Token matches user's stored mcpToken
+    mockUserRepository.findOneByMcpToken.mockResolvedValue(user);
+
+    // Act
+    const server = await createAuthenticatedMcpServer(user.mcpToken);
+
+    // Assert
+    const destructiveHints =
+      server &&
+      (await listTools(server))
+        ?.filter((tool) => tool.name.startsWith("delete_"))
+        .map((tool) => tool.annotations?.destructiveHint);
+
+    expect(destructiveHints).toEqual([true, true, true]);
   });
 
   // Validation failures

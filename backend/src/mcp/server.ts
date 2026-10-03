@@ -15,6 +15,9 @@ import { createCreateAccountTool } from "./tools/create-account";
 import { createCreateCategoryTool } from "./tools/create-category";
 import { createCreateCompoundTransactionTool } from "./tools/create-compound-transaction";
 import { createCreateTransactionTool } from "./tools/create-transaction";
+import { createDeleteAccountTool } from "./tools/delete-account";
+import { createDeleteCategoryTool } from "./tools/delete-category";
+import { createDeleteTransactionTool } from "./tools/delete-transaction";
 import { createGetAccountsTool } from "./tools/get-accounts";
 import { createGetCategoriesTool } from "./tools/get-categories";
 import { createGetTransactionsTool } from "./tools/get-transactions";
@@ -48,6 +51,9 @@ export async function createAuthenticatedMcpServer(
     createCreateCategoryTool({ categoryService, userId }),
     createCreateCompoundTransactionTool({ transactionService, userId }),
     createCreateTransactionTool({ transactionService, userId }),
+    createDeleteAccountTool({ accountService, userId }),
+    createDeleteCategoryTool({ categoryService, userId }),
+    createDeleteTransactionTool({ transactionService, userId }),
     createGetAccountsTool({ accountService, userId }),
     createGetCategoriesTool({ categoryService, userId }),
     createGetTransactionsTool({ transactionRepository, userId }),
@@ -60,7 +66,11 @@ export async function createAuthenticatedMcpServer(
   for (const tool of tools) {
     server.registerTool(
       tool.name,
-      { description: tool.description, inputSchema: tool.inputSchema },
+      {
+        description: tool.description,
+        inputSchema: tool.inputSchema,
+        annotations: tool.annotations,
+      },
       async (input) => {
         try {
           return toToolResult(await tool.run(input));
