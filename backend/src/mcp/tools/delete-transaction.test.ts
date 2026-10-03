@@ -137,12 +137,12 @@ describe("deleteTransaction", () => {
 
   it("fails when service rejects deletion", async () => {
     // Arrange
-    const transaction = fakeTransaction({ type: "TRANSFER_OUT" });
-    // Finds user's recent transfer leg
+    const transaction = fakeTransaction();
+    // Finds user's transaction
     mockTransactionService.getTransactionById.mockResolvedValue(
       Success(transaction),
     );
-    // Rejects deletion of transfer leg
+    // Rejects deletion due to some service error
     mockTransactionService.deleteTransaction.mockResolvedValue(
       Failure("Something went wrong"),
     );
