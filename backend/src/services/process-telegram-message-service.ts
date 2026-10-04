@@ -54,7 +54,7 @@ export class ProcessTelegramMessageService {
 
       if (!result.success) {
         console.error("Failed to send reply:", result.error);
-        return Failure(result.error);
+        return result;
       }
 
       return Success(undefined);
