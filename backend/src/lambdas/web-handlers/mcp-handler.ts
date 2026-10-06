@@ -3,7 +3,7 @@ import {
   APIGatewayProxyEventV2,
   APIGatewayProxyStructuredResultV2,
 } from "aws-lambda";
-import { createAuthenticatedMcpServer } from "../mcp/server";
+import { createAuthenticatedMcpServer } from "../../mcp/server";
 
 export async function mcpHandler(
   event: APIGatewayProxyEventV2,

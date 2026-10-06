@@ -1,35 +1,12 @@
-import {
-  handlers,
-  startServerAndCreateLambdaHandler,
-} from "@as-integrations/aws-lambda";
 import { APIGatewayProxyEventV2, Context } from "aws-lambda";
-import { createContext, server } from "../server";
 import { createSingleton } from "../utils/dependency-injection";
 import { injectRuntimeEnv } from "./bootstrap";
-import { mcpHandler } from "./mcp-handler";
-import { telegramWebhookHandler } from "./telegram-webhook-handler";
+import { apolloHandler } from "./web-handlers/apollo-handler";
+import { mcpHandler } from "./web-handlers/mcp-handler";
+import { telegramWebhookHandler } from "./web-handlers/telegram-webhook-handler";
 
 // Handler runs per invocation; cache so warm-start invocations skip the SSM fetch.
 const ensureRuntimeEnv = createSingleton(() => injectRuntimeEnv(process.env));
-
-const apolloHandler = startServerAndCreateLambdaHandler(
-  server,
-  handlers.createAPIGatewayProxyEventV2RequestHandler(),
-  {
-    context: async ({ event }) => {
-      try {
-        return await createContext({
-          headers: event.headers || {},
-        });
-      } catch (error) {
-        // Apollo swallows context errors into GraphQL responses without logging them.
-        // Log explicitly so they appear in CloudWatch.
-        console.error("Context creation failed:", error);
-        throw error;
-      }
-    },
-  },
-);
 
 export const handler = async (
   event: APIGatewayProxyEventV2,
