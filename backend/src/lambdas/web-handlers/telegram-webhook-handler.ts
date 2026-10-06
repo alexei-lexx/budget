@@ -1,6 +1,6 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { z } from "zod";
-import { resolveTelegramBotService } from "../dependencies";
+import { resolveTelegramBotService } from "../../dependencies";
 
 const telegramUpdateSchema = z.object({
   update_id: z.number(),

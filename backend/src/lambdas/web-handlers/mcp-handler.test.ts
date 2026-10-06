@@ -1,10 +1,10 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createAuthenticatedMcpServer } from "../mcp/server";
+import { createAuthenticatedMcpServer } from "../../mcp/server";
 import { mcpHandler } from "./mcp-handler";
 
-vi.mock("../mcp/server");
+vi.mock("../../mcp/server");
 
 function buildEvent(
   overrides: Partial<APIGatewayProxyEventV2> = {},
