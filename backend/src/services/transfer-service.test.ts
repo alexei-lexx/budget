@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
+import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
@@ -425,19 +425,18 @@ describe("TransferService", () => {
       // Rejects with unexpected error
       mockAtomicWriter.commit.mockRejectedValue(new Error("DB down"));
 
-      // Act
-      const result = await service.createTransfer(
-        {
-          fromAccountId: sourceAccount.id,
-          toAccountId: destAccount.id,
-          amount: 100,
-          date: toDateString("2024-01-01"),
-        },
-        userId,
-      );
-
-      // Assert
-      expect(result).toBeFailure("Failed to create transfer transactions");
+      // Act & Assert
+      await expect(
+        service.createTransfer(
+          {
+            fromAccountId: sourceAccount.id,
+            toAccountId: destAccount.id,
+            amount: 100,
+            date: toDateString("2024-01-01"),
+          },
+          userId,
+        ),
+      ).rejects.toThrow("DB down");
     });
   });
 
@@ -637,11 +636,10 @@ describe("TransferService", () => {
       // Rejects with unexpected error
       mockAtomicWriter.commit.mockRejectedValue(new Error("DB down"));
 
-      // Act
-      const result = await service.deleteTransfer(transferId, userId);
-
-      // Assert
-      expect(result).toBeFailure("Failed to delete transfer transactions");
+      // Act & Assert
+      await expect(service.deleteTransfer(transferId, userId)).rejects.toThrow(
+        "DB down",
+      );
     });
   });
 
@@ -1288,16 +1286,13 @@ describe("TransferService", () => {
         .mockResolvedValueOnce(destAccount);
       // Rejects with unexpected error
       mockAtomicWriter.commit.mockRejectedValue(new Error("DB down"));
-      // Suppress error log noise
-      vi.spyOn(console, "error").mockImplementation(vi.fn());
 
-      // Act
-      const result = await service.updateTransfer(transferId, userId, {
-        amount: 50,
-      });
-
-      // Assert
-      expect(result).toBeFailure("Failed to update transfer transactions");
+      // Act & Assert
+      await expect(
+        service.updateTransfer(transferId, userId, {
+          amount: 50,
+        }),
+      ).rejects.toThrow("DB down");
     });
   });
 });

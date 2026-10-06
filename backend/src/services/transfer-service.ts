@@ -165,28 +165,16 @@ export class TransferService {
       inboundTransaction.signedAmount,
     );
 
-    try {
-      await this.atomicWriter.commit({
-        transactionsToCreate: [outboundTransaction, inboundTransaction],
-        accountsToUpdate: [sourceAccountToUpdate, destAccountToUpdate],
-      });
+    await this.atomicWriter.commit({
+      transactionsToCreate: [outboundTransaction, inboundTransaction],
+      accountsToUpdate: [sourceAccountToUpdate, destAccountToUpdate],
+    });
 
-      return Success({
-        transferId,
-        outboundTransaction,
-        inboundTransaction,
-      });
-    } catch (error) {
-      console.error("Transfer creation failed:", {
-        transferId,
-        fromAccountId: input.fromAccountId,
-        toAccountId: input.toAccountId,
-        amount: input.amount,
-        error,
-      });
-
-      return Failure("Failed to create transfer transactions");
-    }
+    return Success({
+      transferId,
+      outboundTransaction,
+      inboundTransaction,
+    });
   }
 
   /**
@@ -259,26 +247,15 @@ export class TransferService {
       inboundTransaction.signedAmount,
     );
 
-    try {
-      await this.atomicWriter.commit({
-        transactionsToUpdate: [
-          outboundTransactionToArchive,
-          inboundTransactionToArchive,
-        ],
-        accountsToUpdate: [sourceAccountToUpdate, destAccountToUpdate],
-      });
+    await this.atomicWriter.commit({
+      transactionsToUpdate: [
+        outboundTransactionToArchive,
+        inboundTransactionToArchive,
+      ],
+      accountsToUpdate: [sourceAccountToUpdate, destAccountToUpdate],
+    });
 
-      return Success(undefined);
-    } catch (error) {
-      console.error("Transfer deletion failed:", {
-        transferId,
-        userId,
-        transactionIds: [outboundTransaction.id, inboundTransaction.id],
-        error,
-      });
-
-      return Failure("Failed to delete transfer transactions");
-    }
+    return Success(undefined);
   }
 
   /**
@@ -471,29 +448,19 @@ export class TransferService {
       }
     }
 
-    try {
-      await this.atomicWriter.commit({
-        transactionsToUpdate: [
-          outboundTransactionToUpdate,
-          inboundTransactionToUpdate,
-        ],
-        accountsToUpdate: Array.from(accountsToUpdate.values()),
-      });
+    await this.atomicWriter.commit({
+      transactionsToUpdate: [
+        outboundTransactionToUpdate,
+        inboundTransactionToUpdate,
+      ],
+      accountsToUpdate: Array.from(accountsToUpdate.values()),
+    });
 
-      return Success({
-        transferId,
-        outboundTransaction: outboundTransactionToUpdate.bumpVersion(),
-        inboundTransaction: inboundTransactionToUpdate.bumpVersion(),
-      });
-    } catch (error) {
-      console.error("Transfer update failed:", {
-        transferId,
-        amount: input.amount,
-        error,
-      });
-
-      return Failure("Failed to update transfer transactions");
-    }
+    return Success({
+      transferId,
+      outboundTransaction: outboundTransactionToUpdate.bumpVersion(),
+      inboundTransaction: inboundTransactionToUpdate.bumpVersion(),
+    });
   }
 
   private async fetchValidatedTransfer(
