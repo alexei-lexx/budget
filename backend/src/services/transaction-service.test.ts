@@ -963,6 +963,31 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
+    it("fails when category type does not match transaction type", async () => {
+      // Arrange
+      const category = fakeCategory({ userId, type: "INCOME" });
+      const input = fakeCreateTransactionServiceInput({
+        categoryId: category.id,
+        type: "EXPENSE",
+      });
+
+      // Returns account owned by user
+      mockAccountRepository.findOneById.mockResolvedValue(
+        fakeAccount({ userId }),
+      );
+      // Returns category with mismatched type
+      mockCategoryRepository.findOneById.mockResolvedValue(category);
+
+      // Act
+      const result = await service.createTransaction(input, userId);
+
+      // Assert
+      expect(result).toBeFailure(
+        'Category type "INCOME" does not match transaction type "EXPENSE"',
+      );
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+
     it("fails when model invariant is violated", async () => {
       // Arrange
       // Negative amount triggers ModelError, which the service must expose as failure
@@ -1365,7 +1390,7 @@ describe("TransactionService", () => {
 
       // Assert
       expect(result).toBeFailure(
-        'Category type "INCOME" doesn\'t match transaction type "EXPENSE"',
+        'Category type "INCOME" does not match transaction type "EXPENSE"',
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
@@ -1745,6 +1770,31 @@ describe("TransactionService", () => {
 
       // Assert
       expect(result).toBeFailure("Account not found or doesn't belong to user");
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+
+    it("fails when category type does not match transaction type", async () => {
+      // Arrange
+      const existingTransaction = fakeExpense({ userId });
+      const category = fakeCategory({ userId, type: "INCOME" });
+      // Returns existing transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(
+        existingTransaction,
+      );
+      // Returns category with mismatched type
+      mockCategoryRepository.findOneById.mockResolvedValue(category);
+
+      // Act
+      const result = await service.updateTransaction(
+        existingTransaction.id,
+        userId,
+        { categoryId: category.id },
+      );
+
+      // Assert
+      expect(result).toBeFailure(
+        'Category type "INCOME" does not match transaction type "EXPENSE"',
+      );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 

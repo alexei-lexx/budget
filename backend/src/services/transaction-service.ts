@@ -8,7 +8,6 @@ import {
   Transaction,
   TransactionPattern,
   TransactionPatternType,
-  TransactionType,
 } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
@@ -258,7 +257,6 @@ export class TransactionServiceImpl implements TransactionService {
       const categoryResult = await this.validateCategory(
         leg.categoryId,
         userId,
-        input.type,
       );
       if (!categoryResult.success) return categoryResult;
 
@@ -367,7 +365,6 @@ export class TransactionServiceImpl implements TransactionService {
       newAccount = accountResult.data;
     }
 
-    const transactionType = input.type ?? existingTransaction.type;
     let category: Category | null | undefined;
     if (input.categoryId === undefined) {
       category = undefined;
@@ -377,7 +374,6 @@ export class TransactionServiceImpl implements TransactionService {
       const categoryResult = await this.validateCategory(
         input.categoryId,
         userId,
-        transactionType,
       );
       if (!categoryResult.success) return categoryResult;
       category = categoryResult.data;
@@ -672,16 +668,14 @@ export class TransactionServiceImpl implements TransactionService {
   }
 
   /**
-   * Validate that a category exists, belongs to the user, and matches the transaction type
+   * Validate that a category exists and belongs to the user
    * @param categoryId - The category ID to validate (optional)
    * @param userId - The user ID to check ownership
-   * @param transactionType - The transaction type to match against category type
    * @returns The validated category (or null if not provided), or a failure reason
    */
   private async validateCategory(
     categoryId: string | undefined | null,
     userId: string,
-    transactionType: TransactionType,
   ): Promise<Result<Category | null>> {
     if (!categoryId) {
       return Success(null);
@@ -694,18 +688,6 @@ export class TransactionServiceImpl implements TransactionService {
 
     if (!category) {
       return Failure("Category not found or doesn't belong to user");
-    }
-
-    const typeMismatch =
-      (category.type === "INCOME" && transactionType !== "INCOME") ||
-      (category.type === "EXPENSE" &&
-        transactionType !== "EXPENSE" &&
-        transactionType !== "REFUND");
-
-    if (typeMismatch) {
-      return Failure(
-        `Category type "${category.type}" doesn't match transaction type "${transactionType}"`,
-      );
     }
 
     return Success(category);
