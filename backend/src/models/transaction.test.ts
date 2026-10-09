@@ -323,7 +323,9 @@ describe("Transaction", () => {
           fixedDeps,
         ),
       ).toThrow(
-        new ModelError("Category type does not match transaction type"),
+        new ModelError(
+          'Category type "INCOME" does not match transaction type "EXPENSE"',
+        ),
       );
     });
 
@@ -343,7 +345,9 @@ describe("Transaction", () => {
           fixedDeps,
         ),
       ).toThrow(
-        new ModelError("Category type does not match transaction type"),
+        new ModelError(
+          'Category type "EXPENSE" does not match transaction type "INCOME"',
+        ),
       );
     });
 
@@ -930,7 +934,9 @@ describe("Transaction", () => {
 
       // Act & Assert
       expect(() => existing.update({ category })).toThrow(
-        new ModelError("Category type does not match transaction type"),
+        new ModelError(
+          'Category type "INCOME" does not match transaction type "EXPENSE"',
+        ),
       );
     });
 

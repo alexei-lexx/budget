@@ -313,7 +313,9 @@ export class Transaction implements TransactionData {
           this.type !== "REFUND");
 
       if (typeMismatch) {
-        throw new ModelError("Category type does not match transaction type");
+        throw new ModelError(
+          `Category type "${newCategory.type}" does not match transaction type "${this.type}"`,
+        );
       }
     }
 
