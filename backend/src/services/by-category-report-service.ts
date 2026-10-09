@@ -121,7 +121,7 @@ export class ByCategoryReportService {
 
     // Fetch all categories and build set of included category IDs
     const allCategories =
-      await this.categoryRepository.findManyByUserId(userId);
+      await this.categoryRepository.findManyWithArchivedByUserId(userId);
     const excludedCategoryIds = new Set(
       allCategories
         .filter((category) => category.excludeFromReports)

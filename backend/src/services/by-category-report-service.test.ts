@@ -28,7 +28,7 @@ describe("ByCategoryReportService", () => {
     mockCategoryRepository = createMockCategoryRepository();
 
     // Default: no categories so nothing is excluded from reports
-    mockCategoryRepository.findManyByUserId.mockResolvedValue([]);
+    mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
 
     reportService = new ByCategoryReportService(
       mockTransactionRepository,
@@ -678,7 +678,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // User has one included and one excluded category
-      mockCategoryRepository.findManyByUserId.mockResolvedValue([
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         includedCategory,
         excludedCategory,
       ]);
@@ -704,6 +704,65 @@ describe("ByCategoryReportService", () => {
           ],
         }),
       );
+    });
+
+    it("excludes transactions in archived excluded categories from report", async () => {
+      // Arrange
+      const activeIncludedCategory = fakeCategory({
+        userId,
+        name: "Groceries",
+        excludeFromReports: false,
+        isArchived: false,
+      });
+      const archivedExcludedCategory = fakeCategory({
+        userId,
+        excludeFromReports: true,
+        isArchived: true,
+      });
+
+      // Two transactions: in active included category, in archived excluded category
+      const transactions = [
+        fakeExpense({
+          categoryId: activeIncludedCategory.id,
+          currency: "USD",
+          amount: 200,
+        }),
+        fakeExpense({
+          categoryId: archivedExcludedCategory.id,
+          currency: "USD",
+          amount: 500,
+        }),
+      ];
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
+        transactions,
+      );
+
+      // User has one active included and one archived excluded category
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        activeIncludedCategory,
+        archivedExcludedCategory,
+      ]);
+
+      // Resolves only active category by id; archived one is not found
+      mockCategoryRepository.findOneById.mockImplementation(async ({ id }) =>
+        id === activeIncludedCategory.id ? activeIncludedCategory : null,
+      );
+
+      // Act
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
+
+      // Assert
+      expect(result).toBeSuccess(
+        expect.objectContaining({
+          currencyTotals: [
+            expect.objectContaining({ currency: "USD", totalAmount: 200 }),
+          ],
+          categories: [expect.objectContaining({ categoryName: "Groceries" })],
+        }),
+      );
+      expect(
+        mockCategoryRepository.findManyWithArchivedByUserId,
+      ).toHaveBeenCalledWith(userId);
     });
 
     it("succeeds for months 1 through 12", async () => {
