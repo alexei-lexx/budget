@@ -4,13 +4,11 @@
 
 ### Overview
 
-The project comprises three independent npm packages distributed across the repository:
+The project has 3 independent npm packages:
 
-- **backend/** – GraphQL server exposing the API for the frontend, includes database integration
-- **frontend/** – User-facing single-page application
-- **infra-cdk/** – Deployable infrastructure for both backend and frontend
-
-Each package maintains its own `package.json`, dependencies, and build configuration. They are versioned and deployed independently while remaining architecturally coupled through shared GraphQL schema and deployment order requirements.
+- **backend/** – Server with a GraphQL API for the frontend, an MCP endpoint for AI clients, a Telegram bot webhook, and database access
+- **frontend/** – Single-page web application
+- **infra-cdk/** – Deployable infrastructure for the backend, the frontend, and authentication
 
 ### Backend
 
