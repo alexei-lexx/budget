@@ -14,6 +14,16 @@ Code style rules (naming, formatting, and similar conventions) live in `docs/cod
 
 **Be concise.** Skip affirmations and preambles.
 
+## Writing Style
+
+Apply to docs and code comments.
+
+- Use ASD Simplified Technical English (ASD-STE100)
+- Prefer short sentences over long compound ones
+- Use common words over rare ones
+- Avoid vague and filler phrases
+- One sentence per bullet, no period at the end
+
 ## Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
