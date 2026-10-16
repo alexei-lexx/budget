@@ -79,16 +79,20 @@ This npm package contains the AWS infrastructure code for the whole project.
 
 **AWS Services**:
 
-- **CloudFront**: Entry point, CDN, HTTPS enforcement
-- **S3**: Vue.js bundle storage
-- **API Gateway**: Routes GraphQL requests from CloudFront to Lambda
-- **Lambda**: Apollo Server runtime
-- **DynamoDB**: User data storage (on-demand scaling)
-- **Cognito**: User authentication and JWT token generation
+- **CloudFront**: Serve the frontend over HTTPS and forward API requests to API Gateway
+- **S3**: Store the frontend build
+- **API Gateway**: Route GraphQL, MCP, and Telegram webhook requests to Lambda
+- **Lambda**: Run the backend
+- **DynamoDB**: Store user data
+- **Cognito**: Sign in users and issue JWT tokens
+- **Bedrock**: Run the AI models for the AI agents
+- **SSM Parameter Store**: Keep runtime configuration and secrets
 
 ```mermaid
 graph TD
     Browser["User Browser"]
+    MCPClient["MCP Client"]
+    Telegram["Telegram"]
 
     CloudFront["CloudFront<br/>Distribution"]
     Cognito["AWS Cognito<br/>(Authentication)"]
@@ -96,34 +100,47 @@ graph TD
     S3["S3 Bucket<br/>(Frontend Assets)"]
     APIGateway["API Gateway<br/>(HTTP API)"]
 
-    Lambda["Lambda<br/>(/graphql)"]
+    Lambda["Lambda<br/>(Backend)"]
 
     DynamoDB["DynamoDB"]
+    Bedrock["Bedrock<br/>(AI Models)"]
+    SSM["SSM Parameter Store<br/>(Config)"]
 
     Browser -->|Static & API| CloudFront
     Browser -->|Login| Cognito
     CloudFront -->|Serve| S3
     CloudFront -->|Forward| APIGateway
+    MCPClient -->|MCP| APIGateway
+    Telegram -->|Webhook| APIGateway
     APIGateway -->|Route| Lambda
     Lambda -->|Read/Write| DynamoDB
     Lambda -->|Verify JWT| Cognito
+    Lambda -->|Invoke| Bedrock
+    Lambda -->|Read config| SSM
 ```
 
 **Deployment**:
 
-- Manual deployment via `deploy.sh` script
+- Deploy manually with `deploy.sh`
 
 ### Development
 
-**Local Stack**:
+**Local Services**:
 
-- **Vite** dev server replaces S3 + CloudFront
-- **Apollo Server** replaces Lambda + API Gateway
-- **DynamoDB Local** (Docker) replaces AWS DynamoDB
+- **Vite Dev Server**: Serve the frontend instead of S3 and CloudFront
+- **Express Server**: Run the GraphQL API and the MCP API instead of API Gateway and Lambda
+- **DynamoDB Local**: Store user data in Docker instead of AWS DynamoDB
+- **`.env` File**: Keep runtime configuration and secrets instead of SSM Parameter Store
 
-### External Dependencies
+**AWS Services**:
 
-- **AWS Cognito**: Authentication service for both production and development
+- **Cognito**: Use a deployed user pool with `localhost` in its callback URLs
+- **Bedrock**: Call the AI models with an API key from the `.env` file
+
+**Limitations**:
+
+- The Telegram webhook is not available
+- Background jobs do not run
 
 ## Core Principles
 
