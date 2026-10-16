@@ -12,14 +12,14 @@ The project has 3 independent npm packages:
 
 ### Backend
 
-An npm package providing Apollo GraphQL server and API implementation.
+An npm package with the GraphQL API (Apollo Server), the MCP server, the Telegram bot webhook, and AI agents.
 
 **Technologies**:
 
 - **Language**: TypeScript
-- **Framework**: Apollo Server, Node.js
-- **Testing**: Vitest
-- **Quality**: ESLint, Prettier, TypeScript strict mode
+- **API**: Apollo Server (GraphQL), MCP SDK
+- **AI Agents**: LangChain
+- **Database**: DynamoDB
 
 **Responsibilities**:
 
