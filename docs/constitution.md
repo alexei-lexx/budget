@@ -6,7 +6,7 @@
 
 The project has 3 independent npm packages:
 
-- **backend/** – Server with a GraphQL API for the frontend, an MCP endpoint for AI clients, a Telegram bot webhook, and database access
+- **backend/** – API for all clients, business logic, and data storage
 - **frontend/** – Single-page web application
 - **infra-cdk/** – Deployable infrastructure for the backend, the frontend, and authentication
 
@@ -23,11 +23,14 @@ An npm package with the GraphQL API (Apollo Server), the MCP server, the Telegra
 
 **Responsibilities**:
 
-- **Business Logic**: Implement application domain logic and service layer operations
-- **GraphQL API**: Expose data and operations through GraphQL resolvers
-- **Database Access**: Handle all data persistence and retrieval operations
-- **Authentication**: Verify JWT tokens and establish user identity
-- **Authorization**: Enforce user data scoping and prevent cross-user data access
+- **Business Logic**: Implement domain rules in domain entities and services
+- **GraphQL API**: Give the frontend access to data and operations through GraphQL resolvers
+- **MCP API**: Give external AI agents access to user data through MCP tools
+- **Telegram Bot**: Receive Telegram messages and answer them through an AI agent
+- **AI Agents**: Answer user questions and create transactions from text
+- **Database Access**: Store and read all data
+- **Authentication**: Verify the credentials of each caller and find the matching user
+- **Authorization**: Prevent access to the data of other users
 
 ### Frontend
 
