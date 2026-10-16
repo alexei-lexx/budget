@@ -12,7 +12,7 @@ The project has 3 independent npm packages:
 
 ### Backend
 
-An npm package with the GraphQL API (Apollo Server), the MCP server, the Telegram bot webhook, and AI agents.
+This npm package contains the GraphQL API (Apollo Server), the MCP server, the Telegram bot webhook, and AI agents.
 
 **Technologies**:
 
@@ -26,29 +26,30 @@ An npm package with the GraphQL API (Apollo Server), the MCP server, the Telegra
 - **Business Logic**: Implement domain rules in domain entities and services
 - **GraphQL API**: Give the frontend access to data and operations through GraphQL resolvers
 - **MCP API**: Give external AI agents access to user data through MCP tools
-- **Telegram Bot**: Receive Telegram messages and answer them through an AI agent
-- **AI Agents**: Answer user questions and create transactions from text
+- **Telegram Bot**: Answer Telegram messages through an AI agent
+- **AI Agents**: Run AI agents that answer user questions and create transactions from text
 - **Database Access**: Store and read all data
-- **Authentication**: Verify the credentials of each caller and find the matching user
+- **Authentication**: Verify the credentials of each caller to find the matching user
 - **Authorization**: Prevent access to the data of other users
 
 ### Frontend
 
-An npm package providing the user-facing single-page application.
+This npm package contains the single-page web application.
 
 **Technologies**:
 
 - **Language**: TypeScript
-- **Framework**: Vue 3, Vite, Vuetify, Apollo Client
-- **Testing**: Vitest
-- **Quality**: ESLint, Prettier, TypeScript strict mode, Vue type-checking
+- **UI**: Vue 3, Vuetify
+- **API Client**: Apollo Client (GraphQL)
+- **Build**: Vite
 
 **Responsibilities**:
 
-- **User Interface**: User interface and interactions
-- **Client Routing**: Single-page navigation and routing
-- **Authentication**: User sign-in and JWT token management
-- **GraphQL Client**: GraphQL API client communication
+- **User Interface**: Let the user see and change their data
+- **Authentication**: Let the user sign in
+- **API Access**: Connect to the backend through the GraphQL API
+- **Localization**: Show the interface in the language of the user
+- **PWA**: Let the user install the app on a mobile device without an app store
 
 ### Infra CDK
 
