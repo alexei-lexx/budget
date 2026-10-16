@@ -23,6 +23,7 @@ Apply to docs and code comments.
 - Use common words over rare ones
 - Avoid vague and filler phrases
 - One sentence per bullet, no period at the end
+- Write impersonally
 
 ## Think Before Coding
 
