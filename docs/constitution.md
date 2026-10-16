@@ -69,9 +69,9 @@ This npm package contains the AWS infrastructure code for the whole project.
 
 ## General Requirements
 
-- Deploy with free or minimal cost (use free-tier cloud services, no mandatory paid subscriptions)
-- Enable mobile installation via PWA without app store publishing
-- Minimize vendor lock-in (see [Vendor Independence](#vendor-independence) for details)
+- Use only free-tier or pay-per-use cloud services
+- Make the app installable on mobile devices as a PWA, without an app store
+- Minimize vendor lock-in (see [Vendor Independence](#vendor-independence))
 
 ## Infrastructure and Environments
 
