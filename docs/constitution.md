@@ -53,20 +53,19 @@ This npm package contains the single-page web application.
 
 ### Infra CDK
 
-An npm package providing unified infrastructure-as-code for both backend and frontend deployment to AWS.
+This npm package contains the AWS infrastructure code for the whole project.
 
 **Technologies**:
 
 - **Language**: TypeScript
-- **Framework**: AWS CDK
-- **Testing**: Vitest
-- **Quality**: ESLint, Prettier, TypeScript strict mode
+- **Infrastructure as Code**: AWS CDK
 
 **Responsibilities**:
 
-- **Backend Infrastructure**: DynamoDB tables, Lambda functions, API Gateway for GraphQL endpoint
-- **Frontend Infrastructure**: S3 bucket for static assets, CloudFront distribution for content delivery
-- **Deployment Orchestration**: Single CDK app managing both BackendCdkStack and FrontendCdkStack
+- **Backend Infrastructure**: Create the DynamoDB tables, the Lambda functions, and the API Gateway
+- **Frontend Infrastructure**: Create the S3 bucket and the CloudFront distribution
+- **Authentication Infrastructure**: Create the Cognito user pool
+- **Deployment**: Deploy all stacks from one CDK app
 
 ## General Requirements
 
