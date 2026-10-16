@@ -146,19 +146,19 @@ graph TD
 
 ### Vendor Independence
 
-**Non-negotiable rule**: Minimize vendor lock-in through technology choices and architectural decisions that preserve deployment flexibility.
+**Non-negotiable rule**: Choose technologies and an architecture that let the app move to a different provider.
 
-- **Frontend**: Must be deployable to any static hosting provider without code changes
-  (S3, GitHub Pages, nginx, Cloudflare Pages, Vercel, or equivalent)
-- **Backend**: Must be deployable to any Node.js runtime without code changes
-  (AWS Lambda, Docker containers, VPS, bare metal, or equivalent)
-- **Data Layer**: Database access must be abstracted to enable migration to another database
-  - **Repository Pattern**: Use repository pattern for all database access to support
-    database portability and maintainability
-  - **Portable Query Patterns**: Use only database operations and query patterns that
-    can be reproduced in popular SQL and NoSQL databases (PostgreSQL, MongoDB, MySQL, etc.).
+- **Frontend**: Keep the frontend deployable to any static host, such as S3 or nginx, without code changes
+- **Backend**: Keep the backend deployable to any Node.js runtime, such as AWS Lambda or Docker, without code changes
+- **Database**: Access the database through abstractions so that a different database can replace it
+  - Use the repository pattern for all database operations
+  - Use only database operations that other popular SQL and NoSQL databases also support
   - Avoid vendor-specific features and optimizations
-- **Infrastructure Code**: CDK is AWS-specific but frontend and backend remain portable
+- **External Services**: Access external services through abstractions
+- **Authentication**: Use standard OpenID Connect and JWT so that a configuration change can replace the identity provider
+- **Configuration**: Read runtime configuration only from environment variables
+  - Load values from an external store into environment variables
+- **Infrastructure Code**: CDK is AWS-specific, but the frontend and the backend stay portable
 
 ### Schema-Driven Development
 
