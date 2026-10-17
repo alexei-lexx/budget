@@ -78,8 +78,11 @@ export const GET_BY_CATEGORY_REPORT = gql`
       month
       type
       categories {
-        categoryId
-        categoryName
+        category {
+          id
+          name
+          isArchived
+        }
         currencyBreakdowns {
           currency
           totalAmount

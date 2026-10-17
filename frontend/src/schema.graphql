@@ -322,9 +322,14 @@ type ByCategoryReportCurrencyBreakdown {
   percentage: Int!
 }
 
+type ByCategoryReportEmbeddedCategory {
+  id: ID!
+  name: String!
+  isArchived: Boolean!
+}
+
 type ByCategoryReportCategory {
-  categoryId: ID
-  categoryName: String!
+  category: ByCategoryReportEmbeddedCategory
   currencyBreakdowns: [ByCategoryReportCurrencyBreakdown!]!
   topTransactions: [Transaction!]!
   totalTransactionCount: Int!

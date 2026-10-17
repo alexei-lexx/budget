@@ -1,11 +1,11 @@
 import { Temporal } from "temporal-polyfill";
 import { Failure, Result, Success } from "ts-result";
+import { Category } from "../models/category";
 import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date-string";
 
-const UNCATEGORIZED_LABEL = "Uncategorized";
 const TOP_TRANSACTIONS_LIMIT = 5;
 
 type ReportType = "INCOME" | "EXPENSE";
@@ -17,8 +17,7 @@ export interface ByCategoryReportCurrencyBreakdown {
 }
 
 export interface ByCategoryReportCategory {
-  categoryId?: string;
-  categoryName: string;
+  category?: Category;
   currencyBreakdowns: ByCategoryReportCurrencyBreakdown[];
   topTransactions: Transaction[];
   totalTransactionCount: number;
@@ -140,18 +139,18 @@ export class ByCategoryReportService {
       amountGetter,
     );
 
-    const categories = await this.groupByCategoryAndCurrency(
-      includedTransactions,
-      userId,
+    const categoryRows = this.groupByCategoryAndCurrency({
+      transactions: includedTransactions,
+      categories: allCategories,
       currencyTotals,
       amountGetter,
-    );
+    });
 
     return Success({
       year,
       month,
       type,
-      categories,
+      categories: categoryRows,
       currencyTotals,
     });
   }
@@ -173,35 +172,46 @@ export class ByCategoryReportService {
       .sort((a, b) => a.currency.localeCompare(b.currency));
   }
 
-  private async groupByCategoryAndCurrency(
-    transactions: Transaction[],
-    userId: string,
-    currencyTotals: ByCategoryReportCurrencyTotal[],
-    amountGetter: (t: Transaction) => number,
-  ): Promise<ByCategoryReportCategory[]> {
-    const categoryGroups = new Map<string | undefined, Transaction[]>();
+  private groupByCategoryAndCurrency({
+    transactions,
+    categories,
+    currencyTotals,
+    amountGetter,
+  }: {
+    transactions: Transaction[];
+    categories: Category[];
+    currencyTotals: ByCategoryReportCurrencyTotal[];
+    amountGetter: (t: Transaction) => number;
+  }): ByCategoryReportCategory[] {
+    const categoryById = new Map(
+      categories.map((category) => [category.id, category]),
+    );
+
+    const categoryGroups = new Map<
+      string | undefined,
+      { category?: Category; transactions: Transaction[] }
+    >();
 
     for (const transaction of transactions) {
-      const categoryId = transaction.categoryId || undefined;
-      const existing = categoryGroups.get(categoryId) || [];
-      existing.push(transaction);
+      // A category ID with no record joins the group without a category
+      const category = transaction.categoryId
+        ? categoryById.get(transaction.categoryId)
+        : undefined;
+      const categoryId = category?.id;
+      const existing = categoryGroups.get(categoryId) || {
+        category,
+        transactions: [],
+      };
+      existing.transactions.push(transaction);
       categoryGroups.set(categoryId, existing);
     }
 
-    const categories: ByCategoryReportCategory[] = [];
+    const categoryRows: ByCategoryReportCategory[] = [];
 
-    for (const [categoryId, categoryTransactions] of categoryGroups) {
-      let categoryName: string;
-      if (categoryId === undefined) {
-        categoryName = UNCATEGORIZED_LABEL;
-      } else {
-        const category = await this.categoryRepository.findOneById({
-          id: categoryId,
-          userId,
-        });
-        categoryName = category ? category.name : UNCATEGORIZED_LABEL;
-      }
-
+    for (const {
+      category,
+      transactions: categoryTransactions,
+    } of categoryGroups.values()) {
       const currencyBreakdowns = this.calculateCurrencyBreakdowns(
         categoryTransactions,
         currencyTotals,
@@ -213,18 +223,20 @@ export class ByCategoryReportService {
         .sort((a, b) => b.amount - a.amount)
         .slice(0, TOP_TRANSACTIONS_LIMIT);
 
-      categories.push({
-        categoryId,
-        categoryName,
+      categoryRows.push({
+        category,
         currencyBreakdowns,
         topTransactions,
         totalTransactionCount: categoryTransactions.length,
       });
     }
 
-    return categories.sort((a, b) =>
-      a.categoryName.localeCompare(b.categoryName),
-    );
+    // Groups with a category sort by name, the group without a category is last
+    return categoryRows.sort((a, b) => {
+      if (!a.category) return b.category ? 1 : 0;
+      if (!b.category) return -1;
+      return a.category.name.localeCompare(b.category.name);
+    });
   }
 
   private calculateCurrencyBreakdowns(

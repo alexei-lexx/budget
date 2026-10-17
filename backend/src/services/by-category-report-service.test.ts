@@ -59,35 +59,34 @@ describe("ByCategoryReportService", () => {
 
     it("groups transactions by category and currency", async () => {
       // Arrange
-      const categoryId1 = faker.string.uuid();
-      const categoryId2 = faker.string.uuid();
+      const foodCategory = fakeCategory({ name: "Food" });
+      const transportCategory = fakeCategory({ name: "Transport" });
 
       // Transactions across two categories, two currencies, plus uncategorized
       mockTransactionRepository.findManyByUserId.mockResolvedValue([
         fakeTransaction({
-          categoryId: categoryId1,
+          categoryId: foodCategory.id,
           currency: "USD",
           amount: 100,
         }),
         fakeTransaction({
-          categoryId: categoryId1,
+          categoryId: foodCategory.id,
           currency: "EUR",
           amount: 50,
         }),
         fakeTransaction({
-          categoryId: categoryId2,
+          categoryId: transportCategory.id,
           currency: "USD",
           amount: 200,
         }),
         fakeTransaction({ categoryId: undefined, currency: "USD", amount: 75 }),
       ]);
 
-      // Resolve each categoryId in order to its named category
-      mockCategoryRepository.findOneById
-        .mockResolvedValueOnce(fakeCategory({ id: categoryId1, name: "Food" }))
-        .mockResolvedValueOnce(
-          fakeCategory({ id: categoryId2, name: "Transport" }),
-        );
+      // Resolve each categoryId to its named category
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        foodCategory,
+        transportCategory,
+      ]);
 
       // Act
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
@@ -98,17 +97,17 @@ describe("ByCategoryReportService", () => {
         expect.objectContaining({
           categories: [
             expect.objectContaining({
-              categoryName: "Food",
+              category: foodCategory,
               topTransactions: expect.any(Array),
               totalTransactionCount: expect.any(Number),
             }),
             expect.objectContaining({
-              categoryName: "Transport",
+              category: transportCategory,
               topTransactions: expect.any(Array),
               totalTransactionCount: expect.any(Number),
             }),
             expect.objectContaining({
-              categoryName: "Uncategorized",
+              category: undefined,
               topTransactions: expect.any(Array),
               totalTransactionCount: expect.any(Number),
             }),
@@ -136,9 +135,9 @@ describe("ByCategoryReportService", () => {
       );
 
       // Resolve categoryId to named category
-      mockCategoryRepository.findOneById.mockResolvedValue(
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         fakeCategory({ id: categoryId, name: "Shopping" }),
-      );
+      ]);
 
       // Act
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
@@ -191,11 +190,15 @@ describe("ByCategoryReportService", () => {
 
     it("calculates percentages within each currency", async () => {
       // Arrange
-      const categoryId = uuidv4();
+      const foodCategory = fakeCategory({ name: "Food" });
 
       // One categorized and one uncategorized transaction in same currency
       const transactions = [
-        fakeTransaction({ categoryId, currency: "USD", amount: 100 }),
+        fakeTransaction({
+          categoryId: foodCategory.id,
+          currency: "USD",
+          amount: 100,
+        }),
         fakeTransaction({
           categoryId: undefined,
           currency: "USD",
@@ -207,9 +210,9 @@ describe("ByCategoryReportService", () => {
       );
 
       // Resolve categoryId to named category
-      mockCategoryRepository.findOneById.mockResolvedValue(
-        fakeCategory({ id: categoryId, name: "Food" }),
-      );
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        foodCategory,
+      ]);
 
       // Act
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
@@ -220,13 +223,13 @@ describe("ByCategoryReportService", () => {
         expect.objectContaining({
           categories: [
             expect.objectContaining({
-              categoryName: "Food",
+              category: foodCategory,
               currencyBreakdowns: [
                 expect.objectContaining({ percentage: 25 }), // 100/400 = 25%
               ],
             }),
             expect.objectContaining({
-              categoryName: "Uncategorized",
+              category: undefined,
               currencyBreakdowns: [
                 expect.objectContaining({ percentage: 75 }), // 300/400 = 75%
               ],
@@ -259,8 +262,7 @@ describe("ByCategoryReportService", () => {
         expect.objectContaining({
           categories: [
             expect.objectContaining({
-              categoryName: "Uncategorized",
-              categoryId: undefined,
+              category: undefined,
               currencyBreakdowns: [expect.any(Object), expect.any(Object)],
             }),
           ],
@@ -268,24 +270,25 @@ describe("ByCategoryReportService", () => {
       );
     });
 
-    it("treats deleted categories as Uncategorized", async () => {
+    it("treats orphan categories as Uncategorized", async () => {
       // Arrange
-      const deletedCategoryId = uuidv4();
+      const orphanCategoryId = uuidv4();
 
-      // Transaction references deleted category
+      // One transaction in orphan category, one transaction without category
       const transactions = [
         fakeTransaction({
-          categoryId: deletedCategoryId,
+          categoryId: orphanCategoryId,
           currency: "USD",
           amount: 100,
         }),
+        fakeTransaction({ categoryId: undefined, currency: "USD", amount: 50 }),
       ];
       mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
 
-      // Category lookup returns null for deleted category
-      mockCategoryRepository.findOneById.mockResolvedValue(null);
+      // User has no category with orphan category ID
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
 
       // Act
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
@@ -294,7 +297,72 @@ describe("ByCategoryReportService", () => {
       expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
-            expect.objectContaining({ categoryName: "Uncategorized" }),
+            expect.objectContaining({
+              category: undefined,
+              totalTransactionCount: 2,
+            }),
+          ],
+        }),
+      );
+    });
+
+    it("groups archived category transactions under that category", async () => {
+      // Arrange
+      const archivedCategory = fakeCategory({ isArchived: true });
+
+      // Transaction references archived category
+      const transactions = [
+        fakeTransaction({ categoryId: archivedCategory.id }),
+      ];
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
+        transactions,
+      );
+
+      // User has archived category
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        archivedCategory,
+      ]);
+
+      // Act
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
+
+      // Assert
+      expect(result).toBeSuccess(
+        expect.objectContaining({
+          categories: [expect.objectContaining({ category: archivedCategory })],
+        }),
+      );
+    });
+
+    it("does not group active and archived categories with same name", async () => {
+      // Arrange
+      const activeCategory = fakeCategory({ name: "Food", isArchived: false });
+      const archivedCategory = fakeCategory({ name: "Food", isArchived: true });
+
+      // One transaction in each category
+      const transactions = [
+        fakeTransaction({ categoryId: activeCategory.id }),
+        fakeTransaction({ categoryId: archivedCategory.id }),
+      ];
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
+        transactions,
+      );
+
+      // User has active and archived categories with same name
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        activeCategory,
+        archivedCategory,
+      ]);
+
+      // Act
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
+
+      // Assert
+      expect(result).toBeSuccess(
+        expect.objectContaining({
+          categories: [
+            expect.objectContaining({ category: activeCategory }),
+            expect.objectContaining({ category: archivedCategory }),
           ],
         }),
       );
@@ -302,18 +370,18 @@ describe("ByCategoryReportService", () => {
 
     it("sorts categories alphabetically by name", async () => {
       // Arrange
-      const categoryId1 = uuidv4();
-      const categoryId2 = uuidv4();
+      const zebraCategory = fakeCategory({ name: "Zebra" });
+      const appleCategory = fakeCategory({ name: "Apple" });
 
       // Transactions across two categories plus uncategorized
       const transactions = [
         fakeTransaction({
-          categoryId: categoryId1,
+          categoryId: zebraCategory.id,
           currency: "USD",
           amount: 100,
         }),
         fakeTransaction({
-          categoryId: categoryId2,
+          categoryId: appleCategory.id,
           currency: "USD",
           amount: 200,
         }),
@@ -324,11 +392,10 @@ describe("ByCategoryReportService", () => {
       );
 
       // Resolve categories with names that need alphabetical sorting
-      mockCategoryRepository.findOneById
-        .mockResolvedValueOnce(fakeCategory({ id: categoryId1, name: "Zebra" }))
-        .mockResolvedValueOnce(
-          fakeCategory({ id: categoryId2, name: "Apple" }),
-        );
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        zebraCategory,
+        appleCategory,
+      ]);
 
       // Act
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
@@ -337,9 +404,9 @@ describe("ByCategoryReportService", () => {
       expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
-            expect.objectContaining({ categoryName: "Apple" }),
-            expect.objectContaining({ categoryName: "Uncategorized" }),
-            expect.objectContaining({ categoryName: "Zebra" }),
+            expect.objectContaining({ category: appleCategory }),
+            expect.objectContaining({ category: zebraCategory }),
+            expect.objectContaining({ category: undefined }),
           ],
         }),
       );
@@ -442,9 +509,9 @@ describe("ByCategoryReportService", () => {
       ]);
 
       // Resolve categoryId to named category
-      mockCategoryRepository.findOneById.mockResolvedValue(
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         fakeCategory({ id: categoryId }),
-      );
+      ]);
 
       // Act
       const result = await reportService.call(userId, 2025, 11, "EXPENSE");
@@ -479,9 +546,9 @@ describe("ByCategoryReportService", () => {
       ]);
 
       // Resolve categoryId to named category
-      mockCategoryRepository.findOneById.mockResolvedValue(
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         fakeCategory({ id: categoryId }),
-      );
+      ]);
 
       // Act
       const result = await reportService.call(userId, 2025, 11, "EXPENSE");
@@ -516,9 +583,9 @@ describe("ByCategoryReportService", () => {
       ]);
 
       // Resolve categoryId to named category
-      mockCategoryRepository.findOneById.mockResolvedValue(
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         fakeCategory({ id: categoryId }),
-      );
+      ]);
 
       // Act
       const result = await reportService.call(userId, 2025, 11, "INCOME");
@@ -577,9 +644,9 @@ describe("ByCategoryReportService", () => {
       );
 
       // Resolve categoryId to named category
-      mockCategoryRepository.findOneById.mockResolvedValue(
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         fakeCategory({ id: categoryId }),
-      );
+      ]);
 
       // Act
       const result = await reportService.call(userId, 2025, 11, "EXPENSE");
@@ -633,7 +700,7 @@ describe("ByCategoryReportService", () => {
         expect.objectContaining({
           categories: [
             expect.objectContaining({
-              categoryName: "Uncategorized",
+              category: undefined,
               currencyBreakdowns: [
                 expect.objectContaining({ totalAmount: 500 }), // 600 - 100
               ],
@@ -683,11 +750,6 @@ describe("ByCategoryReportService", () => {
         excludedCategory,
       ]);
 
-      // Resolve only included category by id
-      mockCategoryRepository.findOneById.mockResolvedValueOnce(
-        includedCategory,
-      );
-
       // Act
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
@@ -699,8 +761,8 @@ describe("ByCategoryReportService", () => {
             expect.objectContaining({ totalAmount: 300 }), // 100 + 200, excluding 500
           ],
           categories: [
-            expect.objectContaining({ categoryName: "Groceries" }),
-            expect.objectContaining({ categoryName: "Uncategorized" }),
+            expect.objectContaining({ category: includedCategory }),
+            expect.objectContaining({ category: undefined }),
           ],
         }),
       );
@@ -710,7 +772,6 @@ describe("ByCategoryReportService", () => {
       // Arrange
       const activeIncludedCategory = fakeCategory({
         userId,
-        name: "Groceries",
         excludeFromReports: false,
         isArchived: false,
       });
@@ -743,11 +804,6 @@ describe("ByCategoryReportService", () => {
         archivedExcludedCategory,
       ]);
 
-      // Resolves only active category by id; archived one is not found
-      mockCategoryRepository.findOneById.mockImplementation(async ({ id }) =>
-        id === activeIncludedCategory.id ? activeIncludedCategory : null,
-      );
-
       // Act
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
@@ -757,7 +813,9 @@ describe("ByCategoryReportService", () => {
           currencyTotals: [
             expect.objectContaining({ currency: "USD", totalAmount: 200 }),
           ],
-          categories: [expect.objectContaining({ categoryName: "Groceries" })],
+          categories: [
+            expect.objectContaining({ category: activeIncludedCategory }),
+          ],
         }),
       );
       expect(
@@ -905,9 +963,6 @@ describe("ByCategoryReportService", () => {
         mockTransactionRepository.findManyByUserId.mockResolvedValue(
           transactions,
         );
-
-        // Resolve any categoryId to a placeholder category
-        mockCategoryRepository.findOneById.mockResolvedValue(fakeCategory());
 
         // Act
         const result = await reportService.call(
