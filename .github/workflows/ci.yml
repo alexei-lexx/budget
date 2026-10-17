@@ -2,13 +2,25 @@ name: CI
 
 on:
   push:
+    # Run on a push to main
+    # Do not run on a push to other branches
     branches: [main]
     paths-ignore:
-      - '**/*.md'
+      - ".agents/**"
+      - ".claude/**"
+      - "**/*.md"
+      - "docs/**"
+      - "openspec/**"
   pull_request:
+    # Run when a pull request into main opens or changes
+    # Do not run on a branch without a pull request into main
     branches: [main]
     paths-ignore:
-      - '**/*.md'
+      - ".agents/**"
+      - ".claude/**"
+      - "**/*.md"
+      - "docs/**"
+      - "openspec/**"
 
 permissions:
   contents: read
