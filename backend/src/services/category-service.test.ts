@@ -2,25 +2,36 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../models/category";
 import { CategoryRepository } from "../ports/category-repository";
+import { TransactionRepository } from "../ports/transaction-repository";
 import {
   fakeCategory,
   fakeCreateCategoryInput,
 } from "../utils/test-utils/models/category-fakes";
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
+import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
 import { CategoryServiceImpl } from "./category-service";
 
 describe("CategoryService", () => {
   let mockCategoryRepository: Mocked<CategoryRepository>;
+  let mockTransactionRepository: Mocked<TransactionRepository>;
   let service: CategoryServiceImpl;
   let userId: string;
 
   beforeEach(() => {
     mockCategoryRepository = createMockCategoryRepository();
-    service = new CategoryServiceImpl(mockCategoryRepository);
+    mockTransactionRepository = createMockTransactionRepository();
+    service = new CategoryServiceImpl(
+      mockCategoryRepository,
+      mockTransactionRepository,
+    );
     userId = faker.string.uuid();
 
     // Default: no existing categories for duplicate-name lookup
     mockCategoryRepository.findManyByUserId.mockResolvedValue([]);
+    // Default: no active transactions in category
+    mockTransactionRepository.hasTransactionsForCategory.mockResolvedValue(
+      false,
+    );
   });
 
   describe("getCategoriesByUser", () => {
@@ -304,6 +315,83 @@ describe("CategoryService", () => {
       expect(mockCategoryRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
+    it("changes type when category has no active transactions", async () => {
+      // Arrange
+      const categoryId = faker.string.uuid();
+      const existingCategory = fakeCategory({
+        id: categoryId,
+        userId,
+        type: "EXPENSE",
+      });
+
+      // Category exists
+      mockCategoryRepository.findOneById.mockResolvedValue(existingCategory);
+      // Category has no active transactions
+      mockTransactionRepository.hasTransactionsForCategory.mockResolvedValue(
+        false,
+      );
+      // Persists and returns updated category
+      mockCategoryRepository.update.mockImplementation(async (category) =>
+        category.bumpVersion(),
+      );
+
+      // Act
+      const result = await service.updateCategory(categoryId, userId, {
+        type: "INCOME",
+      });
+
+      // Assert
+      expect(result).toBeSuccess(expect.objectContaining({ type: "INCOME" }));
+      expect(
+        mockTransactionRepository.hasTransactionsForCategory,
+      ).toHaveBeenCalledWith({ categoryId, userId });
+      expect(mockCategoryRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({ id: categoryId, type: "INCOME" }),
+      );
+    });
+
+    it("updates category with active transactions when type does not change", async () => {
+      // Arrange
+      const categoryId = faker.string.uuid();
+      const existingCategory = fakeCategory({
+        id: categoryId,
+        userId,
+        type: "EXPENSE",
+        excludeFromReports: false,
+      });
+
+      // Category exists
+      mockCategoryRepository.findOneById.mockResolvedValue(existingCategory);
+      // Category has active transactions
+      mockTransactionRepository.hasTransactionsForCategory.mockResolvedValue(
+        true,
+      );
+      // Persists and returns updated category
+      mockCategoryRepository.update.mockImplementation(async (category) =>
+        category.bumpVersion(),
+      );
+
+      // Act
+      const result = await service.updateCategory(categoryId, userId, {
+        name: "New Name",
+        type: "EXPENSE",
+        excludeFromReports: true,
+      });
+
+      // Assert
+      expect(result).toBeSuccess(
+        expect.objectContaining({
+          name: "New Name",
+          type: "EXPENSE",
+          excludeFromReports: true,
+        }),
+      );
+      expect(
+        mockTransactionRepository.hasTransactionsForCategory,
+      ).not.toHaveBeenCalled();
+      expect(mockCategoryRepository.update).toHaveBeenCalled();
+    });
+
     // Validation failures
 
     it("fails when category is not found", async () => {
@@ -385,6 +473,37 @@ describe("CategoryService", () => {
 
       // Assert
       expect(result).toBeFailure('Category "Groceries" already exists');
+      expect(mockCategoryRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("fails when type changes and category has active transactions", async () => {
+      // Arrange
+      const categoryId = faker.string.uuid();
+      const existingCategory = fakeCategory({
+        id: categoryId,
+        userId,
+        type: "EXPENSE",
+      });
+
+      // Category exists
+      mockCategoryRepository.findOneById.mockResolvedValue(existingCategory);
+      // Category has active transactions
+      mockTransactionRepository.hasTransactionsForCategory.mockResolvedValue(
+        true,
+      );
+
+      // Act
+      const result = await service.updateCategory(categoryId, userId, {
+        type: "INCOME",
+      });
+
+      // Assert
+      expect(result).toBeFailure(
+        "Cannot change type of category with transactions",
+      );
+      expect(
+        mockTransactionRepository.hasTransactionsForCategory,
+      ).toHaveBeenCalledWith({ categoryId, userId });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
   });

@@ -7,6 +7,7 @@ import {
 } from "../models/category";
 import { ModelError } from "../models/model-error";
 import { CategoryRepository } from "../ports/category-repository";
+import { TransactionRepository } from "../ports/transaction-repository";
 import { EntityScope } from "../types/entity-scope";
 
 export interface CategoryService {
@@ -28,7 +29,10 @@ export interface CategoryService {
  * Implements the service layer pattern for category operations
  */
 export class CategoryServiceImpl implements CategoryService {
-  constructor(private categoryRepository: CategoryRepository) {}
+  constructor(
+    private categoryRepository: CategoryRepository,
+    private transactionRepository: TransactionRepository,
+  ) {}
 
   /**
    * Get categories for a user filtered by scope, optionally filtered by type
@@ -118,6 +122,16 @@ export class CategoryServiceImpl implements CategoryService {
       (await this.isDuplicateName(userId, updatedCategory.name, id))
     ) {
       return Failure(`Category "${updatedCategory.name}" already exists`);
+    }
+
+    if (
+      updatedCategory.type !== existingCategory.type &&
+      (await this.transactionRepository.hasTransactionsForCategory({
+        categoryId: id,
+        userId,
+      }))
+    ) {
+      return Failure("Cannot change type of category with transactions");
     }
 
     return Success(await this.categoryRepository.update(updatedCategory));

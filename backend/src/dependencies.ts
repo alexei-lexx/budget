@@ -132,7 +132,11 @@ export const resolveAccountService = createSingleton(
     ),
 );
 export const resolveCategoryService = createSingleton(
-  () => new CategoryServiceImpl(resolveCategoryRepository()),
+  () =>
+    new CategoryServiceImpl(
+      resolveCategoryRepository(),
+      resolveTransactionRepository(),
+    ),
 );
 export const resolveCurrencyService = createSingleton(
   () => new CurrencyServiceImpl(resolveAccountRepository()),
