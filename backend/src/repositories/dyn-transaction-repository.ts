@@ -613,6 +613,60 @@ export class DynTransactionRepository
     }
   }
 
+  async hasTransactionsForCategory({
+    categoryId,
+    userId,
+  }: {
+    categoryId: string;
+    userId: string;
+  }): Promise<boolean> {
+    if (!categoryId) {
+      throw new RepositoryError("Category ID is required");
+    }
+
+    if (!userId) {
+      throw new RepositoryError("User ID is required");
+    }
+
+    try {
+      let exclusiveStartKey: Record<string, unknown> | undefined;
+
+      // The filter applies after each page is read,
+      // so a page without a match does not prove there is no match
+      do {
+        const command = new QueryCommand({
+          TableName: this.tableName,
+          KeyConditionExpression: "userId = :userId",
+          FilterExpression:
+            "categoryId = :categoryId AND isArchived = :isArchived",
+          ExpressionAttributeValues: {
+            ":userId": userId,
+            ":categoryId": categoryId,
+            ":isArchived": false,
+          },
+          Select: "COUNT",
+          ExclusiveStartKey: exclusiveStartKey,
+        });
+
+        const result = await this.client.send(command);
+
+        if ((result.Count || 0) > 0) {
+          return true;
+        }
+
+        exclusiveStartKey = result.LastEvaluatedKey;
+      } while (exclusiveStartKey);
+
+      return false;
+    } catch (error) {
+      console.error("Error checking transactions for category:", error);
+      throw new RepositoryError(
+        "Failed to check transactions for category",
+        error,
+      );
+    }
+  }
+
   async detectPatterns({
     userId,
     type,

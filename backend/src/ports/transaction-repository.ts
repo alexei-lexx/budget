@@ -54,6 +54,10 @@ export interface TransactionRepository {
     accountId: string;
     userId: string;
   }): Promise<boolean>;
+  hasTransactionsForCategory(selector: {
+    categoryId: string;
+    userId: string;
+  }): Promise<boolean>;
   detectPatterns(options: {
     userId: string;
     type: TransactionPatternType;

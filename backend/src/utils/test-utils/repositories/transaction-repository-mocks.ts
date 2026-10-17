@@ -15,5 +15,6 @@ export const createMockTransactionRepository =
     create: vi.fn(),
     update: vi.fn(),
     hasTransactionsForAccount: vi.fn(),
+    hasTransactionsForCategory: vi.fn(),
     detectPatterns: vi.fn(),
   });

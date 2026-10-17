@@ -2,7 +2,10 @@ import { GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { Transaction, TransactionType } from "../models/transaction";
-import { VersionConflictError } from "../ports/repository-error";
+import {
+  RepositoryError,
+  VersionConflictError,
+} from "../ports/repository-error";
 import { toDateString } from "../types/date-string";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
@@ -1942,6 +1945,110 @@ describe("DynTransactionRepository", () => {
         userId: owner,
       });
       expect(original).toEqual(created);
+    });
+  });
+
+  describe("hasTransactionsForCategory", () => {
+    // Happy path
+
+    it("returns true when user has active transaction in category", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const categoryId = faker.string.uuid();
+
+      // Active transaction for user in category
+      await repository.create(fakeExpense({ userId, categoryId }));
+
+      // Act
+      const result = await repository.hasTransactionsForCategory({
+        categoryId,
+        userId,
+      });
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it("returns false when user has transactions only in other category", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const categoryId = faker.string.uuid();
+      const otherCategoryId = faker.string.uuid();
+
+      // Active transaction for user in other category
+      await repository.create(
+        fakeExpense({ userId, categoryId: otherCategoryId }),
+      );
+
+      // Act
+      const result = await repository.hasTransactionsForCategory({
+        categoryId,
+        userId,
+      });
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("returns false when all transactions in category are archived", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const categoryId = faker.string.uuid();
+
+      // Archived transaction for user in category
+      await repository.create(
+        fakeExpense({ userId, categoryId, isArchived: true }),
+      );
+
+      // Act
+      const result = await repository.hasTransactionsForCategory({
+        categoryId,
+        userId,
+      });
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("returns false when only another user has transactions in category", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const otherUserId = faker.string.uuid();
+      const categoryId = faker.string.uuid();
+
+      // Active transaction for another user in category
+      await repository.create(fakeExpense({ userId: otherUserId, categoryId }));
+
+      // Act
+      const result = await repository.hasTransactionsForCategory({
+        categoryId,
+        userId,
+      });
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    // Validation failures
+
+    it("fails when categoryId is empty", async () => {
+      // Act & Assert
+      await expect(
+        repository.hasTransactionsForCategory({
+          categoryId: "",
+          userId: faker.string.uuid(),
+        }),
+      ).rejects.toThrow(new RepositoryError("Category ID is required"));
+    });
+
+    it("fails when userId is empty", async () => {
+      // Act & Assert
+      await expect(
+        repository.hasTransactionsForCategory({
+          categoryId: faker.string.uuid(),
+          userId: "",
+        }),
+      ).rejects.toThrow(new RepositoryError("User ID is required"));
     });
   });
 
