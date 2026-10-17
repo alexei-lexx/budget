@@ -8,43 +8,26 @@ context: |
 
   All principles stated in the constitution are NON-NEGOTIABLE and MUST be followed.
 
+  Apply the "Writing Style" rules from the agent instructions file (`CLAUDE.md`, `AGENTS.md`, or equivalent) to every artifact.
   Run `npx prettier --write openspec/` after creating or updating any artifact to ensure consistent formatting.
-
-  To check the application, assume that the backend and frontend are already up and running.
 
 rules:
   proposal:
     - When on the `main` branch, create a git branch for each proposal using the name of the proposal without prefixes and suffixes
     - If applicable, include an issue number, title, and description at the beginning
-    - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
-    - Use short, simple sentences focused on one idea; avoid long compound and complex sentences and vague phrasing; be concrete and specific
+    - Include a "## Constitution Compliance" section that lists the principles that apply and any violations
   design:
-    - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
-    - Use short, simple sentences focused on one idea; avoid long compound and complex sentences and vague phrasing; be concrete and specific
+    - Include a "## Constitution Compliance" section that lists the principles that apply and any violations
   specs:
     - Make sure the spec does not include technical details
-    - Use short, simple sentences focused on one idea; avoid long compound and complex sentences and vague phrasing; be concrete and specific
   tasks:
-    - Include "## Code Style" as the first section, with a link to `docs/code-style.md` as a reminder to apply it during implementation
-    - Include "## Testing" as the second section, with an instruction to use `testing` skill for each new or modified test
     - Use test-driven development - write tests first, then implement and refactor
-    - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
+    - Omit end-to-end manual verification tasks if backend tests can fully verify the change
+    - Include a "## Constitution Compliance" section that lists the principles that apply and any violations
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
-
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+operations:
+  apply:
+    guidance:
+      - Apply the code style rules in `docs/code-style.md`
+      - Use the `testing` skill for each new or modified test
+      - To check the application, assume that the backend and frontend are already up and running
