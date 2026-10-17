@@ -16,7 +16,7 @@ Code style rules (naming, formatting, and similar conventions) live in `docs/cod
 
 ## Writing Style
 
-Apply to docs and code comments.
+Apply to docs, code comments, and skills.
 
 - Use ASD Simplified Technical English (ASD-STE100)
 - Prefer short sentences over long compound ones
