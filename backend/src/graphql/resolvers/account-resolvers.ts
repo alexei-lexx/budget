@@ -4,6 +4,7 @@ import {
   MutationDeleteAccountArgs,
   MutationUpdateAccountArgs,
 } from "../../__generated__/resolvers-types";
+import { BadRequestGraphQLError } from "../bad-request-graphql-error";
 import { GraphQLContext } from "../context";
 import { getAuthenticatedUser } from "./shared";
 
@@ -20,7 +21,7 @@ export const accountResolvers = {
         "ACTIVE",
       );
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
     supportedCurrencies: async (
       _parent: unknown,
@@ -32,7 +33,7 @@ export const accountResolvers = {
         userId: user.id,
       });
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
   },
   Mutation: {
@@ -50,7 +51,7 @@ export const accountResolvers = {
         initialBalance: args.input.initialBalance,
       });
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
     updateAccount: async (
       _parent: unknown,
@@ -67,7 +68,7 @@ export const accountResolvers = {
         name: updateData.name ?? undefined,
       });
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
     deleteAccount: async (
       _parent: unknown,
@@ -84,7 +85,7 @@ export const accountResolvers = {
       const user = await getAuthenticatedUser(context);
       const result = await context.accountService.deleteAccount(id, user.id);
 
-      result.unwrapOrThrowAs(GraphQLError);
+      result.unwrapOrThrowAs(BadRequestGraphQLError);
 
       return undefined;
     },

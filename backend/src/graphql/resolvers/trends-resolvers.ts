@@ -1,10 +1,10 @@
-import { GraphQLError } from "graphql";
 import {
   MutationCreateTrendPresetArgs,
   MutationDeleteTrendPresetArgs,
   QueryExpenseTrendArgs,
 } from "../../__generated__/resolvers-types";
 import { toDateString } from "../../types/date-string";
+import { BadRequestGraphQLError } from "../bad-request-graphql-error";
 import { GraphQLContext } from "../context";
 
 import { getAuthenticatedUser } from "./shared";
@@ -28,7 +28,7 @@ export const trendsResolvers = {
         includeUncategorized: args.input.includeUncategorized || undefined,
       });
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
     trendPresets: async (
       _parent: unknown,
@@ -41,7 +41,7 @@ export const trendsResolvers = {
         user.id,
       );
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
   },
   Mutation: {
@@ -63,7 +63,7 @@ export const trendsResolvers = {
         },
       );
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
     deleteTrendPreset: async (
       _parent: unknown,
@@ -77,7 +77,7 @@ export const trendsResolvers = {
         args.id,
       );
 
-      result.unwrapOrThrowAs(GraphQLError);
+      result.unwrapOrThrowAs(BadRequestGraphQLError);
 
       return undefined;
     },

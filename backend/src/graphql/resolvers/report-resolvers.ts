@@ -1,5 +1,5 @@
-import { GraphQLError } from "graphql";
 import { QueryByCategoryReportArgs } from "../../__generated__/resolvers-types";
+import { BadRequestGraphQLError } from "../bad-request-graphql-error";
 import { GraphQLContext } from "../context";
 
 import { getAuthenticatedUser } from "./shared";
@@ -20,7 +20,7 @@ export const reportResolvers = {
         args.type,
       );
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
   },
 };
