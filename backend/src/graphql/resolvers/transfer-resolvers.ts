@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql";
 import {
   MutationCreateTransferArgs,
   MutationDeleteTransferArgs,
@@ -7,6 +6,7 @@ import {
 } from "../../__generated__/resolvers-types";
 
 import { toDateString, toDateStringOrUndefined } from "../../types/date-string";
+import { BadRequestGraphQLError } from "../bad-request-graphql-error";
 import { GraphQLContext } from "../context";
 import { getAuthenticatedUser } from "./shared";
 
@@ -23,7 +23,7 @@ export const transferResolvers = {
         user.id,
       );
 
-      const transferResult = result.unwrapOrThrowAs(GraphQLError);
+      const transferResult = result.unwrapOrThrowAs(BadRequestGraphQLError);
 
       if (!transferResult) {
         return undefined;
@@ -52,7 +52,7 @@ export const transferResolvers = {
         user.id,
       );
 
-      const transferResult = result.unwrapOrThrowAs(GraphQLError);
+      const transferResult = result.unwrapOrThrowAs(BadRequestGraphQLError);
 
       return {
         id: transferResult.transferId,
@@ -76,7 +76,7 @@ export const transferResolvers = {
         toAccountId: updateData.toAccountId ?? undefined,
       });
 
-      const transferResult = result.unwrapOrThrowAs(GraphQLError);
+      const transferResult = result.unwrapOrThrowAs(BadRequestGraphQLError);
 
       return {
         id: transferResult.transferId,
@@ -95,7 +95,7 @@ export const transferResolvers = {
         user.id,
       );
 
-      result.unwrapOrThrowAs(GraphQLError);
+      result.unwrapOrThrowAs(BadRequestGraphQLError);
 
       return true;
     },

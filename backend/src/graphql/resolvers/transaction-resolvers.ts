@@ -14,6 +14,7 @@ import {
 } from "../../models/transaction";
 
 import { toDateString, toDateStringOrUndefined } from "../../types/date-string";
+import { BadRequestGraphQLError } from "../bad-request-graphql-error";
 import { GraphQLContext } from "../context";
 import type {
   TransactionEmbeddedAccount,
@@ -60,7 +61,7 @@ export const transactionResolvers = {
         },
       );
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
     transactionPatterns: async (
       _parent: unknown,
@@ -75,7 +76,7 @@ export const transactionResolvers = {
         user.transactionPatternsLimit,
       );
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
     transactionDescriptionSuggestions: async (
       _parent: unknown,
@@ -96,7 +97,7 @@ export const transactionResolvers = {
         searchText,
       );
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
   },
   Mutation: {
@@ -119,7 +120,7 @@ export const transactionResolvers = {
         user.id,
       );
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
     updateTransaction: async (
       _parent: unknown,
@@ -146,7 +147,7 @@ export const transactionResolvers = {
         },
       );
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
     deleteTransaction: async (
       _parent: unknown,
@@ -166,7 +167,7 @@ export const transactionResolvers = {
         user.id,
       );
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
   },
   /**

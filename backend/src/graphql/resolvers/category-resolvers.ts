@@ -5,6 +5,7 @@ import {
   MutationUpdateCategoryArgs,
   QueryCategoriesArgs,
 } from "../../__generated__/resolvers-types";
+import { BadRequestGraphQLError } from "../bad-request-graphql-error";
 import { GraphQLContext } from "../context";
 import { getAuthenticatedUser } from "./shared";
 
@@ -24,7 +25,7 @@ export const categoryResolvers = {
         },
       );
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
   },
   Mutation: {
@@ -42,7 +43,7 @@ export const categoryResolvers = {
         excludeFromReports: args.input.excludeFromReports,
       });
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
     updateCategory: async (
       _parent: unknown,
@@ -59,7 +60,7 @@ export const categoryResolvers = {
         type: updateData.type ?? undefined,
       });
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
     deleteCategory: async (
       _parent: unknown,
@@ -76,7 +77,7 @@ export const categoryResolvers = {
       const user = await getAuthenticatedUser(context);
       const result = await context.categoryService.deleteCategory(id, user.id);
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
   },
 };

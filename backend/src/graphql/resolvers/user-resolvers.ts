@@ -1,7 +1,7 @@
-import { GraphQLError } from "graphql";
 import { MutationUpdateUserSettingsArgs } from "../../__generated__/resolvers-types";
 import { User } from "../../models/user";
 import { SUPPORTED_INTERFACE_LANGUAGES } from "../../types/language";
+import { BadRequestGraphQLError } from "../bad-request-graphql-error";
 import { GraphQLContext } from "../context";
 import { getAuthenticatedUser, requireAuthentication } from "./shared";
 
@@ -12,7 +12,7 @@ async function ensureAuthenticatedUser(context: GraphQLContext): Promise<User> {
   const authUser = requireAuthentication(context);
   const result = await context.userService.ensureUser(authUser.email);
 
-  return result.unwrapOrThrowAs(GraphQLError);
+  return result.unwrapOrThrowAs(BadRequestGraphQLError);
 }
 
 export const userResolvers = {
@@ -33,7 +33,7 @@ export const userResolvers = {
       const user = await getAuthenticatedUser(context);
       const result = await context.userService.getSettings(user.id);
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
   },
   Mutation: {
@@ -60,7 +60,7 @@ export const userResolvers = {
           args.input.transactionPatternsLimit ?? undefined,
       });
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
 
     regenerateMcpToken: async (
@@ -71,7 +71,7 @@ export const userResolvers = {
       const user = await getAuthenticatedUser(context);
       const result = await context.userService.regenerateMcpToken(user.id);
 
-      return result.unwrapOrThrowAs(GraphQLError);
+      return result.unwrapOrThrowAs(BadRequestGraphQLError);
     },
   },
 };
