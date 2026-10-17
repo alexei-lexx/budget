@@ -1,4 +1,4 @@
-# Trends Specification
+# Expense Trends Specification
 
 ## Purpose
 

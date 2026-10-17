@@ -1,4 +1,4 @@
-# Reports Specification
+# Expense Breakdown Specification
 
 ## Purpose
 
@@ -12,7 +12,7 @@ The system SHALL generate a monthly expense report that groups transactions by c
 
 #### Scenario: Report loads for the current month by default
 
-- **GIVEN** a user navigates to the Reports page
+- **GIVEN** a user navigates to the Expense Breakdown page
 - **WHEN** the page loads
 - **THEN** the current month's expense report is displayed automatically
 
@@ -53,22 +53,22 @@ The system SHALL allow users to navigate between months using Previous and Next 
 #### Scenario: Month navigation is not shown in yearly mode
 
 - **GIVEN** the user is in yearly view mode
-- **WHEN** viewing the Expense Report page
+- **WHEN** viewing the Expense Breakdown page
 - **THEN** the month navigation controls are not visible
 
 ### Requirement: View Mode Toggle
 
-The system SHALL provide a toggle on the Expense Report page that allows users to switch between monthly and yearly view modes.
+The system SHALL provide a toggle on the Expense Breakdown page that allows users to switch between monthly and yearly view modes.
 
-#### Scenario: Toggle is visible on the Expense Report page
+#### Scenario: Toggle is visible on the Expense Breakdown page
 
-- **GIVEN** a user navigates to the Expense Report page
+- **GIVEN** a user navigates to the Expense Breakdown page
 - **WHEN** the page loads
 - **THEN** a toggle with "Monthly" and "Yearly" options is visible in the page header
 
 #### Scenario: Monthly mode is active by default
 
-- **GIVEN** a user navigates to the Expense Report page with no URL parameters
+- **GIVEN** a user navigates to the Expense Breakdown page with no URL parameters
 - **WHEN** the page loads
 - **THEN** the "Monthly" toggle option is selected and the current month's report is displayed
 
@@ -128,13 +128,13 @@ The system SHALL encode the selected view mode and period in the URL so that rep
 
 #### Scenario: Page loads from a yearly URL bookmark
 
-- **GIVEN** a user navigates directly to the report page with `?year=2024` (no month param)
+- **GIVEN** a user navigates directly to the Expense Breakdown page with `?year=2024` (no month param)
 - **WHEN** the page loads
 - **THEN** the yearly view mode is active and the 2024 yearly report is displayed
 
 #### Scenario: Page loads from a monthly URL bookmark
 
-- **GIVEN** a user navigates directly to the report page with `?year=2024&month=6`
+- **GIVEN** a user navigates directly to the Expense Breakdown page with `?year=2024&month=6`
 - **WHEN** the page loads
 - **THEN** the monthly view mode is active and the June 2024 monthly report is displayed
 
@@ -178,14 +178,14 @@ The system SHALL omit transactions belonging to categories marked "Exclude from 
 
 - **GIVEN** transactions in a category marked as excluded from reports
 - **WHEN** viewing the monthly report
-- **THEN** those transactions are excluded from income and expense totals
+- **THEN** those transactions are excluded from the totals
 - AND the excluded category does not appear in the category breakdown
 
 #### Scenario: Month with only excluded-category transactions shows zero
 
 - **GIVEN** a month where all transactions belong to excluded categories
 - **WHEN** viewing that month's report
-- **THEN** the report shows zero income and zero expenses
+- **THEN** the report shows zero totals
 
 #### Scenario: Deleted excluded category transactions do not appear in the report
 
