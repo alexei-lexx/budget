@@ -43,8 +43,20 @@
               >
                 <td v-if="breakdownIndex === 0" :rowspan="category.currencyBreakdowns.length">
                   <div class="d-flex align-center">
-                    <em v-if="!category.categoryId" class="text-h6">{{ category.categoryName }}</em>
-                    <span v-else class="text-h6">{{ category.categoryName }}</span>
+                    <em v-if="!category.category" class="text-h6">
+                      {{ getCategoryLabel(category) }}
+                    </em>
+                    <span
+                      v-else-if="category.category.isArchived"
+                      class="text-h6 text-decoration-line-through text-medium-emphasis"
+                      :aria-label="
+                        t('transactions.deletedEntity', { name: category.category.name })
+                      "
+                      :title="t('transactions.deletedCategory')"
+                    >
+                      {{ getCategoryLabel(category) }}
+                    </span>
+                    <span v-else class="text-h6">{{ getCategoryLabel(category) }}</span>
                     <v-icon
                       size="small"
                       class="ml-2"
@@ -151,7 +163,12 @@ const expandedTransactions = ref<Set<string>>(new Set());
 
 // Helper function to get a unique key for a category
 const getCategoryKey = (category: ByCategoryReportCategory): string => {
-  return category.categoryId || "uncategorized";
+  return category.category?.id ?? "uncategorized";
+};
+
+// Helper function to get the shown label for a category
+const getCategoryLabel = (category: ByCategoryReportCategory): string => {
+  return category.category?.name ?? t("common.uncategorized");
 };
 
 // Handle category row click to expand/collapse
@@ -199,7 +216,7 @@ const categories = computed(() => {
     });
   } else {
     // Sort alphabetically by category name
-    return categoriesCopy.sort((a, b) => a.categoryName.localeCompare(b.categoryName));
+    return categoriesCopy.sort((a, b) => getCategoryLabel(a).localeCompare(getCategoryLabel(b)));
   }
 });
 

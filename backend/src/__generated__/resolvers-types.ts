@@ -78,8 +78,7 @@ export type ByCategoryReport = {
 
 export type ByCategoryReportCategory = {
   __typename?: 'ByCategoryReportCategory';
-  categoryId?: Maybe<Scalars['ID']['output']>;
-  categoryName: Scalars['String']['output'];
+  category?: Maybe<ByCategoryReportEmbeddedCategory>;
   currencyBreakdowns: Array<ByCategoryReportCurrencyBreakdown>;
   topTransactions: Array<Transaction>;
   totalTransactionCount: Scalars['Int']['output'];
@@ -96,6 +95,13 @@ export type ByCategoryReportCurrencyTotal = {
   __typename?: 'ByCategoryReportCurrencyTotal';
   currency: Scalars['String']['output'];
   totalAmount: Scalars['Float']['output'];
+};
+
+export type ByCategoryReportEmbeddedCategory = {
+  __typename?: 'ByCategoryReportEmbeddedCategory';
+  id: Scalars['ID']['output'];
+  isArchived: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type Category = {
@@ -668,6 +674,7 @@ export type ResolversTypes = {
   ByCategoryReportCategory: ResolverTypeWrapper<Omit<ByCategoryReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversTypes['Transaction']> }>;
   ByCategoryReportCurrencyBreakdown: ResolverTypeWrapper<ByCategoryReportCurrencyBreakdown>;
   ByCategoryReportCurrencyTotal: ResolverTypeWrapper<ByCategoryReportCurrencyTotal>;
+  ByCategoryReportEmbeddedCategory: ResolverTypeWrapper<ByCategoryReportEmbeddedCategory>;
   Category: ResolverTypeWrapper<Category>;
   CategoryType: CategoryType;
   CreateAccountInput: CreateAccountInput;
@@ -730,6 +737,7 @@ export type ResolversParentTypes = {
   ByCategoryReportCategory: Omit<ByCategoryReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversParentTypes['Transaction']> };
   ByCategoryReportCurrencyBreakdown: ByCategoryReportCurrencyBreakdown;
   ByCategoryReportCurrencyTotal: ByCategoryReportCurrencyTotal;
+  ByCategoryReportEmbeddedCategory: ByCategoryReportEmbeddedCategory;
   Category: Category;
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
@@ -827,8 +835,7 @@ export type ByCategoryReportResolvers<ContextType = GraphQLContext, ParentType e
 };
 
 export type ByCategoryReportCategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ByCategoryReportCategory'] = ResolversParentTypes['ByCategoryReportCategory']> = {
-  categoryId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  categoryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  category?: Resolver<Maybe<ResolversTypes['ByCategoryReportEmbeddedCategory']>, ParentType, ContextType>;
   currencyBreakdowns?: Resolver<Array<ResolversTypes['ByCategoryReportCurrencyBreakdown']>, ParentType, ContextType>;
   topTransactions?: Resolver<Array<ResolversTypes['Transaction']>, ParentType, ContextType>;
   totalTransactionCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -843,6 +850,12 @@ export type ByCategoryReportCurrencyBreakdownResolvers<ContextType = GraphQLCont
 export type ByCategoryReportCurrencyTotalResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ByCategoryReportCurrencyTotal'] = ResolversParentTypes['ByCategoryReportCurrencyTotal']> = {
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   totalAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+};
+
+export type ByCategoryReportEmbeddedCategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ByCategoryReportEmbeddedCategory'] = ResolversParentTypes['ByCategoryReportEmbeddedCategory']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
 export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
@@ -1021,6 +1034,7 @@ export type Resolvers<ContextType = GraphQLContext> = {
   ByCategoryReportCategory?: ByCategoryReportCategoryResolvers<ContextType>;
   ByCategoryReportCurrencyBreakdown?: ByCategoryReportCurrencyBreakdownResolvers<ContextType>;
   ByCategoryReportCurrencyTotal?: ByCategoryReportCurrencyTotalResolvers<ContextType>;
+  ByCategoryReportEmbeddedCategory?: ByCategoryReportEmbeddedCategoryResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
   CreateTransactionFromTextFailure?: CreateTransactionFromTextFailureResolvers<ContextType>;
   CreateTransactionFromTextOutput?: CreateTransactionFromTextOutputResolvers<ContextType>;

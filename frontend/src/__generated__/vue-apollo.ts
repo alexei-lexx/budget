@@ -83,8 +83,7 @@ export type ByCategoryReport = {
 
 export type ByCategoryReportCategory = {
   __typename?: 'ByCategoryReportCategory';
-  categoryId?: Maybe<Scalars['ID']['output']>;
-  categoryName: Scalars['String']['output'];
+  category?: Maybe<ByCategoryReportEmbeddedCategory>;
   currencyBreakdowns: Array<ByCategoryReportCurrencyBreakdown>;
   topTransactions: Array<Transaction>;
   totalTransactionCount: Scalars['Int']['output'];
@@ -101,6 +100,13 @@ export type ByCategoryReportCurrencyTotal = {
   __typename?: 'ByCategoryReportCurrencyTotal';
   currency: Scalars['String']['output'];
   totalAmount: Scalars['Float']['output'];
+};
+
+export type ByCategoryReportEmbeddedCategory = {
+  __typename?: 'ByCategoryReportEmbeddedCategory';
+  id: Scalars['ID']['output'];
+  isArchived: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type Category = {
@@ -799,7 +805,7 @@ export type GetByCategoryReportQueryVariables = Exact<{
 }>;
 
 
-export type GetByCategoryReportQuery = { __typename?: 'Query', byCategoryReport: { __typename?: 'ByCategoryReport', year: number, month?: number | null | undefined, type: ReportType, categories: Array<{ __typename?: 'ByCategoryReportCategory', categoryId?: string | null | undefined, categoryName: string, totalTransactionCount: number, currencyBreakdowns: Array<{ __typename?: 'ByCategoryReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }>, topTransactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined, compoundTransaction?: { __typename?: 'TransactionEmbeddedCompoundTransaction', id: string, totalAmount: number } | null | undefined }> }>, currencyTotals: Array<{ __typename?: 'ByCategoryReportCurrencyTotal', currency: string, totalAmount: number }> } };
+export type GetByCategoryReportQuery = { __typename?: 'Query', byCategoryReport: { __typename?: 'ByCategoryReport', year: number, month?: number | null | undefined, type: ReportType, categories: Array<{ __typename?: 'ByCategoryReportCategory', totalTransactionCount: number, category?: { __typename?: 'ByCategoryReportEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined, currencyBreakdowns: Array<{ __typename?: 'ByCategoryReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }>, topTransactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined, compoundTransaction?: { __typename?: 'TransactionEmbeddedCompoundTransaction', id: string, totalAmount: number } | null | undefined }> }>, currencyTotals: Array<{ __typename?: 'ByCategoryReportCurrencyTotal', currency: string, totalAmount: number }> } };
 
 export type GetExpenseTrendQueryVariables = Exact<{
   input: ExpenseTrendInput;
@@ -1731,8 +1737,11 @@ export const GetByCategoryReportDocument = gql`
     month
     type
     categories {
-      categoryId
-      categoryName
+      category {
+        id
+        name
+        isArchived
+      }
       currencyBreakdowns {
         currency
         totalAmount
