@@ -8,6 +8,7 @@ export const createMockCategoryRepository = (): Mocked<CategoryRepository> => ({
   findManyByUserId: vi.fn(),
   findManyWithArchivedByUserId: vi.fn(),
   findOneById: vi.fn(),
+  findOneWithArchivedById: vi.fn(),
   findManyWithArchivedByIds: vi.fn(),
   create: vi.fn(),
   update: vi.fn(),

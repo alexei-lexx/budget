@@ -69,6 +69,41 @@ export class DynCategoryRepository
     }
   }
 
+  async findOneWithArchivedById({
+    id,
+    userId,
+  }: {
+    id: string;
+    userId: string;
+  }): Promise<Category | null> {
+    if (!id) {
+      throw new RepositoryError("Category ID is required");
+    }
+
+    if (!userId) {
+      throw new RepositoryError("User ID is required");
+    }
+
+    try {
+      const command = new GetCommand({
+        TableName: this.tableName,
+        Key: { userId, id },
+      });
+
+      const result = await this.client.send(command);
+
+      if (!result.Item) {
+        return null;
+      }
+
+      const data = this.hydrate(categoryDataSchema, result.Item);
+      return Category.fromPersistence(data);
+    } catch (error) {
+      console.error("Error finding category by ID (with archived):", error);
+      throw new RepositoryError("Failed to find category", error);
+    }
+  }
+
   async findManyByUserId(
     userId: string,
     filters?: { type?: CategoryType },

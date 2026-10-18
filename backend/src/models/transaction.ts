@@ -186,20 +186,28 @@ export class Transaction implements TransactionData {
     );
   }
 
-  update(input: UpdateTransactionInput): Transaction {
+  update(
+    input: UpdateTransactionInput,
+    { currentCategory }: { currentCategory: Category | undefined },
+  ): Transaction {
     if (this.isArchived) {
       throw new ModelError("Cannot update archived transaction");
     }
 
-    const { account, category } = input;
+    if (currentCategory?.id !== this.categoryId) {
+      throw new ModelError(
+        "Current category does not match transaction category",
+      );
+    }
+
     const now = toDateTimeString(new Date().toISOString());
 
     const newCategoryId =
-      category === undefined // Keep existing category
+      input.category === undefined // Keep existing category
         ? this.categoryId
-        : category === null // Remove category
+        : input.category === null // Remove category
           ? undefined
-          : category.id;
+          : input.category.id;
 
     const newDescription =
       input.description === undefined // Keep existing description
@@ -211,7 +219,10 @@ export class Transaction implements TransactionData {
     const data: TransactionData = {
       ...this.data,
       // Override account fields only when a new account is provided.
-      ...(account && { accountId: account.id, currency: account.currency }),
+      ...(input.account && {
+        accountId: input.account.id,
+        currency: input.account.currency,
+      }),
       categoryId: newCategoryId,
       type: input.type ?? this.type,
       amount: input.amount ?? this.amount,
@@ -220,9 +231,16 @@ export class Transaction implements TransactionData {
       updatedAt: now,
     };
 
+    const categoryRelation =
+      input.category === undefined // Keep existing category
+        ? { currentCategory }
+        : input.category === null // Remove category
+          ? {}
+          : { newCategory: input.category };
+
     return new Transaction(data, {
-      newAccount: account,
-      newCategory: category ?? undefined,
+      newAccount: input.account,
+      ...categoryRelation,
     });
   }
 
@@ -244,7 +262,11 @@ export class Transaction implements TransactionData {
 
   private constructor(
     data: Readonly<TransactionData>,
-    transientRelations?: { newAccount?: Account; newCategory?: Category },
+    // A new category or a kept current category, never both.
+    transientRelations?: { newAccount?: Account } & (
+      | { newCategory?: Category; currentCategory?: never }
+      | { newCategory?: never; currentCategory?: Category }
+    ),
     { skipInvariants = false }: { skipInvariants?: boolean } = {},
   ) {
     this.data = { ...data };
@@ -254,12 +276,15 @@ export class Transaction implements TransactionData {
     }
   }
 
-  private assertInvariants(transientRelations?: {
-    newAccount?: Account;
-    newCategory?: Category;
-  }): void {
+  private assertInvariants(
+    transientRelations?: { newAccount?: Account } & (
+      | { newCategory?: Category; currentCategory?: never }
+      | { newCategory?: never; currentCategory?: Category }
+    ),
+  ): void {
     const newAccount = transientRelations?.newAccount;
     const newCategory = transientRelations?.newCategory;
+    const currentCategory = transientRelations?.currentCategory;
 
     if (newAccount) {
       if (newAccount.userId !== this.userId) {
@@ -305,16 +330,21 @@ export class Transaction implements TransactionData {
       if (newCategory.isArchived) {
         throw new ModelError("Category must not be archived");
       }
+    }
 
+    // A new category replaces the current category.
+    const effectiveCategory = newCategory ?? currentCategory;
+
+    if (effectiveCategory) {
       const typeMismatch =
-        (newCategory.type === "INCOME" && this.type !== "INCOME") ||
-        (newCategory.type === "EXPENSE" &&
+        (effectiveCategory.type === "INCOME" && this.type !== "INCOME") ||
+        (effectiveCategory.type === "EXPENSE" &&
           this.type !== "EXPENSE" &&
           this.type !== "REFUND");
 
       if (typeMismatch) {
         throw new ModelError(
-          `Category type "${newCategory.type}" does not match transaction type "${this.type}"`,
+          `Category type "${effectiveCategory.type}" does not match transaction type "${this.type}"`,
         );
       }
     }

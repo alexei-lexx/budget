@@ -30,6 +30,91 @@ describe("DynCategoryRepository", () => {
     });
   });
 
+  describe("findOneWithArchivedById", () => {
+    // Happy path
+
+    it("returns active category", async () => {
+      // Arrange
+      const category = fakeCategory({ userId });
+      await repository.create(category);
+
+      // Act
+      const result = await repository.findOneWithArchivedById({
+        id: category.id,
+        userId,
+      });
+
+      // Assert
+      expect(result).toEqual(category);
+    });
+
+    it("returns archived category", async () => {
+      // Arrange
+      const category = fakeCategory({ userId });
+      await repository.create(category);
+      await repository.update(category.archive());
+
+      // Act
+      const result = await repository.findOneWithArchivedById({
+        id: category.id,
+        userId,
+      });
+
+      // Assert
+      expect(result?.id).toBe(category.id);
+      expect(result?.isArchived).toBe(true);
+    });
+
+    it("returns null when category does not exist", async () => {
+      // Act
+      const result = await repository.findOneWithArchivedById({
+        id: faker.string.uuid(),
+        userId,
+      });
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it("returns null when category belongs to another user", async () => {
+      // Arrange
+      const category = fakeCategory({ userId: faker.string.uuid() });
+      await repository.create(category);
+
+      // Act
+      const result = await repository.findOneWithArchivedById({
+        id: category.id,
+        userId,
+      });
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    // Validation failures
+
+    it("fails when id is empty", async () => {
+      // Act
+      const promise = repository.findOneWithArchivedById({ id: "", userId });
+
+      // Assert
+      await expect(promise).rejects.toThrow(RepositoryError);
+      await expect(promise).rejects.toThrow("Category ID is required");
+    });
+
+    it("fails when userId is empty", async () => {
+      // Act
+      const promise = repository.findOneWithArchivedById({
+        id: faker.string.uuid(),
+        userId: "",
+      });
+
+      // Assert
+      await expect(promise).rejects.toThrow(RepositoryError);
+      await expect(promise).rejects.toThrow("User ID is required");
+    });
+  });
+
   describe("findManyByUserId", () => {
     it("returns categories sorted alphabetically", async () => {
       // Arrange - Create categories in mixed order with different types

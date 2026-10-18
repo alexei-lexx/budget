@@ -358,6 +358,19 @@ export class TransactionServiceImpl implements TransactionService {
       return Failure("Transfer transactions can only be edited as a transfer");
     }
 
+    let currentCategory: Category | undefined;
+    if (existingTransaction.categoryId) {
+      currentCategory =
+        (await this.categoryRepository.findOneWithArchivedById({
+          id: existingTransaction.categoryId,
+          userId,
+        })) ?? undefined;
+
+      if (!currentCategory) {
+        return Failure("Current category not found");
+      }
+    }
+
     let newAccount: Account | undefined;
     if (input.accountId) {
       const accountResult = await this.validateAccount(input.accountId, userId);
@@ -380,14 +393,17 @@ export class TransactionServiceImpl implements TransactionService {
     }
 
     const transactionToUpdateResult = Result.fromThrowable(ModelError, () =>
-      existingTransaction.update({
-        account: newAccount,
-        category,
-        type: input.type,
-        amount: input.amount,
-        date: input.date,
-        description: input.description,
-      }),
+      existingTransaction.update(
+        {
+          account: newAccount,
+          category,
+          type: input.type,
+          amount: input.amount,
+          date: input.date,
+          description: input.description,
+        },
+        { currentCategory },
+      ),
     );
     if (!transactionToUpdateResult.success) return transactionToUpdateResult;
 
