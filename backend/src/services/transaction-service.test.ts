@@ -1439,8 +1439,10 @@ describe("TransactionService", () => {
 
     it("returns persisted transaction", async () => {
       // Arrange
+      const currentCategory = fakeCategory({ userId, type: "INCOME" });
       const existingTransaction = fakeIncome({
         userId,
+        categoryId: currentCategory.id,
       });
       const existingAccount = fakeAccount({
         userId,
@@ -1452,6 +1454,10 @@ describe("TransactionService", () => {
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
         existingTransaction,
+      );
+      // Returns current category
+      mockCategoryRepository.findOneWithArchivedById.mockResolvedValue(
+        currentCategory,
       );
       // Returns new account owned by user
       mockAccountRepository.findOneById.mockResolvedValue(newAccount);
@@ -1501,8 +1507,10 @@ describe("TransactionService", () => {
 
     it("preserves account when accountId is omitted", async () => {
       // Arrange
+      const currentCategory = fakeCategory({ userId, type: "EXPENSE" });
       const existingTransaction = fakeExpense({
         userId,
+        categoryId: currentCategory.id,
       });
       const existingAccount = fakeAccount({
         userId,
@@ -1511,6 +1519,10 @@ describe("TransactionService", () => {
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
         existingTransaction,
+      );
+      // Returns current category
+      mockCategoryRepository.findOneWithArchivedById.mockResolvedValue(
+        currentCategory,
       );
       // Returns existing account
       mockAccountRepository.findOneWithArchivedById.mockResolvedValue(
@@ -1538,13 +1550,18 @@ describe("TransactionService", () => {
 
     it("clears category when categoryId is null", async () => {
       // Arrange
+      const currentCategory = fakeCategory({ userId, type: "EXPENSE" });
       const existingTransaction = fakeExpense({
         userId,
-        categoryId: faker.string.uuid(),
+        categoryId: currentCategory.id,
       });
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
         existingTransaction,
+      );
+      // Returns current category
+      mockCategoryRepository.findOneWithArchivedById.mockResolvedValue(
+        currentCategory,
       );
       // Persists and returns transaction
       mockAtomicWriter.commit.mockResolvedValue({
@@ -1567,13 +1584,19 @@ describe("TransactionService", () => {
 
     it("skips account update when balance is unaffected", async () => {
       // Arrange
+      const currentCategory = fakeCategory({ userId, type: "INCOME" });
       const existingTransaction = fakeIncome({
         userId,
+        categoryId: currentCategory.id,
         amount: 10,
       });
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
         existingTransaction,
+      );
+      // Returns current category
+      mockCategoryRepository.findOneWithArchivedById.mockResolvedValue(
+        currentCategory,
       );
       // Persists and returns transaction
       mockAtomicWriter.commit.mockResolvedValue({
@@ -1595,14 +1618,20 @@ describe("TransactionService", () => {
     it("updates balance when amount changes on same account", async () => {
       // Arrange
       const existingAccount = fakeAccount({ userId, transactionBalance: 100 });
+      const currentCategory = fakeCategory({ userId, type: "EXPENSE" });
       const existingTransaction = fakeExpense({
         accountId: existingAccount.id,
         userId,
+        categoryId: currentCategory.id,
         amount: 30,
       });
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
         existingTransaction,
+      );
+      // Returns current category
+      mockCategoryRepository.findOneWithArchivedById.mockResolvedValue(
+        currentCategory,
       );
       // Returns existing account
       mockAccountRepository.findOneWithArchivedById.mockResolvedValue(
@@ -1631,14 +1660,20 @@ describe("TransactionService", () => {
       // Arrange
       const existingAccount = fakeAccount({ userId, transactionBalance: 100 });
       const newAccount = fakeAccount({ userId, transactionBalance: 0 });
+      const currentCategory = fakeCategory({ userId, type: "EXPENSE" });
       const existingTransaction = fakeExpense({
         accountId: existingAccount.id,
         userId,
+        categoryId: currentCategory.id,
         amount: 30,
       });
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
         existingTransaction,
+      );
+      // Returns current category
+      mockCategoryRepository.findOneWithArchivedById.mockResolvedValue(
+        currentCategory,
       );
       // Returns new account owned by user
       mockAccountRepository.findOneById.mockResolvedValue(newAccount);
@@ -1679,6 +1714,7 @@ describe("TransactionService", () => {
       const existingTransaction = fakeExpense({
         accountId: existingAccount.id,
         userId,
+        categoryId: undefined,
         amount: 20,
       });
       // Returns existing transaction
@@ -1706,6 +1742,73 @@ describe("TransactionService", () => {
       // 100 + 20 (revert -20) + 20 (apply +20) = 140
       expect(commitInput?.accountsToUpdate).toHaveLength(1);
       expect(commitInput?.accountsToUpdate?.[0]?.transactionBalance).toBe(140);
+    });
+
+    it("loads current transaction category", async () => {
+      // Arrange
+      const currentCategory = fakeCategory({ userId, type: "EXPENSE" });
+      const existingTransaction = fakeExpense({
+        userId,
+        categoryId: currentCategory.id,
+      });
+      // Returns existing transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(
+        existingTransaction,
+      );
+      // Returns current category
+      mockCategoryRepository.findOneWithArchivedById.mockResolvedValue(
+        currentCategory,
+      );
+      // Persists and returns transaction
+      mockAtomicWriter.commit.mockResolvedValue({
+        createdTransactions: [],
+        updatedTransactions: [fakeTransaction()],
+        updatedAccounts: [],
+      });
+
+      // Act
+      const result = await service.updateTransaction(
+        existingTransaction.id,
+        userId,
+        { description: "new note" },
+      );
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(
+        mockCategoryRepository.findOneWithArchivedById,
+      ).toHaveBeenCalledWith({ id: currentCategory.id, userId });
+    });
+
+    it("skips current category lookup when transaction has no category", async () => {
+      // Arrange
+      const existingTransaction = fakeExpense({
+        userId,
+        categoryId: undefined,
+      });
+      // Returns existing transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(
+        existingTransaction,
+      );
+      // Persists and returns transaction
+      mockAtomicWriter.commit.mockResolvedValue({
+        createdTransactions: [],
+        updatedTransactions: [fakeTransaction()],
+        updatedAccounts: [],
+      });
+
+      // Act
+      const result = await service.updateTransaction(
+        existingTransaction.id,
+        userId,
+        { description: "new note" },
+      );
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(
+        mockCategoryRepository.findOneWithArchivedById,
+      ).not.toHaveBeenCalled();
     });
 
     // Validation failures
@@ -1753,10 +1856,18 @@ describe("TransactionService", () => {
 
     it("fails when account not found", async () => {
       // Arrange
-      const existingTransaction = fakeTransaction({ userId });
+      const currentCategory = fakeCategory({ userId, type: "EXPENSE" });
+      const existingTransaction = fakeExpense({
+        userId,
+        categoryId: currentCategory.id,
+      });
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
         existingTransaction,
+      );
+      // Returns current category
+      mockCategoryRepository.findOneWithArchivedById.mockResolvedValue(
+        currentCategory,
       );
       // Returns no account
       mockAccountRepository.findOneById.mockResolvedValue(null);
@@ -1775,20 +1886,28 @@ describe("TransactionService", () => {
 
     it("fails when category type does not match transaction type", async () => {
       // Arrange
-      const existingTransaction = fakeExpense({ userId });
-      const category = fakeCategory({ userId, type: "INCOME" });
+      const currentCategory = fakeCategory({ userId, type: "EXPENSE" });
+      const existingTransaction = fakeExpense({
+        userId,
+        categoryId: currentCategory.id,
+      });
+      const newCategory = fakeCategory({ userId, type: "INCOME" });
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
         existingTransaction,
       );
+      // Returns current category
+      mockCategoryRepository.findOneWithArchivedById.mockResolvedValue(
+        currentCategory,
+      );
       // Returns category with mismatched type
-      mockCategoryRepository.findOneById.mockResolvedValue(category);
+      mockCategoryRepository.findOneById.mockResolvedValue(newCategory);
 
       // Act
       const result = await service.updateTransaction(
         existingTransaction.id,
         userId,
-        { categoryId: category.id },
+        { categoryId: newCategory.id },
       );
 
       // Assert
@@ -1798,14 +1917,45 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("fails when model invariant is violated", async () => {
+    it("fails when current category not found", async () => {
       // Arrange
       const existingTransaction = fakeExpense({
         userId,
+        categoryId: faker.string.uuid(),
       });
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
         existingTransaction,
+      );
+      // Returns no current category
+      mockCategoryRepository.findOneWithArchivedById.mockResolvedValue(null);
+
+      // Act
+      const result = await service.updateTransaction(
+        existingTransaction.id,
+        userId,
+        { amount: 1 },
+      );
+
+      // Assert
+      expect(result).toBeFailure("Current category not found");
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+
+    it("fails when model invariant is violated", async () => {
+      // Arrange
+      const currentCategory = fakeCategory({ userId, type: "EXPENSE" });
+      const existingTransaction = fakeExpense({
+        userId,
+        categoryId: currentCategory.id,
+      });
+      // Returns existing transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(
+        existingTransaction,
+      );
+      // Returns current category
+      mockCategoryRepository.findOneWithArchivedById.mockResolvedValue(
+        currentCategory,
       );
       // Negative amount triggers ModelError, which the service must expose as failure
       const input = { amount: -1 };

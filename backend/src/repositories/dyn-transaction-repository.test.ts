@@ -1795,8 +1795,10 @@ describe("DynTransactionRepository", () => {
     it("persists every field on passed Transaction", async () => {
       // Arrange
       const userId = faker.string.uuid();
+      const currentCategory = fakeCategory({ userId, type: "EXPENSE" });
       const created = fakeExpense({
         userId,
+        categoryId: currentCategory.id,
         amount: 75.0,
         currency: "USD",
         date: toDateString("2024-01-20"),
@@ -1809,14 +1811,17 @@ describe("DynTransactionRepository", () => {
 
       // Act
       const updated = await repository.update(
-        created.update({
-          account: newAccount,
-          category: newCategory,
-          type: "INCOME",
-          amount: 100.0,
-          date: toDateString("2024-02-01"),
-          description: "Updated description",
-        }),
+        created.update(
+          {
+            account: newAccount,
+            category: newCategory,
+            type: "INCOME",
+            amount: 100.0,
+            date: toDateString("2024-02-01"),
+            description: "Updated description",
+          },
+          { currentCategory },
+        ),
       );
 
       // Assert
@@ -1829,11 +1834,13 @@ describe("DynTransactionRepository", () => {
 
     it("increments version by 1", async () => {
       // Arrange
-      const created = fakeTransaction();
+      const created = fakeTransaction({ categoryId: undefined });
       await repository.create(created);
 
       // Act
-      const updated = await repository.update(created.update({ amount: 50 }));
+      const updated = await repository.update(
+        created.update({ amount: 50 }, { currentCategory: undefined }),
+      );
 
       // Assert
       expect(updated.version).toBe(created.version + 1);
@@ -1845,19 +1852,23 @@ describe("DynTransactionRepository", () => {
       expect(stored?.version).toBe(updated.version);
     });
 
-    it("removes optional fields when undefined on Transaction", async () => {
+    it("removes cleared optional fields from stored record", async () => {
       // Arrange
       const userId = faker.string.uuid();
+      const currentCategory = fakeCategory({ userId });
       const created = fakeTransaction({
         userId,
         description: "Test description",
-        categoryId: faker.string.uuid(),
+        categoryId: currentCategory.id,
       });
       await repository.create(created);
 
       // Act
       await repository.update(
-        created.update({ description: null, category: null }),
+        created.update(
+          { description: null, category: null },
+          { currentCategory },
+        ),
       );
 
       // Assert
@@ -1872,7 +1883,7 @@ describe("DynTransactionRepository", () => {
     it("preserves createdAtSortable GSI sort key across updates", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const created = fakeTransaction({ userId });
+      const created = fakeTransaction({ userId, categoryId: undefined });
       await repository.create(created);
 
       const { Item: before } = await client.send(
@@ -1883,7 +1894,9 @@ describe("DynTransactionRepository", () => {
       );
 
       // Act
-      await repository.update(created.update({ amount: 999 }));
+      await repository.update(
+        created.update({ amount: 999 }, { currentCategory: undefined }),
+      );
 
       // Assert
       const { Item: after } = await client.send(
@@ -1899,12 +1912,17 @@ describe("DynTransactionRepository", () => {
 
     it("throws VersionConflictError when version is stale", async () => {
       // Arrange
-      const created = fakeTransaction({ version: 0 });
+      const created = fakeTransaction({ version: 0, categoryId: undefined });
       await repository.create(created);
-      await repository.update(created.update({ amount: 50 }));
+      await repository.update(
+        created.update({ amount: 50 }, { currentCategory: undefined }),
+      );
 
       // Stale write expects v0 but disk is at v1
-      const staleUpdate = created.update({ amount: 99 });
+      const staleUpdate = created.update(
+        { amount: 99 },
+        { currentCategory: undefined },
+      );
 
       // Act & Assert
       await expect(repository.update(staleUpdate)).rejects.toThrow(

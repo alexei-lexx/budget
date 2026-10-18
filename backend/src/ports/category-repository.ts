@@ -5,6 +5,10 @@ export interface CategoryRepository {
     id: string;
     userId: string;
   }): Promise<Category | null>;
+  findOneWithArchivedById(selector: {
+    id: string;
+    userId: string;
+  }): Promise<Category | null>;
   findManyByUserId(
     userId: string,
     filters?: { type?: CategoryType },

@@ -356,10 +356,14 @@ export class TransferService {
     const outboundTransactionToUpdateResult = Result.fromThrowable(
       ModelError,
       () =>
-        outboundTransaction.update({
-          ...sharedUpdate,
-          account: input.fromAccountId ? newSourceAccount : undefined,
-        }),
+        outboundTransaction.update(
+          {
+            ...sharedUpdate,
+            account: input.fromAccountId ? newSourceAccount : undefined,
+          },
+          // Transfers have no category
+          { currentCategory: undefined },
+        ),
     );
     if (!outboundTransactionToUpdateResult.success) {
       return outboundTransactionToUpdateResult;
@@ -369,10 +373,14 @@ export class TransferService {
     const inboundTransactionToUpdateResult = Result.fromThrowable(
       ModelError,
       () =>
-        inboundTransaction.update({
-          ...sharedUpdate,
-          account: input.toAccountId ? newDestAccount : undefined,
-        }),
+        inboundTransaction.update(
+          {
+            ...sharedUpdate,
+            account: input.toAccountId ? newDestAccount : undefined,
+          },
+          // Transfers have no category
+          { currentCategory: undefined },
+        ),
     );
     if (!inboundTransactionToUpdateResult.success) {
       return inboundTransactionToUpdateResult;

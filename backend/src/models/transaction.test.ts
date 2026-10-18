@@ -669,10 +669,13 @@ describe("Transaction", () => {
 
     it("sets amount", () => {
       // Arrange
-      const existing = fakeTransaction({ amount: 10 });
+      const existing = fakeTransaction({ amount: 10, categoryId: undefined });
 
       // Act
-      const result = existing.update({ amount: 20 });
+      const result = existing.update(
+        { amount: 20 },
+        { currentCategory: undefined },
+      );
 
       // Assert
       expect(result.amount).toEqual(20);
@@ -680,10 +683,13 @@ describe("Transaction", () => {
 
     it("sets type", () => {
       // Arrange
-      const existing = fakeExpense({});
+      const existing = fakeExpense({ categoryId: undefined });
 
       // Act
-      const result = existing.update({ type: "INCOME" });
+      const result = existing.update(
+        { type: "INCOME" },
+        { currentCategory: undefined },
+      );
 
       // Assert
       expect(result.type).toBe(TransactionType.INCOME);
@@ -691,10 +697,16 @@ describe("Transaction", () => {
 
     it("sets date", () => {
       // Arrange
-      const existing = fakeTransaction({ date: toDateString("2020-01-01") });
+      const existing = fakeTransaction({
+        date: toDateString("2020-01-01"),
+        categoryId: undefined,
+      });
 
       // Act
-      const result = existing.update({ date: toDateString("2021-06-15") });
+      const result = existing.update(
+        { date: toDateString("2021-06-15") },
+        { currentCategory: undefined },
+      );
 
       // Assert
       expect(result.date).toBe("2021-06-15");
@@ -702,10 +714,10 @@ describe("Transaction", () => {
 
     it("keeps amount, type, and date when input is empty", () => {
       // Arrange
-      const existing = fakeTransaction();
+      const existing = fakeTransaction({ categoryId: undefined });
 
       // Act
-      const result = existing.update({});
+      const result = existing.update({}, { currentCategory: undefined });
 
       // Assert
       expect(result.amount).toBe(existing.amount);
@@ -716,11 +728,18 @@ describe("Transaction", () => {
     it("sets account and derives currency from new account", () => {
       // Arrange
       const userId = faker.string.uuid();
-      const existing = fakeTransaction({ userId, currency: "USD" });
+      const existing = fakeTransaction({
+        userId,
+        currency: "USD",
+        categoryId: undefined,
+      });
       const newAccount = fakeAccount({ userId, currency: "EUR" });
 
       // Act
-      const result = existing.update({ account: newAccount });
+      const result = existing.update(
+        { account: newAccount },
+        { currentCategory: undefined },
+      );
 
       // Assert
       expect(result.accountId).toBe(newAccount.id);
@@ -729,10 +748,16 @@ describe("Transaction", () => {
 
     it("keeps account and currency when input is undefined", () => {
       // Arrange
-      const existing = fakeTransaction({ currency: "GBP" });
+      const existing = fakeTransaction({
+        currency: "GBP",
+        categoryId: undefined,
+      });
 
       // Act
-      const result = existing.update({ account: undefined, amount: 1 });
+      const result = existing.update(
+        { account: undefined, amount: 1 },
+        { currentCategory: undefined },
+      );
 
       // Assert
       expect(result.accountId).toBe(existing.accountId);
@@ -746,7 +771,10 @@ describe("Transaction", () => {
       const newCategory = fakeCategory({ userId, type: "EXPENSE" });
 
       // Act
-      const result = existing.update({ category: newCategory });
+      const result = existing.update(
+        { category: newCategory },
+        { currentCategory: undefined },
+      );
 
       // Assert
       expect(result.categoryId).toBe(newCategory.id);
@@ -754,10 +782,11 @@ describe("Transaction", () => {
 
     it("clears category when input is null", () => {
       // Arrange
-      const existing = fakeTransaction({ categoryId: faker.string.uuid() });
+      const currentCategory = fakeCategory();
+      const existing = fakeTransaction({ categoryId: currentCategory.id });
 
       // Act
-      const result = existing.update({ category: null });
+      const result = existing.update({ category: null }, { currentCategory });
 
       // Assert
       expect(result.categoryId).toBeUndefined();
@@ -765,21 +794,113 @@ describe("Transaction", () => {
 
     it("keeps category when input is undefined", () => {
       // Arrange
-      const existing = fakeTransaction({ categoryId: "existing-category" });
+      const currentCategory = fakeCategory();
+      const existing = fakeTransaction({ categoryId: currentCategory.id });
 
       // Act
-      const result = existing.update({ category: undefined, amount: 1 });
+      const result = existing.update(
+        { category: undefined, amount: 1 },
+        { currentCategory },
+      );
 
       // Assert
-      expect(result.categoryId).toBe("existing-category");
+      expect(result.categoryId).toBe(currentCategory.id);
+    });
+
+    it("sets REFUND type and keeps EXPENSE category", () => {
+      // Arrange
+      const currentCategory = fakeCategory({ type: "EXPENSE" });
+      const existing = fakeExpense({ categoryId: currentCategory.id });
+
+      // Act
+      const result = existing.update({ type: "REFUND" }, { currentCategory });
+
+      // Assert
+      expect(result.type).toBe(TransactionType.REFUND);
+      expect(result.categoryId).toBe(currentCategory.id);
+    });
+
+    it("sets REFUND type and keeps archived EXPENSE category", () => {
+      // Arrange
+      const currentCategory = fakeCategory({
+        type: "EXPENSE",
+        isArchived: true,
+      });
+      const existing = fakeExpense({ categoryId: currentCategory.id });
+
+      // Act
+      const result = existing.update({ type: "REFUND" }, { currentCategory });
+
+      // Assert
+      expect(result.type).toBe(TransactionType.REFUND);
+      expect(result.categoryId).toBe(currentCategory.id);
+    });
+
+    it("sets amount and keeps archived category", () => {
+      // Arrange
+      const currentCategory = fakeCategory({
+        type: "EXPENSE",
+        isArchived: true,
+      });
+      const existing = fakeExpense({ categoryId: currentCategory.id });
+
+      // Act
+      const result = existing.update({ amount: 20 }, { currentCategory });
+
+      // Assert
+      expect(result.amount).toBe(20);
+      expect(result.categoryId).toBe(currentCategory.id);
+    });
+
+    it("sets INCOME type with new INCOME category in place of EXPENSE category", () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const currentExpenseCategory = fakeCategory({ userId, type: "EXPENSE" });
+      const newIncomeCategory = fakeCategory({ userId, type: "INCOME" });
+      const existing = fakeExpense({
+        userId,
+        categoryId: currentExpenseCategory.id,
+      });
+
+      // Act
+      const result = existing.update(
+        { type: "INCOME", category: newIncomeCategory },
+        { currentCategory: currentExpenseCategory },
+      );
+
+      // Assert
+      expect(result.type).toBe(TransactionType.INCOME);
+      expect(result.categoryId).toBe(newIncomeCategory.id);
+    });
+
+    it("sets INCOME type and clears EXPENSE category", () => {
+      // Arrange
+      const currentCategory = fakeCategory({ type: "EXPENSE" });
+      const existing = fakeExpense({ categoryId: currentCategory.id });
+
+      // Act
+      const result = existing.update(
+        { type: "INCOME", category: null },
+        { currentCategory },
+      );
+
+      // Assert
+      expect(result.type).toBe(TransactionType.INCOME);
+      expect(result.categoryId).toBeUndefined();
     });
 
     it("trims description", () => {
       // Arrange
-      const existing = fakeTransaction({ description: "old" });
+      const existing = fakeTransaction({
+        description: "old",
+        categoryId: undefined,
+      });
 
       // Act
-      const result = existing.update({ description: "  new  " });
+      const result = existing.update(
+        { description: "  new  " },
+        { currentCategory: undefined },
+      );
 
       // Assert
       expect(result.description).toBe("new");
@@ -787,10 +908,16 @@ describe("Transaction", () => {
 
     it("clears description when input is null", () => {
       // Arrange
-      const existing = fakeTransaction({ description: "old" });
+      const existing = fakeTransaction({
+        description: "old",
+        categoryId: undefined,
+      });
 
       // Act
-      const result = existing.update({ description: null });
+      const result = existing.update(
+        { description: null },
+        { currentCategory: undefined },
+      );
 
       // Assert
       expect(result.description).toBeUndefined();
@@ -798,10 +925,16 @@ describe("Transaction", () => {
 
     it("keeps description when input is undefined", () => {
       // Arrange
-      const existing = fakeTransaction({ description: "keep me" });
+      const existing = fakeTransaction({
+        description: "keep me",
+        categoryId: undefined,
+      });
 
       // Act
-      const result = existing.update({ description: undefined, amount: 1 });
+      const result = existing.update(
+        { description: undefined, amount: 1 },
+        { currentCategory: undefined },
+      );
 
       // Assert
       expect(result.description).toBe("keep me");
@@ -818,7 +951,10 @@ describe("Transaction", () => {
       });
 
       // Act
-      const result = existing.update({ amount: 1 });
+      const result = existing.update(
+        { amount: 1 },
+        { currentCategory: undefined },
+      );
 
       // Assert
       expect(result.id).toBe("id-1");
@@ -830,10 +966,13 @@ describe("Transaction", () => {
 
     it("sets updatedAt", () => {
       // Arrange
-      const existing = fakeTransaction();
+      const existing = fakeTransaction({ categoryId: undefined });
 
       // Act
-      const result = existing.update({ amount: 1 });
+      const result = existing.update(
+        { amount: 1 },
+        { currentCategory: undefined },
+      );
 
       // Assert
       expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
@@ -843,75 +982,84 @@ describe("Transaction", () => {
 
     it("throws on updating archived transaction", () => {
       // Arrange
-      const existing = fakeTransaction({ isArchived: true });
+      const existing = fakeTransaction({
+        isArchived: true,
+        categoryId: undefined,
+      });
 
       // Act & Assert
-      expect(() => existing.update({ amount: 5 })).toThrow(
-        new ModelError("Cannot update archived transaction"),
-      );
+      expect(() =>
+        existing.update({ amount: 5 }, { currentCategory: undefined }),
+      ).toThrow(new ModelError("Cannot update archived transaction"));
     });
 
     it("throws on zero amount", () => {
       // Arrange
-      const existing = fakeTransaction();
+      const existing = fakeTransaction({ categoryId: undefined });
 
       // Act & Assert
-      expect(() => existing.update({ amount: 0 })).toThrow(
-        new ModelError("Amount must be positive"),
-      );
+      expect(() =>
+        existing.update({ amount: 0 }, { currentCategory: undefined }),
+      ).toThrow(new ModelError("Amount must be positive"));
     });
 
     it("throws on negative amount", () => {
       // Arrange
-      const existing = fakeTransaction();
+      const existing = fakeTransaction({ categoryId: undefined });
 
       // Act & Assert
-      expect(() => existing.update({ amount: -1 })).toThrow(
-        new ModelError("Amount must be positive"),
-      );
+      expect(() =>
+        existing.update({ amount: -1 }, { currentCategory: undefined }),
+      ).toThrow(new ModelError("Amount must be positive"));
     });
 
     it("throws when account belongs to different user", () => {
       // Arrange
-      const existing = fakeTransaction({ userId: "user-a" });
+      const existing = fakeTransaction({
+        userId: "user-a",
+        categoryId: undefined,
+      });
       const account = fakeAccount({ userId: "user-b" });
 
       // Act & Assert
-      expect(() => existing.update({ account })).toThrow(
-        new ModelError("Account does not belong to user"),
-      );
+      expect(() =>
+        existing.update({ account }, { currentCategory: undefined }),
+      ).toThrow(new ModelError("Account does not belong to user"));
     });
 
     it("throws on archived account", () => {
       // Arrange
       const userId = faker.string.uuid();
-      const existing = fakeTransaction({ userId });
+      const existing = fakeTransaction({ userId, categoryId: undefined });
       const account = fakeAccount({ userId, isArchived: true });
 
       // Act & Assert
-      expect(() => existing.update({ account })).toThrow(
-        new ModelError("Account must not be archived"),
-      );
+      expect(() =>
+        existing.update({ account }, { currentCategory: undefined }),
+      ).toThrow(new ModelError("Account must not be archived"));
     });
 
     it("throws when category belongs to different user", () => {
       // Arrange
-      const existing = fakeTransaction({ userId: "user-a" });
+      const existing = fakeTransaction({
+        userId: "user-a",
+        categoryId: undefined,
+      });
       const category = fakeCategory({
         userId: "user-b",
         type: "EXPENSE",
       });
 
       // Act & Assert
-      expect(() => existing.update({ category })).toThrow(
-        new ModelError("Category does not belong to user"),
-      );
+      expect(() =>
+        existing.update({ category }, { currentCategory: undefined }),
+      ).toThrow(new ModelError("Category does not belong to user"));
     });
 
     it("throws on archived category", () => {
       // Arrange
       const userId = faker.string.uuid();
-      const existing = fakeTransaction({ userId });
+      const existing = fakeTransaction({ userId, categoryId: undefined });
       const category = fakeCategory({
         userId,
         type: "EXPENSE",
@@ -919,9 +1067,9 @@ describe("Transaction", () => {
       });
 
       // Act & Assert
-      expect(() => existing.update({ category })).toThrow(
-        new ModelError("Category must not be archived"),
-      );
+      expect(() =>
+        existing.update({ category }, { currentCategory: undefined }),
+      ).toThrow(new ModelError("Category must not be archived"));
     });
 
     it("throws on INCOME category for EXPENSE transaction", () => {
@@ -929,13 +1077,83 @@ describe("Transaction", () => {
       const userId = faker.string.uuid();
       const existing = fakeExpense({
         userId,
+        categoryId: undefined,
       });
       const category = fakeCategory({ userId, type: "INCOME" });
 
       // Act & Assert
-      expect(() => existing.update({ category })).toThrow(
+      expect(() =>
+        existing.update({ category }, { currentCategory: undefined }),
+      ).toThrow(
         new ModelError(
           'Category type "INCOME" does not match transaction type "EXPENSE"',
+        ),
+      );
+    });
+
+    it("fails when transaction has no category and current category is given", () => {
+      // Arrange
+      const existing = fakeExpense({ categoryId: undefined });
+      const currentCategory = fakeCategory({ type: "EXPENSE" });
+
+      // Act & Assert
+      expect(() => existing.update({ amount: 1 }, { currentCategory })).toThrow(
+        new ModelError("Current category does not match transaction category"),
+      );
+    });
+
+    it("fails when transaction has category and current category is undefined", () => {
+      // Arrange
+      const existing = fakeExpense({ categoryId: faker.string.uuid() });
+
+      // Act & Assert
+      expect(() =>
+        existing.update({ amount: 1 }, { currentCategory: undefined }),
+      ).toThrow(
+        new ModelError("Current category does not match transaction category"),
+      );
+    });
+
+    it("fails when current category id differs from transaction category id", () => {
+      // Arrange
+      const existing = fakeExpense({ categoryId: faker.string.uuid() });
+      const currentCategory = fakeCategory({ type: "EXPENSE" });
+
+      // Act & Assert
+      expect(() => existing.update({ amount: 1 }, { currentCategory })).toThrow(
+        new ModelError("Current category does not match transaction category"),
+      );
+    });
+
+    it("fails on INCOME type with kept EXPENSE category", () => {
+      // Arrange
+      const currentCategory = fakeCategory({ type: "EXPENSE" });
+      const existing = fakeExpense({ categoryId: currentCategory.id });
+
+      // Act & Assert
+      expect(() =>
+        existing.update({ type: "INCOME" }, { currentCategory }),
+      ).toThrow(
+        new ModelError(
+          'Category type "EXPENSE" does not match transaction type "INCOME"',
+        ),
+      );
+    });
+
+    it("fails on INCOME type with kept archived EXPENSE category", () => {
+      // Arrange
+      const currentCategory = fakeCategory({
+        type: "EXPENSE",
+        isArchived: true,
+      });
+      const existing = fakeExpense({ categoryId: currentCategory.id });
+
+      // Act & Assert
+      expect(() =>
+        existing.update({ type: "INCOME" }, { currentCategory }),
+      ).toThrow(
+        new ModelError(
+          'Category type "EXPENSE" does not match transaction type "INCOME"',
         ),
       );
     });
@@ -951,18 +1169,23 @@ describe("Transaction", () => {
       const category = fakeCategory({ userId, type: "EXPENSE" });
 
       // Act & Assert
-      expect(() => existing.update({ category })).toThrow(
-        new ModelError("Transfer transactions cannot have a category"),
-      );
+      expect(() =>
+        existing.update({ category }, { currentCategory: undefined }),
+      ).toThrow(new ModelError("Transfer transactions cannot have a category"));
     });
 
     it("throws when description exceeds maximum length", () => {
       // Arrange
-      const existing = fakeTransaction();
+      const existing = fakeTransaction({ categoryId: undefined });
       const tooLong = "x".repeat(DESCRIPTION_MAX_LENGTH + 1);
 
       // Act & Assert
-      expect(() => existing.update({ description: tooLong })).toThrow(
+      expect(() =>
+        existing.update(
+          { description: tooLong },
+          { currentCategory: undefined },
+        ),
+      ).toThrow(
         new ModelError(
           `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
         ),
@@ -977,7 +1200,12 @@ describe("Transaction", () => {
       });
 
       // Act & Assert
-      expect(() => existing.update({ type: "TRANSFER_OUT" })).toThrow(
+      expect(() =>
+        existing.update(
+          { type: "TRANSFER_OUT" },
+          { currentCategory: undefined },
+        ),
+      ).toThrow(
         new ModelError("Transfer transactions must include transferId"),
       );
     });
@@ -985,12 +1213,13 @@ describe("Transaction", () => {
     it("throws when switching to transfer type without clearing category", () => {
       // Arrange — existing transaction has categoryId; switching type to
       // transfer surfaces category invariant first
-      const existing = fakeExpense({});
+      const currentCategory = fakeCategory();
+      const existing = fakeExpense({ categoryId: currentCategory.id });
 
       // Act & Assert
-      expect(() => existing.update({ type: "TRANSFER_OUT" })).toThrow(
-        new ModelError("Transfer transactions cannot have a category"),
-      );
+      expect(() =>
+        existing.update({ type: "TRANSFER_OUT" }, { currentCategory }),
+      ).toThrow(new ModelError("Transfer transactions cannot have a category"));
     });
 
     it("throws on switching transfer to non-transfer type", () => {
@@ -1001,7 +1230,9 @@ describe("Transaction", () => {
       });
 
       // Act & Assert
-      expect(() => existing.update({ type: "EXPENSE" })).toThrow(
+      expect(() =>
+        existing.update({ type: "EXPENSE" }, { currentCategory: undefined }),
+      ).toThrow(
         new ModelError("Only transfer transactions can include transferId"),
       );
     });
