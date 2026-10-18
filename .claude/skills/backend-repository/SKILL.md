@@ -59,7 +59,7 @@ Apply all rules to both the interface and the implementation.
 ## Tests
 
 - Use a **real database connection** — no mocks
-- Co-locate: `repository.test.ts` next to `repository.ts`
+- Co-locate: `repository.db.test.ts` next to `repository.ts`
 - `describe` blocks mirror the method order of the source class
 - Test data factories are split by purpose:
   - **Model fakes** — full entity objects: `backend/src/utils/test-utils/models/<entity>-fakes.ts`

@@ -91,8 +91,8 @@ In the Inspector UI, set Transport Type to `Streamable HTTP`, paste the copied U
 ## Quality Checks
 
 - `npm run format` - Run Prettier and ESLint to check and fix code style
+- `npm run test:db` - Run database-related tests only (`*.db.test.ts`)
 - `npm run test:integration` - Run agent integration tests (don't run in CI, only for local development)
-- `npm run test:repositories` - Run database-related tests only
-- `npm run test:unit` - Run unit tests only (excluding integration and repository tests)
-- `npm run test` - Run unit and repository tests (excludes integration tests)
+- `npm run test:unit` - Run unit tests only (excluding integration and database tests)
+- `npm run test` - Run unit and database tests (excludes integration tests)
 - `npm run typecheck` - Run TypeScript type checker

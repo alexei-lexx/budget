@@ -11,7 +11,7 @@ export default defineConfig({
           include: ["src/**/*.test.ts"],
           exclude: [
             "**/node_modules/**",
-            "src/repositories/**",
+            "**/*.db.test.ts",
             "**/*.int.test.ts",
             "**/*.eval.test.ts",
           ],
@@ -22,14 +22,10 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          name: "repositories",
+          name: "db",
           environment: "node",
-          include: ["src/repositories/**/*.test.ts"],
-          exclude: [
-            "**/node_modules/**",
-            "**/*.int.test.ts",
-            "**/*.eval.test.ts",
-          ],
+          include: ["src/**/*.db.test.ts"],
+          exclude: ["**/node_modules/**"],
           testTimeout: 10000,
           maxWorkers: 1,
           setupFiles: ["src/utils/test-utils/result-matchers.ts"],

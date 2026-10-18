@@ -413,6 +413,7 @@ graph LR
 - NEVER use separate test directories like `src/__tests__/` or `src/tests/`
 - Naming: `[source-file].test.ts` in same directory as source `[source-file].ts`
 - Example: `backend/src/dir/file.ts` → `backend/src/dir/file.test.ts`
+- Naming for tests that use a real database: `[source-file].db.test.ts`
 
 **Rationale**: Backend-focused testing ensures data layer correctness and business logic integrity.
 
