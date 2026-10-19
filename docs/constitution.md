@@ -6,9 +6,9 @@
 
 The project has 3 independent npm packages:
 
-- **backend/** – API for all clients, business logic, and data storage
-- **frontend/** – Single-page web application
-- **infra-cdk/** – Deployable infrastructure for the backend, the frontend, and authentication
+- **backend** – API for all clients, business logic, and data storage
+- **frontend** – Single-page web application
+- **infra-cdk** – Deployable infrastructure for the backend, the frontend, and authentication
 
 ### Backend
 
