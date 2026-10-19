@@ -217,7 +217,7 @@ const resolveBackgroundJobDispatcher = createSingleton(() =>
       },
 );
 const resolveTelegramApiClient = createSingleton(
-  () => new HttpTelegramApiClient(resolveLogger()),
+  () => new HttpTelegramApiClient({ logger: resolveLogger() }),
 );
 
 // AI infrastructure

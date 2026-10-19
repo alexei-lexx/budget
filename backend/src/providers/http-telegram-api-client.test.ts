@@ -19,7 +19,7 @@ describe("HttpTelegramApiClient", () => {
   let client: HttpTelegramApiClient;
 
   beforeEach(() => {
-    client = new HttpTelegramApiClient(createMockLogger(), baseUrl);
+    client = new HttpTelegramApiClient({ baseUrl, logger: createMockLogger() });
     mockFetch.mockReset();
   });
 

@@ -14,10 +14,19 @@ const webhookInfoResponseSchema = z.discriminatedUnion("ok", [
 ]);
 
 export class HttpTelegramApiClient implements TelegramApiClient {
-  constructor(
-    private readonly logger: Logger,
-    private readonly baseUrl = "https://api.telegram.org",
-  ) {}
+  private readonly baseUrl: string;
+  private readonly logger: Logger;
+
+  constructor({
+    baseUrl = "https://api.telegram.org",
+    logger,
+  }: {
+    baseUrl?: string;
+    logger: Logger;
+  }) {
+    this.baseUrl = baseUrl;
+    this.logger = logger;
+  }
 
   async getWebhookInfo(token: string): Promise<Result<{ url: string }>> {
     try {
