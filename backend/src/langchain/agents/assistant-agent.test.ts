@@ -3,6 +3,7 @@ import { AIMessage, ToolMessage, fakeModel } from "langchain";
 import { Success } from "ts-result";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ModelError } from "../../models/model-error";
+import { createMockLogger } from "../../utils/test-utils/providers/logger-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
@@ -31,6 +32,7 @@ describe("createAssistantAgent", () => {
       model: mockModel,
       accountService: mockAccountService,
       categoryService: createMockCategoryService(),
+      logger: createMockLogger(),
       transactionRepository: createMockTransactionRepository(),
       transactionService: createMockTransactionService(),
     });

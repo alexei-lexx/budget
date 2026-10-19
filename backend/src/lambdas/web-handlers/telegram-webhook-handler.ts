@@ -1,6 +1,6 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { z } from "zod";
-import { resolveTelegramBotService } from "../../dependencies";
+import { resolveLogger, resolveTelegramBotService } from "../../dependencies";
 
 const telegramUpdateSchema = z.object({
   update_id: z.number(),
@@ -18,6 +18,7 @@ type TelegramUpdate = z.infer<typeof telegramUpdateSchema>;
 export async function telegramWebhookHandler(
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> {
+  const logger = resolveLogger();
   const telegramBotService = resolveTelegramBotService();
   const webhookSecret = event.headers["x-telegram-bot-api-secret-token"];
 
@@ -34,7 +35,7 @@ export async function telegramWebhookHandler(
   try {
     telegramUpdate = telegramUpdateSchema.parse(JSON.parse(event.body));
   } catch (error) {
-    console.error("Failed to parse request body:", error);
+    logger.error("Failed to parse request body:", error);
 
     return { statusCode: 400, body: "Bad Request" };
   }
@@ -46,7 +47,7 @@ export async function telegramWebhookHandler(
     });
 
     if (!result.success) {
-      console.error("Failed to accept Telegram message:", result.error);
+      logger.error("Failed to accept Telegram message:", result.error);
       throw new Error(`Failed to accept Telegram message: ${result.error}`);
     }
 

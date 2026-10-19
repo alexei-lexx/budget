@@ -7,6 +7,7 @@ import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCreateChatMessageInput } from "../utils/test-utils/models/chat-message-fakes";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
 import { DynChatMessageRepository } from "./dyn-chat-message-repository";
 
 const ulid = monotonicFactory();
@@ -21,8 +22,9 @@ describe("DynChatMessageRepository", () => {
 
   beforeAll(() => {
     repository = new DynChatMessageRepository({
-      tableName,
       documentClient: client,
+      logger: createMockLogger(),
+      tableName,
     });
   });
 

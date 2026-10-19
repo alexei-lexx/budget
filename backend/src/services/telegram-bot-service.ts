@@ -2,6 +2,7 @@ import { Failure, Result, Success } from "ts-result";
 import { ModelError } from "../models/model-error";
 import { TelegramBot } from "../models/telegram-bot";
 import { BackgroundJobDispatcher } from "../ports/background-job-dispatcher";
+import { Logger } from "../ports/logger";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
 
@@ -24,17 +25,20 @@ function maskTelegramBot(bot: TelegramBot): MaskedTelegramBot {
 export class TelegramBotService {
   private readonly apiBaseUrl: string;
   private readonly backgroundJobDispatcher: BackgroundJobDispatcher;
+  private readonly logger: Logger;
   private readonly telegramApiClient: TelegramApiClient;
   private readonly telegramBotRepository: TelegramBotRepository;
 
   constructor(deps: {
     apiBaseUrl: string;
     backgroundJobDispatcher: BackgroundJobDispatcher;
+    logger: Logger;
     telegramApiClient: TelegramApiClient;
     telegramBotRepository: TelegramBotRepository;
   }) {
     this.apiBaseUrl = deps.apiBaseUrl;
     this.backgroundJobDispatcher = deps.backgroundJobDispatcher;
+    this.logger = deps.logger;
     this.telegramApiClient = deps.telegramApiClient;
     this.telegramBotRepository = deps.telegramBotRepository;
   }
@@ -200,7 +204,7 @@ export class TelegramBotService {
 
     if (!bot) {
       // Unknown or inactive bot — silently ignore
-      console.warn("Unknown or inactive bot");
+      this.logger.warn("Unknown or inactive bot");
       return Success(undefined);
     }
 

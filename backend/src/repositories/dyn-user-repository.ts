@@ -43,7 +43,7 @@ export class DynUserRepository
 
       return User.fromPersistence(this.hydrate(userSchema, result.Items[0]));
     } catch (error) {
-      console.error("Error finding user by email:", error);
+      this.logger.error("Error finding user by email:", error);
       if (error instanceof RepositoryError) throw error;
       throw new RepositoryError("Failed to find user by email", error);
     }
@@ -64,7 +64,7 @@ export class DynUserRepository
 
       result = await this.client.send(command);
     } catch (error) {
-      console.error("Error finding user by mcpToken:", error);
+      this.logger.error("Error finding user by mcpToken:", error);
 
       throw new RepositoryError("Failed to find user by mcpToken", error);
     }
@@ -101,7 +101,7 @@ export class DynUserRepository
 
       return User.fromPersistence(this.hydrate(userSchema, result.Item));
     } catch (error) {
-      console.error("Error finding user by ID:", error);
+      this.logger.error("Error finding user by ID:", error);
       throw new RepositoryError("Failed to find user by ID", error);
     }
   }
@@ -122,7 +122,7 @@ export class DynUserRepository
         User.fromPersistence(this.hydrate(userSchema, item)),
       );
     } catch (error) {
-      console.error("Error finding all users:", error);
+      this.logger.error("Error finding all users:", error);
       throw new RepositoryError("Failed to find users", error);
     }
   }
@@ -139,7 +139,7 @@ export class DynUserRepository
 
       await this.client.send(command);
     } catch (error) {
-      console.error("Error creating user:", error);
+      this.logger.error("Error creating user:", error);
       throw new RepositoryError("Failed to create user", error);
     }
   }
@@ -202,7 +202,7 @@ export class DynUserRepository
 
       await this.client.send(command);
     } catch (error) {
-      console.error("Error updating user:", error);
+      this.logger.error("Error updating user:", error);
 
       if (
         error instanceof Error &&

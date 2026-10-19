@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { resolveProcessTelegramMessageService } from "../dependencies";
+import {
+  resolveLogger,
+  resolveProcessTelegramMessageService,
+} from "../dependencies";
 import { BackgroundJob } from "../ports/background-job-dispatcher";
 import { createSingleton } from "../utils/dependency-injection";
 import { injectRuntimeEnv } from "./bootstrap";
@@ -22,16 +25,18 @@ const backgroundJobEventSchema = z.discriminatedUnion("type", [
 export const handler = async (rawEvent: unknown): Promise<void> => {
   await ensureRuntimeEnv();
 
+  const logger = resolveLogger();
+
   const parsedEvent = backgroundJobEventSchema.safeParse(rawEvent);
 
   if (!parsedEvent.success) {
-    console.error("Invalid background job event:", parsedEvent.error.issues);
+    logger.error("Invalid background job event:", parsedEvent.error.issues);
     throw parsedEvent.error;
   }
 
   const event = parsedEvent.data;
 
-  console.log(`Processing job type: ${event.type}`);
+  logger.info(`Processing job type: ${event.type}`);
 
   switch (event.type) {
     case "telegram-message": {
@@ -44,7 +49,7 @@ export const handler = async (rawEvent: unknown): Promise<void> => {
       });
 
       if (!result.success) {
-        console.error("Failed to process telegram message:", result.error);
+        logger.error("Failed to process telegram message:", result.error);
         throw new Error(result.error);
       }
 

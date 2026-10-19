@@ -62,4 +62,32 @@ describe("ConsoleLogger", () => {
       );
     });
   });
+
+  describe("warn", () => {
+    // Happy path
+
+    it("passes all arguments to console.warn", () => {
+      // Arrange
+
+      // Captures console output
+      const consoleWarn = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => undefined);
+
+      const logger = new ConsoleLogger();
+      const message = faker.lorem.sentence();
+      const firstDetail = { id: faker.string.uuid() };
+      const secondDetail = faker.number.int();
+
+      // Act
+      logger.warn(message, firstDetail, secondDetail);
+
+      // Assert
+      expect(consoleWarn).toHaveBeenCalledWith(
+        message,
+        firstDetail,
+        secondDetail,
+      );
+    });
+  });
 });

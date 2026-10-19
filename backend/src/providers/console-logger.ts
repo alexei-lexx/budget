@@ -8,4 +8,8 @@ export class ConsoleLogger implements Logger {
   info(message: string, ...args: unknown[]): void {
     console.log(message, ...args);
   }
+
+  warn(message: string, ...args: unknown[]): void {
+    console.warn(message, ...args);
+  }
 }

@@ -99,7 +99,7 @@ export class DynAccountRepository
 
       return account;
     } catch (error) {
-      console.error("Error finding account by ID:", error);
+      this.logger.error("Error finding account by ID:", error);
       throw new RepositoryError("Failed to find account", error);
     }
   }
@@ -134,7 +134,7 @@ export class DynAccountRepository
       const data = this.hydrate(accountDataSchema, result.Item);
       return Account.fromPersistence(data);
     } catch (error) {
-      console.error("Error finding account by ID (with archived):", error);
+      this.logger.error("Error finding account by ID (with archived):", error);
       throw new RepositoryError("Failed to find account", error);
     }
   }
@@ -168,7 +168,7 @@ export class DynAccountRepository
         a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
       );
     } catch (error) {
-      console.error("Error finding active accounts by user ID:", error);
+      this.logger.error("Error finding active accounts by user ID:", error);
       throw new RepositoryError("Failed to find active accounts", error);
     }
   }
@@ -202,7 +202,7 @@ export class DynAccountRepository
         Account.fromPersistence(this.hydrate(accountDataSchema, item)),
       );
     } catch (error) {
-      console.error("Error batch finding accounts by IDs:", error);
+      this.logger.error("Error batch finding accounts by IDs:", error);
       throw new RepositoryError("Failed to batch find accounts", error);
     }
   }
@@ -227,7 +227,7 @@ export class DynAccountRepository
 
       return result.items.map((data) => Account.fromPersistence(data));
     } catch (error) {
-      console.error("Error finding all accounts by user ID:", error);
+      this.logger.error("Error finding all accounts by user ID:", error);
       throw new RepositoryError("Failed to find all accounts", error);
     }
   }
@@ -244,7 +244,7 @@ export class DynAccountRepository
 
       await this.client.send(command);
     } catch (error) {
-      console.error("Error creating account:", error);
+      this.logger.error("Error creating account:", error);
       throw new RepositoryError("Failed to create account", error);
     }
   }
@@ -268,7 +268,7 @@ export class DynAccountRepository
         throw new RepositoryError("Account not found", error);
       }
 
-      console.error("Error updating account:", error);
+      this.logger.error("Error updating account:", error);
       throw new RepositoryError("Failed to update account", error);
     }
   }

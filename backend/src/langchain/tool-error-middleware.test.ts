@@ -5,14 +5,16 @@ import { describe, expect, it, vi } from "vitest";
 import { ModelError } from "../models/model-error";
 import { InvalidDateStringError } from "../types/date-string";
 import { InvalidDateTimeStringError } from "../types/date-time-string";
-import { toolUserFacingErrorMiddleware } from "./tool-error-middleware";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
+import { createToolUserFacingErrorMiddleware } from "./tool-error-middleware";
 
-const { wrapToolCall } = toolUserFacingErrorMiddleware;
+const mockLogger = createMockLogger();
+const { wrapToolCall } = createToolUserFacingErrorMiddleware(mockLogger);
 if (!wrapToolCall) {
   throw new Error("toolErrorMiddleware must define wrapToolCall");
 }
 
-describe("toolUserFacingErrorMiddleware", () => {
+describe("createToolUserFacingErrorMiddleware", () => {
   // Happy path
 
   it("returns result unchanged when tool succeeds", async () => {
@@ -62,7 +64,8 @@ describe("toolUserFacingErrorMiddleware", () => {
 
   it("returns generic message when tool throws non-user-facing error", async () => {
     // Arrange
-    const handler = vi.fn().mockRejectedValue(new Error("Database timeout"));
+    const error = new Error("Database timeout");
+    const handler = vi.fn().mockRejectedValue(error);
     const request = {
       toolCall: { name: "tool-name-1", id: "tool-call-1", args: {} },
     } as ToolCallRequest;
@@ -77,5 +80,9 @@ describe("toolUserFacingErrorMiddleware", () => {
       status: "error",
       tool_call_id: "tool-call-1",
     });
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      "Error in tool-name-1 tool:",
+      error,
+    );
   });
 });

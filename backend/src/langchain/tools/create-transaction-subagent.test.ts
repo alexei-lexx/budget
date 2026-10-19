@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { AIMessage, HumanMessage, fakeModel } from "langchain";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createMockLogger } from "../../utils/test-utils/providers/logger-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
@@ -26,6 +27,7 @@ describe("createCreateTransactionSubagentTool", () => {
       model: mockModel,
       accountService: createMockAccountService(),
       categoryService: createMockCategoryService(),
+      logger: createMockLogger(),
       transactionRepository: createMockTransactionRepository(),
       transactionService: createMockTransactionService(),
     });

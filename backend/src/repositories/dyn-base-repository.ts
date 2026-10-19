@@ -4,6 +4,7 @@ import {
   QueryCommandInput,
 } from "@aws-sdk/lib-dynamodb";
 import { z } from "zod";
+import { Logger } from "../ports/logger";
 import { RepositoryError } from "../ports/repository-error";
 
 export interface QueryResult<TDbItem> {
@@ -13,16 +14,25 @@ export interface QueryResult<TDbItem> {
 
 export abstract class DynBaseRepository {
   protected readonly tableName: string;
+  protected readonly client: DynamoDBDocumentClient;
+  protected readonly logger: Logger;
 
-  constructor(
-    tableName: string,
-    protected readonly client: DynamoDBDocumentClient,
-  ) {
+  constructor({
+    documentClient,
+    logger,
+    tableName,
+  }: {
+    documentClient: DynamoDBDocumentClient;
+    logger: Logger;
+    tableName: string;
+  }) {
     if (!tableName) {
       throw new RepositoryError("tableName is required");
     }
 
     this.tableName = tableName;
+    this.client = documentClient;
+    this.logger = logger;
   }
 
   /**

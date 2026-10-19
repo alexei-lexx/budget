@@ -4,6 +4,7 @@ import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../langchain/tools/create-transaction";
 import { Agent, AgentTraceMessage } from "../ports/agent-types";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
 import { createMockTransactionService } from "../utils/test-utils/services/transaction-service-mocks";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
 import { TransactionService } from "./transaction-service";
@@ -30,6 +31,7 @@ describe("CreateTransactionFromTextService", () => {
 
     service = new CreateTransactionFromTextService({
       createTransactionAgent: mockCreateTransactionAgent,
+      logger: createMockLogger(),
       transactionService: mockTransactionService,
     });
 

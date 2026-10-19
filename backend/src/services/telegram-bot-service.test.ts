@@ -7,6 +7,7 @@ import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
 import { fakeConnectedTelegramBot } from "../utils/test-utils/models/telegram-bot-fakes";
 import { createMockBackgroundJobDispatcher } from "../utils/test-utils/providers/background-job-dispatcher-mocks";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
 import { createMockTelegramApiClient } from "../utils/test-utils/providers/telegram-api-client-mocks";
 import { createMockTelegramBotRepository } from "../utils/test-utils/repositories/telegram-bot-repository-mocks";
 import { TelegramBotService } from "./telegram-bot-service";
@@ -25,6 +26,7 @@ describe("TelegramBotService", () => {
     service = new TelegramBotService({
       apiBaseUrl: "http://telegram.localhost",
       backgroundJobDispatcher,
+      logger: createMockLogger(),
       telegramApiClient,
       telegramBotRepository,
     });

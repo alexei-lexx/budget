@@ -7,6 +7,7 @@ import {
   resolveAccountService,
   resolveCategoryRepository,
   resolveCategoryService,
+  resolveLogger,
   resolveTransactionRepository,
   resolveTransactionService,
   resolveUserRepository,
@@ -37,6 +38,7 @@ describe("AssistantAgent (integration)", () => {
       model: await createChatModel(),
       accountService,
       categoryService,
+      logger: resolveLogger(),
       transactionRepository,
       transactionService,
     });

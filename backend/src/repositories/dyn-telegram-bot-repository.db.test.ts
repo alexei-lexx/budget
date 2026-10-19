@@ -10,6 +10,7 @@ import {
   fakeDeletingTelegramBot,
   fakePendingTelegramBot,
 } from "../utils/test-utils/models/telegram-bot-fakes";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
 import { DynTelegramBotRepository } from "./dyn-telegram-bot-repository";
 
 describe("DynTelegramBotRepository", () => {
@@ -19,7 +20,11 @@ describe("DynTelegramBotRepository", () => {
   const client = createDynamoDBDocumentClient();
 
   beforeAll(async () => {
-    repository = new DynTelegramBotRepository(tableName, client);
+    repository = new DynTelegramBotRepository({
+      documentClient: client,
+      logger: createMockLogger(),
+      tableName,
+    });
   });
 
   beforeEach(async () => {

@@ -64,7 +64,7 @@ export class DynCategoryRepository
 
       return category;
     } catch (error) {
-      console.error("Error finding category by ID:", error);
+      this.logger.error("Error finding category by ID:", error);
       throw new RepositoryError("Failed to find category", error);
     }
   }
@@ -99,7 +99,7 @@ export class DynCategoryRepository
       const data = this.hydrate(categoryDataSchema, result.Item);
       return Category.fromPersistence(data);
     } catch (error) {
-      console.error("Error finding category by ID (with archived):", error);
+      this.logger.error("Error finding category by ID (with archived):", error);
       throw new RepositoryError("Failed to find category", error);
     }
   }
@@ -146,7 +146,7 @@ export class DynCategoryRepository
 
       return sortCategories(categories);
     } catch (error) {
-      console.error("Error finding active categories by user ID:", error);
+      this.logger.error("Error finding active categories by user ID:", error);
       throw new RepositoryError("Failed to find active categories", error);
     }
   }
@@ -171,7 +171,7 @@ export class DynCategoryRepository
 
       return result.items.map((data) => Category.fromPersistence(data));
     } catch (error) {
-      console.error("Error finding all categories by user ID:", error);
+      this.logger.error("Error finding all categories by user ID:", error);
       throw new RepositoryError("Failed to find all categories", error);
     }
   }
@@ -205,7 +205,7 @@ export class DynCategoryRepository
         Category.fromPersistence(this.hydrate(categoryDataSchema, item)),
       );
     } catch (error) {
-      console.error("Error batch finding categories by IDs:", error);
+      this.logger.error("Error batch finding categories by IDs:", error);
       throw new RepositoryError("Failed to batch find categories", error);
     }
   }
@@ -222,7 +222,7 @@ export class DynCategoryRepository
 
       await this.client.send(command);
     } catch (error) {
-      console.error("Error creating category:", error);
+      this.logger.error("Error creating category:", error);
       throw new RepositoryError("Failed to create category", error);
     }
   }
@@ -265,7 +265,7 @@ export class DynCategoryRepository
         throw new RepositoryError("Category not found", error);
       }
 
-      console.error("Error updating category:", error);
+      this.logger.error("Error updating category:", error);
       throw new RepositoryError("Failed to update category", error);
     }
   }

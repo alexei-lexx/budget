@@ -1,8 +1,4 @@
-import {
-  DynamoDBDocumentClient,
-  PutCommand,
-  QueryCommand,
-} from "@aws-sdk/lib-dynamodb";
+import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { monotonicFactory } from "ulidx";
 import { z } from "zod";
 import { ChatMessage } from "../models/chat-message";
@@ -25,13 +21,6 @@ export class DynChatMessageRepository
   extends DynBaseRepository
   implements ChatMessageRepository
 {
-  constructor(options: {
-    tableName: string;
-    documentClient: DynamoDBDocumentClient;
-  }) {
-    super(options.tableName, options.documentClient);
-  }
-
   async findManyRecentBySessionId(
     selector: { userId: string; sessionId: string },
     limit: number,
@@ -71,7 +60,7 @@ export class DynChatMessageRepository
 
       items = result.Items || [];
     } catch (error) {
-      console.error("Error finding chat messages:", error);
+      this.logger.error("Error finding chat messages:", error);
       throw new RepositoryError("Failed to find chat messages", error);
     }
 
@@ -80,7 +69,7 @@ export class DynChatMessageRepository
         toChatMessage(this.hydrate(chatMessageDbItemSchema, item)),
       );
     } catch (error) {
-      console.error("Error hydrating chat messages:", error);
+      this.logger.error("Error hydrating chat messages:", error);
       throw new RepositoryError("Failed to hydrate chat messages", error);
     }
   }
@@ -97,7 +86,7 @@ export class DynChatMessageRepository
 
       await this.client.send(command);
     } catch (error) {
-      console.error("Error creating chat message:", error);
+      this.logger.error("Error creating chat message:", error);
       throw new RepositoryError("Failed to create chat message", error);
     }
   }

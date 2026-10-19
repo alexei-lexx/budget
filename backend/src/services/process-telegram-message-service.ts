@@ -1,4 +1,5 @@
 import { Failure, Result, Success } from "ts-result";
+import { Logger } from "../ports/logger";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
 import { AssistantChatService } from "./assistant-chat-service";
@@ -12,15 +13,18 @@ export interface ProcessTelegramMessageInput {
 
 export class ProcessTelegramMessageService {
   private readonly assistantChatService: AssistantChatService;
+  private readonly logger: Logger;
   private readonly telegramApiClient: TelegramApiClient;
   private readonly telegramBotRepository: TelegramBotRepository;
 
   constructor(deps: {
     assistantChatService: AssistantChatService;
+    logger: Logger;
     telegramApiClient: TelegramApiClient;
     telegramBotRepository: TelegramBotRepository;
   }) {
     this.assistantChatService = deps.assistantChatService;
+    this.logger = deps.logger;
     this.telegramApiClient = deps.telegramApiClient;
     this.telegramBotRepository = deps.telegramBotRepository;
   }
@@ -33,13 +37,13 @@ export class ProcessTelegramMessageService {
 
     if (!bot) {
       // No connected bot for this user — nothing to do
-      console.warn(`No connected bot found for user ${userId}`);
+      this.logger.warn(`No connected bot found for user ${userId}`);
       return Success(undefined);
     }
 
     if (bot.id !== botId) {
       // User reconnected a different bot — nothing to do
-      console.warn(
+      this.logger.warn(
         `Received message for bot ${botId}, but currently connected bot for user ${userId} is ${bot.id}`,
       );
       return Success(undefined);
@@ -53,7 +57,7 @@ export class ProcessTelegramMessageService {
       });
 
       if (!result.success) {
-        console.error("Failed to send reply:", result.error);
+        this.logger.error("Failed to send reply:", result.error);
         return result;
       }
 
@@ -79,7 +83,7 @@ export class ProcessTelegramMessageService {
     });
 
     if (!result.success) {
-      console.error("Failed to send reply:", result.error);
+      this.logger.error("Failed to send reply:", result.error);
       return Failure(result.error);
     }
 

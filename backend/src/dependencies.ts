@@ -57,7 +57,7 @@ import {
 registerProviderForBundling("bedrock", aws);
 
 // Logging
-const resolveLogger = createSingleton(() => new ConsoleLogger());
+export const resolveLogger = createSingleton(() => new ConsoleLogger());
 
 // Auth
 export const resolveJwtAuthService = createSingleton(
@@ -80,58 +80,66 @@ export const resolveAtomicWriter = createSingleton(
   () =>
     new DynAtomicWriter({
       accountsTableName: requireEnv("ACCOUNTS_TABLE_NAME"),
+      logger: resolveLogger(),
       transactionsTableName: requireEnv("TRANSACTIONS_TABLE_NAME"),
     }),
 );
 export const resolveAccountRepository = createSingleton(
   () =>
-    new DynAccountRepository(
-      requireEnv("ACCOUNTS_TABLE_NAME"),
-      resolveDynDocumentClient(),
-    ),
+    new DynAccountRepository({
+      documentClient: resolveDynDocumentClient(),
+      logger: resolveLogger(),
+      tableName: requireEnv("ACCOUNTS_TABLE_NAME"),
+    }),
 );
 export const resolveCategoryRepository = createSingleton(
   () =>
-    new DynCategoryRepository(
-      requireEnv("CATEGORIES_TABLE_NAME"),
-      resolveDynDocumentClient(),
-    ),
+    new DynCategoryRepository({
+      documentClient: resolveDynDocumentClient(),
+      logger: resolveLogger(),
+      tableName: requireEnv("CATEGORIES_TABLE_NAME"),
+    }),
 );
 export const resolveChatMessageRepository = createSingleton(
   () =>
     new DynChatMessageRepository({
-      tableName: requireEnv("CHAT_MESSAGES_TABLE_NAME"),
       documentClient: resolveDynDocumentClient(),
+      logger: resolveLogger(),
+      tableName: requireEnv("CHAT_MESSAGES_TABLE_NAME"),
     }),
 );
 
 const resolveTelegramBotRepository = createSingleton(
   () =>
-    new DynTelegramBotRepository(
-      requireEnv("TELEGRAM_BOTS_TABLE_NAME"),
-      resolveDynDocumentClient(),
-    ),
+    new DynTelegramBotRepository({
+      documentClient: resolveDynDocumentClient(),
+      logger: resolveLogger(),
+      tableName: requireEnv("TELEGRAM_BOTS_TABLE_NAME"),
+    }),
 );
 export const resolveTransactionRepository = createSingleton(
   () =>
-    new DynTransactionRepository(
-      requireEnv("TRANSACTIONS_TABLE_NAME"),
-      resolveDynDocumentClient(),
-    ),
+    new DynTransactionRepository({
+      documentClient: resolveDynDocumentClient(),
+      logger: resolveLogger(),
+      tableName: requireEnv("TRANSACTIONS_TABLE_NAME"),
+    }),
 );
 export const resolveTrendPresetRepository = createSingleton(
   () =>
-    new DynTrendPresetRepository(
-      requireEnv("TREND_PRESETS_TABLE_NAME"),
-      resolveDynDocumentClient(),
-    ),
+    new DynTrendPresetRepository({
+      documentClient: resolveDynDocumentClient(),
+      logger: resolveLogger(),
+      tableName: requireEnv("TREND_PRESETS_TABLE_NAME"),
+    }),
 );
 export const resolveUserRepository = createSingleton(
   (): UserRepository =>
-    new DynUserRepository(
-      requireEnv("USERS_TABLE_NAME"),
-      resolveDynDocumentClient(),
-    ),
+    new DynUserRepository({
+      documentClient: resolveDynDocumentClient(),
+      logger: resolveLogger(),
+      tableName: requireEnv("USERS_TABLE_NAME"),
+    }),
 );
 
 // CRUD services
@@ -205,11 +213,11 @@ const resolveBackgroundJobDispatcher = createSingleton(() =>
     ? new LambdaBackgroundJobDispatcher()
     : {
         dispatch: async (job: unknown) =>
-          console.log("[dev] background job skipped:", job),
+          resolveLogger().info("[dev] background job skipped:", job),
       },
 );
 const resolveTelegramApiClient = createSingleton(
-  () => new HttpTelegramApiClient(),
+  () => new HttpTelegramApiClient({ logger: resolveLogger() }),
 );
 
 // AI infrastructure
@@ -239,6 +247,7 @@ export const resolveAssistantAgent = createAsyncSingleton(
         model: await resolveChatModel(),
         accountService: resolveAccountService(),
         categoryService: resolveCategoryService(),
+        logger: resolveLogger(),
         transactionRepository: resolveTransactionRepository(),
         transactionService: resolveTransactionService(),
       }),
@@ -252,6 +261,7 @@ export const resolveCreateTransactionAgent = createAsyncSingleton(
         model: await resolveChatModel(),
         accountService: resolveAccountService(),
         categoryService: resolveCategoryService(),
+        logger: resolveLogger(),
         transactionRepository: resolveTransactionRepository(),
         transactionService: resolveTransactionService(),
       }),
@@ -264,6 +274,7 @@ export const resolveCreateTransactionFromTextService = createAsyncSingleton(
   async () =>
     new CreateTransactionFromTextService({
       createTransactionAgent: await resolveCreateTransactionAgent(),
+      logger: resolveLogger(),
       transactionService: resolveTransactionService(),
     }),
 );
@@ -291,6 +302,7 @@ export const resolveProcessTelegramMessageService = createAsyncSingleton(
   async () =>
     new ProcessTelegramMessageService({
       assistantChatService: await resolveAssistantChatService(),
+      logger: resolveLogger(),
       telegramApiClient: resolveTelegramApiClient(),
       telegramBotRepository: resolveTelegramBotRepository(),
     }),
@@ -300,6 +312,7 @@ export const resolveTelegramBotService = createSingleton(
     new TelegramBotService({
       apiBaseUrl: requireEnv("API_BASE_URL"),
       backgroundJobDispatcher: resolveBackgroundJobDispatcher(),
+      logger: resolveLogger(),
       telegramApiClient: resolveTelegramApiClient(),
       telegramBotRepository: resolveTelegramBotRepository(),
     }),

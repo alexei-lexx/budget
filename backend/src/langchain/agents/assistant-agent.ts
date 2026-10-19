@@ -1,10 +1,11 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
+import { Logger } from "../../ports/logger";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { AccountService } from "../../services/account-service";
 import { CategoryService } from "../../services/category-service";
 import { TransactionService } from "../../services/transaction-service";
-import { toolUserFacingErrorMiddleware } from "../tool-error-middleware";
+import { createToolUserFacingErrorMiddleware } from "../tool-error-middleware";
 import { createAggregateTransactionsTool } from "../tools/aggregate-transactions";
 import { createCreateAccountTool } from "../tools/create-account";
 import { createCreateCategoryTool } from "../tools/create-category";
@@ -97,12 +98,14 @@ export function createAssistantAgent({
   model,
   accountService,
   categoryService,
+  logger,
   transactionRepository,
   transactionService,
 }: {
   model: BaseChatModel;
   accountService: AccountService;
   categoryService: CategoryService;
+  logger: Logger;
   transactionRepository: TransactionRepository;
   transactionService: TransactionService;
 }) {
@@ -132,6 +135,7 @@ export function createAssistantAgent({
       model,
       accountService,
       categoryService,
+      logger,
       transactionRepository,
       transactionService,
     }),
@@ -146,7 +150,7 @@ export function createAssistantAgent({
       dynamicSystemPromptMiddleware<AgentContext>((_state, runtime) => {
         return `${SYSTEM_PROMPT}\n\n## Current Date\n\nToday is ${runtime.context.today}.`;
       }),
-      toolUserFacingErrorMiddleware,
+      createToolUserFacingErrorMiddleware(logger),
     ],
   });
 }

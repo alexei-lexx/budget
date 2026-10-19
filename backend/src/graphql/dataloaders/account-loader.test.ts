@@ -1,14 +1,27 @@
 import DataLoader from "dataloader";
-import { describe, expect, it } from "vitest";
+import { type Mocked, beforeEach, describe, expect, it } from "vitest";
+import { AccountRepository } from "../../ports/account-repository";
+import { Logger } from "../../ports/logger";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
+import { createMockLogger } from "../../utils/test-utils/providers/logger-mocks";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { batchLoadAccounts, createAccountLoader } from "./account-loader";
 
 describe("Account Batch Loader", () => {
+  let deps: {
+    accountRepository: Mocked<AccountRepository>;
+    logger: Mocked<Logger>;
+  };
+
+  beforeEach(() => {
+    deps = {
+      accountRepository: createMockAccountRepository(),
+      logger: createMockLogger(),
+    };
+  });
+
   describe("batchLoadAccounts", () => {
     it("batch-loads 5 valid account IDs and returns correct data", async () => {
-      const mockRepository = createMockAccountRepository();
-
       // Create 5 fake accounts
       const account1 = fakeAccount({
         id: "acc-1",
@@ -37,7 +50,7 @@ describe("Account Batch Loader", () => {
       });
 
       // Mock repository to return accounts
-      mockRepository.findManyWithArchivedByIds.mockResolvedValue([
+      deps.accountRepository.findManyWithArchivedByIds.mockResolvedValue([
         account3,
         account4,
         account1,
@@ -46,9 +59,11 @@ describe("Account Batch Loader", () => {
       ]);
 
       const result = await batchLoadAccounts(
-        ["acc-1", "acc-2", "acc-3", "acc-4", "acc-5"],
-        mockRepository,
-        "test-user-id",
+        {
+          accountIds: ["acc-1", "acc-2", "acc-3", "acc-4", "acc-5"],
+          userId: "test-user-id",
+        },
+        deps,
       );
 
       expect(result).toHaveLength(5);
@@ -85,18 +100,15 @@ describe("Account Batch Loader", () => {
     });
 
     it("handles mix of valid and non-existent accounts with stub data", async () => {
-      const mockRepository = createMockAccountRepository();
-
       const validAccount = fakeAccount({ id: "acc-valid" });
 
-      mockRepository.findManyWithArchivedByIds.mockResolvedValue([
+      deps.accountRepository.findManyWithArchivedByIds.mockResolvedValue([
         validAccount,
       ]);
 
       const result = await batchLoadAccounts(
-        ["acc-valid", "acc-missing"],
-        mockRepository,
-        "test-user-id",
+        { accountIds: ["acc-valid", "acc-missing"], userId: "test-user-id" },
+        deps,
       );
 
       expect(result).toHaveLength(2);
@@ -116,16 +128,15 @@ describe("Account Batch Loader", () => {
     });
 
     it("handles duplicate IDs by deduplicating and preserving order", async () => {
-      const mockRepository = createMockAccountRepository();
-
       const account = fakeAccount({ id: "acc-1" });
 
-      mockRepository.findManyWithArchivedByIds.mockResolvedValue([account]);
+      deps.accountRepository.findManyWithArchivedByIds.mockResolvedValue([
+        account,
+      ]);
 
       const result = await batchLoadAccounts(
-        ["acc-1", "acc-1", "acc-1"],
-        mockRepository,
-        "test-user-id",
+        { accountIds: ["acc-1", "acc-1", "acc-1"], userId: "test-user-id" },
+        deps,
       );
 
       // Should still return 3 items (same count as input), all with same account data
@@ -141,40 +152,39 @@ describe("Account Batch Loader", () => {
     });
 
     it("returns empty array for empty input", async () => {
-      const mockRepository = createMockAccountRepository();
-
       const result = await batchLoadAccounts(
-        [],
-        mockRepository,
-        "test-user-id",
+        { accountIds: [], userId: "test-user-id" },
+        deps,
       );
 
       expect(result).toEqual([]);
-      expect(mockRepository.findManyWithArchivedByIds).not.toHaveBeenCalled();
+      expect(
+        deps.accountRepository.findManyWithArchivedByIds,
+      ).not.toHaveBeenCalled();
     });
   });
 
   describe("createAccountLoader", () => {
     it("creates DataLoader instance", () => {
-      const mockRepository = createMockAccountRepository();
-      const loader = createAccountLoader(
-        mockRepository,
-        async () => "test-user-id",
-      );
+      const loader = createAccountLoader({
+        ...deps,
+        getUserId: async () => "test-user-id",
+      });
 
       expect(loader).toBeInstanceOf(DataLoader);
     });
 
     it("batch-loads through DataLoader", async () => {
-      const mockRepository = createMockAccountRepository();
       const account = fakeAccount({ id: "acc-1" });
 
-      mockRepository.findManyWithArchivedByIds.mockResolvedValue([account]);
+      deps.accountRepository.findManyWithArchivedByIds.mockResolvedValue([
+        account,
+      ]);
 
-      const loader = createAccountLoader(
-        mockRepository,
-        async () => "test-user-id",
-      );
+      const loader = createAccountLoader({
+        ...deps,
+        getUserId: async () => "test-user-id",
+      });
 
       const result = await loader.load("acc-1");
 

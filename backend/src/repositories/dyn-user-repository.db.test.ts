@@ -8,6 +8,7 @@ import {
   fakeCreateUserInput,
   fakeUser,
 } from "../utils/test-utils/models/user-fakes";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
 import { DynUserRepository } from "./dyn-user-repository";
 
 describe("DynUserRepository", () => {
@@ -18,7 +19,11 @@ describe("DynUserRepository", () => {
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new DynUserRepository(tableName, client);
+    repository = new DynUserRepository({
+      documentClient: client,
+      logger: createMockLogger(),
+      tableName,
+    });
   });
 
   beforeEach(async () => {

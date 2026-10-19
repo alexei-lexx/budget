@@ -1,6 +1,7 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { tool } from "langchain";
 import { z } from "zod";
+import { Logger } from "../../ports/logger";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { AccountService } from "../../services/account-service";
 import { CategoryService } from "../../services/category-service";
@@ -22,12 +23,14 @@ export const createCreateTransactionSubagentTool = ({
   model,
   accountService,
   categoryService,
+  logger,
   transactionRepository,
   transactionService,
 }: {
   model: BaseChatModel;
   accountService: AccountService;
   categoryService: CategoryService;
+  logger: Logger;
   transactionRepository: TransactionRepository;
   transactionService: TransactionService;
 }) => {
@@ -35,6 +38,7 @@ export const createCreateTransactionSubagentTool = ({
     model,
     accountService,
     categoryService,
+    logger,
     transactionRepository,
     transactionService,
   });

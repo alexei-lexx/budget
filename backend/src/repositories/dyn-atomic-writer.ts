@@ -13,6 +13,7 @@ import {
   AtomicWriter,
   AtomicWriterInput,
 } from "../ports/atomic-writer";
+import { Logger } from "../ports/logger";
 import {
   RepositoryError,
   VersionConflictError,
@@ -28,11 +29,13 @@ export class DynAtomicWriter implements AtomicWriter {
   private readonly client: DynamoDBDocumentClient;
   private readonly accountsTableName: string;
   private readonly transactionsTableName: string;
+  private readonly logger: Logger;
 
   constructor(args: {
     accountsTableName: string;
-    transactionsTableName: string;
     dynamoClient?: DynamoDBClient;
+    logger: Logger;
+    transactionsTableName: string;
   }) {
     if (!args.accountsTableName) {
       throw new RepositoryError("accountsTableName is required");
@@ -43,6 +46,7 @@ export class DynAtomicWriter implements AtomicWriter {
     this.client = createDynamoDBDocumentClient(args.dynamoClient);
     this.accountsTableName = args.accountsTableName;
     this.transactionsTableName = args.transactionsTableName;
+    this.logger = args.logger;
   }
 
   async commit(write: AtomicWriterInput): Promise<AtomicWriteOutput> {
@@ -102,7 +106,7 @@ export class DynAtomicWriter implements AtomicWriter {
         }
       }
 
-      console.error("LedgerWriter TransactWrite failed:", error);
+      this.logger.error("LedgerWriter TransactWrite failed:", error);
 
       throw new RepositoryError("Failed to apply ledger write", error);
     }

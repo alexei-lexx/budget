@@ -42,7 +42,7 @@ export class DynTelegramBotRepository
         this.hydrate(telegramBotSchema, result.Items[0]),
       );
     } catch (error) {
-      console.error("Error finding telegram bot by userId:", error);
+      this.logger.error("Error finding telegram bot by userId:", error);
 
       if (error instanceof RepositoryError) {
         throw error;
@@ -89,7 +89,7 @@ export class DynTelegramBotRepository
         this.hydrate(telegramBotSchema, result.Items[0]),
       );
     } catch (error) {
-      console.error("Error finding telegram bot by webhookSecret:", error);
+      this.logger.error("Error finding telegram bot by webhookSecret:", error);
 
       if (error instanceof RepositoryError) {
         throw error;
@@ -114,7 +114,7 @@ export class DynTelegramBotRepository
 
       await this.client.send(command);
     } catch (error) {
-      console.error("Error creating telegram bot:", error);
+      this.logger.error("Error creating telegram bot:", error);
       throw new RepositoryError("Failed to create telegram bot", error);
     }
   }
@@ -152,7 +152,7 @@ export class DynTelegramBotRepository
         );
       }
 
-      console.error("Error updating telegram bot:", error);
+      this.logger.error("Error updating telegram bot:", error);
       throw new RepositoryError("Failed to update telegram bot", error);
     }
   }
