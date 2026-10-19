@@ -162,20 +162,23 @@ graph TD
 
 ### Schema-Driven Development
 
-**Non-negotiable rule**: GraphQL schema is the single source of truth for API contracts. All API changes begin with schema modification.
+**Non-negotiable rule**: The GraphQL schema is the single source of truth for the GraphQL API contract. Start every API change with a change to the schema.
+
+**Schema Files**:
+
+- **Backend**: `backend/src/graphql/schema.graphql` is the source schema
+- **Frontend**: `frontend/src/schema.graphql` is a copy of the backend schema
 
 **Development Process**:
 
-- Backend GraphQL schema defined at `backend/src/graphql/schema.graphql` (canonical source)
-- Before making any change, read the schema
-- Start all API changes with schema updates
-- Backend generates TypeScript types via `npm run codegen` after schema changes
-- Frontend syncs schema from backend using `npm run codegen:sync-schema` in `frontend/src/schema.graphql`
-- Frontend generates typed composables via `npm run codegen` for all GraphQL operations
-- Code generation provides full TypeScript type checking across frontend and backend
-- Both frontend and backend consume generated types for compile-time type safety
+1. Read the backend schema before an API change
+2. Change the backend schema
+3. Generate the backend types with `npm run codegen` in `backend`
+4. Write the GraphQL operations in `frontend/src/graphql`
+5. Generate the frontend types with `npm run codegen` in `frontend`
+6. Use the generated types in the backend and frontend code
 
-**Rationale**: Ensures unambiguous API contracts, prevents type mismatches, enables safe refactoring.
+**Rationale**: One contract prevents type mismatches between the frontend and the backend. Generated types find API mismatches at compile time.
 
 ### Backend Layer Structure
 
