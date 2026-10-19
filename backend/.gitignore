@@ -8,3 +8,7 @@ node_modules
 .env*
 !.env.example
 !.env.test.example
+
+# stryker temp files
+.stryker-tmp
+reports/mutation
