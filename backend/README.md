@@ -97,3 +97,4 @@ In the Inspector UI, set Transport Type to `Streamable HTTP`, paste the copied U
 - `npm run test` - Run unit and database tests (excludes integration tests)
 - `npm run typecheck` - Run TypeScript type checker
 - `npm run stryker` - Run [Stryker](https://stryker-mutator.io/) mutation testing on unit tests (HTML report in `reports/mutation/`)
+  - `npm run stryker -- --mutate src/file.ts` - One file only
