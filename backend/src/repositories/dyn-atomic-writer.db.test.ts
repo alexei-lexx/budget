@@ -16,21 +16,22 @@ describe("DynAtomicWriter", () => {
   const accountsTableName = requireEnv("ACCOUNTS_TABLE_NAME");
   const transactionsTableName = requireEnv("TRANSACTIONS_TABLE_NAME");
   const client = createDynamoDBDocumentClient();
+  const logger = createMockLogger();
 
   beforeAll(() => {
     accountRepository = new DynAccountRepository({
       documentClient: client,
-      logger: createMockLogger(),
+      logger,
       tableName: accountsTableName,
     });
     transactionRepository = new DynTransactionRepository({
       documentClient: client,
-      logger: createMockLogger(),
+      logger,
       tableName: transactionsTableName,
     });
     writer = new DynAtomicWriter({
       accountsTableName,
-      logger: createMockLogger(),
+      logger,
       transactionsTableName,
     });
   });
