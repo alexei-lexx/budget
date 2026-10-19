@@ -6,6 +6,7 @@ import {
   resolveAccountRepository,
   resolveAccountService,
   resolveCategoryService,
+  resolveLogger,
   resolveTransactionRepository,
   resolveTransactionService,
   resolveUserRepository,
@@ -35,6 +36,7 @@ describe("CreateTransactionAgent (integration)", () => {
       model: await createChatModel(),
       accountService,
       categoryService,
+      logger: resolveLogger(),
       transactionRepository,
       transactionService,
     });

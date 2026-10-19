@@ -4,6 +4,7 @@ import {
   resolveAccountService,
   resolveAggregateTransactionsService,
   resolveCategoryService,
+  resolveLogger,
   resolveTransactionRepository,
   resolveTransactionService,
   resolveUserRepository,
@@ -40,6 +41,7 @@ export async function createAuthenticatedMcpServer(
   const accountService = resolveAccountService();
   const aggregateTransactionsService = resolveAggregateTransactionsService();
   const categoryService = resolveCategoryService();
+  const logger = resolveLogger();
   const transactionRepository = resolveTransactionRepository();
   const transactionService = resolveTransactionService();
 
@@ -82,7 +84,7 @@ export async function createAuthenticatedMcpServer(
 
           // Log unexpected errors and return
           // a generic failure message to the user
-          console.error(`Error in ${tool.name} tool:`, error);
+          logger.error(`Error in ${tool.name} tool:`, error);
           return toToolResult(Failure(`Failed to run ${tool.name}`));
         }
       },

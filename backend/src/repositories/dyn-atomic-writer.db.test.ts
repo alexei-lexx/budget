@@ -4,6 +4,7 @@ import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
 import { DynAccountRepository } from "./dyn-account-repository";
 import { DynAtomicWriter } from "./dyn-atomic-writer";
 import { DynTransactionRepository } from "./dyn-transaction-repository";
@@ -17,13 +18,19 @@ describe("DynAtomicWriter", () => {
   const client = createDynamoDBDocumentClient();
 
   beforeAll(() => {
-    accountRepository = new DynAccountRepository(accountsTableName, client);
-    transactionRepository = new DynTransactionRepository(
-      transactionsTableName,
-      client,
-    );
+    accountRepository = new DynAccountRepository({
+      documentClient: client,
+      logger: createMockLogger(),
+      tableName: accountsTableName,
+    });
+    transactionRepository = new DynTransactionRepository({
+      documentClient: client,
+      logger: createMockLogger(),
+      tableName: transactionsTableName,
+    });
     writer = new DynAtomicWriter({
       accountsTableName,
+      logger: createMockLogger(),
       transactionsTableName,
     });
   });

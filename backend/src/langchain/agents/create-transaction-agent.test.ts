@@ -5,6 +5,7 @@ import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { TransactionService } from "../../services/transaction-service";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
+import { createMockLogger } from "../../utils/test-utils/providers/logger-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
@@ -37,6 +38,7 @@ describe("createCreateTransactionAgent", () => {
       model: mockModel,
       accountService: createMockAccountService(),
       categoryService: createMockCategoryService(),
+      logger: createMockLogger(),
       transactionRepository: createMockTransactionRepository(),
       transactionService: mockTransactionService,
     });

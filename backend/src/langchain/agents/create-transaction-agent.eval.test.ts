@@ -20,6 +20,7 @@ import {
   resolveAccountService,
   resolveCategoryRepository,
   resolveCategoryService,
+  resolveLogger,
   resolveTransactionRepository,
   resolveTransactionService,
   resolveUserRepository,
@@ -56,6 +57,7 @@ describe("CreateTransactionAgent (evals)", () => {
       model,
       accountService,
       categoryService,
+      logger: resolveLogger(),
       transactionRepository,
       transactionService,
     });

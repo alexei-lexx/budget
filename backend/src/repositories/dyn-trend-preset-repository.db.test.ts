@@ -5,6 +5,7 @@ import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCreateTrendPresetInput } from "../utils/test-utils/models/trend-preset-fakes";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
 import { DynTrendPresetRepository } from "./dyn-trend-preset-repository";
 
 describe("DynTrendPresetRepository", () => {
@@ -14,7 +15,11 @@ describe("DynTrendPresetRepository", () => {
   const client = createDynamoDBDocumentClient();
 
   beforeAll(async () => {
-    repository = new DynTrendPresetRepository(tableName, client);
+    repository = new DynTrendPresetRepository({
+      documentClient: client,
+      logger: createMockLogger(),
+      tableName,
+    });
   });
 
   beforeEach(async () => {

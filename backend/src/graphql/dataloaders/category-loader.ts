@@ -1,6 +1,7 @@
 import DataLoader from "dataloader";
 import { Category } from "../../models/category";
 import { CategoryRepository } from "../../ports/category-repository";
+import { Logger } from "../../ports/logger";
 import { TransactionEmbeddedCategory } from "../embedded-types";
 
 export type { TransactionEmbeddedCategory };
@@ -18,14 +19,21 @@ const createStubCategory = (id: string): TransactionEmbeddedCategory => ({
  *
  * @param categoryIds - Array of category IDs to batch load
  * @param categoryRepository - Repository instance for category lookups
+ * @param logger - Logger for data consistency warnings and errors
  * @param userId - Authenticated user ID for authorization scoping
  * @returns Array of categories or stub data, in same order as input IDs
  */
-export async function batchLoadCategories(
-  categoryIds: readonly string[],
-  categoryRepository: CategoryRepository,
-  userId: string,
-): Promise<TransactionEmbeddedCategory[]> {
+export async function batchLoadCategories({
+  categoryIds,
+  categoryRepository,
+  logger,
+  userId,
+}: {
+  categoryIds: readonly string[];
+  categoryRepository: CategoryRepository;
+  logger: Logger;
+  userId: string;
+}): Promise<TransactionEmbeddedCategory[]> {
   if (categoryIds.length === 0) {
     return [];
   }
@@ -52,7 +60,7 @@ export async function batchLoadCategories(
 
       if (!category) {
         // Log warning for missing categories (data consistency edge case)
-        console.warn(`Missing category ${id} for transaction context`);
+        logger.warn(`Missing category ${id} for transaction context`);
         // Return stub data instead of null
         return createStubCategory(id);
       }
@@ -64,7 +72,7 @@ export async function batchLoadCategories(
       };
     });
   } catch (error) {
-    console.error("Error batch loading categories:", error);
+    logger.error("Error batch loading categories:", error);
     throw error;
   }
 }
@@ -75,14 +83,25 @@ export async function batchLoadCategories(
  *
  * @param categoryRepository - Repository instance for category lookups
  * @param getUserId - Function that returns the authenticated user ID (called during batch operations)
+ * @param logger - Logger for data consistency warnings and errors
  * @returns DataLoader instance configured for category batching
  */
-export function createCategoryLoader(
-  categoryRepository: CategoryRepository,
-  getUserId: () => Promise<string>,
-): DataLoader<string, TransactionEmbeddedCategory> {
+export function createCategoryLoader({
+  categoryRepository,
+  getUserId,
+  logger,
+}: {
+  categoryRepository: CategoryRepository;
+  getUserId: () => Promise<string>;
+  logger: Logger;
+}): DataLoader<string, TransactionEmbeddedCategory> {
   return new DataLoader(async (categoryIds) => {
     const userId = await getUserId();
-    return batchLoadCategories(categoryIds, categoryRepository, userId);
+    return batchLoadCategories({
+      categoryIds,
+      categoryRepository,
+      logger,
+      userId,
+    });
   });
 }

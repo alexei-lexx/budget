@@ -29,7 +29,7 @@ export class DynTrendPresetRepository
 
       return result.items.map((data) => TrendPreset.fromPersistence(data));
     } catch (error) {
-      console.error("Error finding trend presets by user ID:", error);
+      this.logger.error("Error finding trend presets by user ID:", error);
       throw new RepositoryError("Failed to find trend presets", error);
     }
   }
@@ -46,7 +46,7 @@ export class DynTrendPresetRepository
 
       await this.client.send(command);
     } catch (error) {
-      console.error("Error creating trend preset:", error);
+      this.logger.error("Error creating trend preset:", error);
       throw new RepositoryError("Failed to create trend preset", error);
     }
   }
@@ -74,7 +74,7 @@ export class DynTrendPresetRepository
 
       await this.client.send(command);
     } catch (error) {
-      console.error("Error deleting trend preset:", error);
+      this.logger.error("Error deleting trend preset:", error);
       throw new RepositoryError("Failed to delete trend preset", error);
     }
   }

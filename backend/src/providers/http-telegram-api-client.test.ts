@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
 import { HttpTelegramApiClient } from "./http-telegram-api-client";
 
 const mockFetch = vi.fn<typeof fetch>();
@@ -18,7 +19,7 @@ describe("HttpTelegramApiClient", () => {
   let client: HttpTelegramApiClient;
 
   beforeEach(() => {
-    client = new HttpTelegramApiClient(baseUrl);
+    client = new HttpTelegramApiClient(createMockLogger(), baseUrl);
     mockFetch.mockReset();
   });
 

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../langchain/tools/create-transaction";
 import { Transaction } from "../models/transaction";
 import { Agent, AgentTraceMessage } from "../ports/agent-types";
+import { Logger } from "../ports/logger";
 import { TransactionService } from "./transaction-service";
 
 const createdTransactionSchema = z.discriminatedUnion("success", [
@@ -36,10 +37,12 @@ export class CreateTransactionFromTextService {
     today: string;
     userId: string;
   }>;
+  private logger: Logger;
   private transactionService: TransactionService;
 
   constructor({
     createTransactionAgent,
+    logger,
     transactionService,
   }: {
     createTransactionAgent: Agent<{
@@ -47,9 +50,11 @@ export class CreateTransactionFromTextService {
       today: string;
       userId: string;
     }>;
+    logger: Logger;
     transactionService: TransactionService;
   }) {
     this.createTransactionAgent = createTransactionAgent;
+    this.logger = logger;
     this.transactionService = transactionService;
   }
 
@@ -86,7 +91,7 @@ export class CreateTransactionFromTextService {
     );
 
     if (!lastCreateTransactionToolExecution) {
-      console.log("Agent error", {
+      this.logger.error("Agent error", {
         error: "Agent did not attempt to create a transaction",
         agentAnswer: answer,
       });
@@ -105,7 +110,7 @@ export class CreateTransactionFromTextService {
         lastCreateTransactionToolExecution.output,
       );
     } catch (error) {
-      console.log("Agent error", {
+      this.logger.error("Agent error", {
         error: error instanceof Error ? error.message : String(error),
         agentAnswer: answer,
         toolOutput: lastCreateTransactionToolExecution.output,
@@ -121,7 +126,7 @@ export class CreateTransactionFromTextService {
       createdTransactionSchema.safeParse(transactionDataJson);
 
     if (!parsedTransactionData.success) {
-      console.log("Agent error", {
+      this.logger.error("Agent error", {
         error: z.prettifyError(parsedTransactionData.error),
         agentAnswer: answer,
         toolOutput: lastCreateTransactionToolExecution.output,
@@ -135,7 +140,7 @@ export class CreateTransactionFromTextService {
 
     // Tool responded with a failure
     if (!parsedTransactionData.data.success) {
-      console.log("Agent error", {
+      this.logger.error("Agent error", {
         error: parsedTransactionData.data.error,
         agentAnswer: answer,
         toolOutput: lastCreateTransactionToolExecution.output,

@@ -1,5 +1,6 @@
 import { Failure, Result, Success } from "ts-result";
 import { z } from "zod";
+import { Logger } from "../ports/logger";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 
 const baseResponseSchema = z.discriminatedUnion("ok", [
@@ -13,7 +14,10 @@ const webhookInfoResponseSchema = z.discriminatedUnion("ok", [
 ]);
 
 export class HttpTelegramApiClient implements TelegramApiClient {
-  constructor(private readonly baseUrl = "https://api.telegram.org") {}
+  constructor(
+    private readonly logger: Logger,
+    private readonly baseUrl = "https://api.telegram.org",
+  ) {}
 
   async getWebhookInfo(token: string): Promise<Result<{ url: string }>> {
     try {
@@ -22,7 +26,7 @@ export class HttpTelegramApiClient implements TelegramApiClient {
       );
 
       if (!response.ok) {
-        console.error(
+        this.logger.error(
           `Telegram getWebhookInfo failed: HTTP ${response.status}`,
         );
         return Failure(
@@ -33,7 +37,7 @@ export class HttpTelegramApiClient implements TelegramApiClient {
       const parsed = webhookInfoResponseSchema.safeParse(await response.json());
 
       if (!parsed.success) {
-        console.error(
+        this.logger.error(
           "Telegram getWebhookInfo returned unexpected response format",
           parsed.error,
         );
@@ -43,7 +47,7 @@ export class HttpTelegramApiClient implements TelegramApiClient {
       }
 
       if (!parsed.data.ok) {
-        console.error(
+        this.logger.error(
           `Telegram getWebhookInfo failed: ${parsed.data.description}`,
         );
         return Failure(
@@ -53,7 +57,7 @@ export class HttpTelegramApiClient implements TelegramApiClient {
 
       return Success(parsed.data.result);
     } catch (error) {
-      console.error("Telegram getWebhookInfo failed:", error);
+      this.logger.error("Telegram getWebhookInfo failed:", error);
       return Failure(`Telegram getWebhookInfo failed: ${String(error)}`);
     }
   }
@@ -77,14 +81,16 @@ export class HttpTelegramApiClient implements TelegramApiClient {
       );
 
       if (!response.ok) {
-        console.error(`Telegram setWebhook failed: HTTP ${response.status}`);
+        this.logger.error(
+          `Telegram setWebhook failed: HTTP ${response.status}`,
+        );
         return Failure(`Telegram setWebhook failed: HTTP ${response.status}`);
       }
 
       const parsed = baseResponseSchema.safeParse(await response.json());
 
       if (!parsed.success) {
-        console.error(
+        this.logger.error(
           "Telegram setWebhook returned unexpected response format",
           parsed.error,
         );
@@ -94,7 +100,9 @@ export class HttpTelegramApiClient implements TelegramApiClient {
       }
 
       if (!parsed.data.ok) {
-        console.error(`Telegram setWebhook failed: ${parsed.data.description}`);
+        this.logger.error(
+          `Telegram setWebhook failed: ${parsed.data.description}`,
+        );
         return Failure(
           `Telegram setWebhook failed: ${parsed.data.description}`,
         );
@@ -102,7 +110,7 @@ export class HttpTelegramApiClient implements TelegramApiClient {
 
       return Success(undefined);
     } catch (error) {
-      console.error("Telegram setWebhook failed:", error);
+      this.logger.error("Telegram setWebhook failed:", error);
       return Failure(`Telegram setWebhook failed: ${String(error)}`);
     }
   }
@@ -115,7 +123,9 @@ export class HttpTelegramApiClient implements TelegramApiClient {
       );
 
       if (!response.ok) {
-        console.error(`Telegram deleteWebhook failed: HTTP ${response.status}`);
+        this.logger.error(
+          `Telegram deleteWebhook failed: HTTP ${response.status}`,
+        );
         return Failure(
           `Telegram deleteWebhook failed: HTTP ${response.status}`,
         );
@@ -124,7 +134,7 @@ export class HttpTelegramApiClient implements TelegramApiClient {
       const parsed = baseResponseSchema.safeParse(await response.json());
 
       if (!parsed.success) {
-        console.error(
+        this.logger.error(
           "Telegram deleteWebhook returned unexpected response format",
           parsed.error,
         );
@@ -134,7 +144,7 @@ export class HttpTelegramApiClient implements TelegramApiClient {
       }
 
       if (!parsed.data.ok) {
-        console.error(
+        this.logger.error(
           `Telegram deleteWebhook failed: ${parsed.data.description}`,
         );
         return Failure(
@@ -144,7 +154,7 @@ export class HttpTelegramApiClient implements TelegramApiClient {
 
       return Success(undefined);
     } catch (error) {
-      console.error("Telegram deleteWebhook failed:", error);
+      this.logger.error("Telegram deleteWebhook failed:", error);
       return Failure(`Telegram deleteWebhook failed: ${String(error)}`);
     }
   }
@@ -168,14 +178,16 @@ export class HttpTelegramApiClient implements TelegramApiClient {
       );
 
       if (!response.ok) {
-        console.error(`Telegram sendMessage failed: HTTP ${response.status}`);
+        this.logger.error(
+          `Telegram sendMessage failed: HTTP ${response.status}`,
+        );
         return Failure(`Telegram sendMessage failed: HTTP ${response.status}`);
       }
 
       const parsed = baseResponseSchema.safeParse(await response.json());
 
       if (!parsed.success) {
-        console.error(
+        this.logger.error(
           "Telegram sendMessage returned unexpected response format",
           parsed.error,
         );
@@ -185,7 +197,7 @@ export class HttpTelegramApiClient implements TelegramApiClient {
       }
 
       if (!parsed.data.ok) {
-        console.error(
+        this.logger.error(
           `Telegram sendMessage failed: ${parsed.data.description}`,
         );
         return Failure(
@@ -195,7 +207,7 @@ export class HttpTelegramApiClient implements TelegramApiClient {
 
       return Success(undefined);
     } catch (error) {
-      console.error("Telegram sendMessage failed:", error);
+      this.logger.error("Telegram sendMessage failed:", error);
       return Failure(`Telegram sendMessage failed: ${String(error)}`);
     }
   }

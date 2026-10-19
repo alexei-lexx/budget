@@ -5,11 +5,12 @@ import {
   dynamicSystemPromptMiddleware,
   toolCallLimitMiddleware,
 } from "langchain";
+import { Logger } from "../../ports/logger";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { AccountService } from "../../services/account-service";
 import { CategoryService } from "../../services/category-service";
 import { TransactionService } from "../../services/transaction-service";
-import { toolUserFacingErrorMiddleware } from "../tool-error-middleware";
+import { createToolUserFacingErrorMiddleware } from "../tool-error-middleware";
 import {
   CREATE_TRANSACTION_TOOL_NAME,
   createCreateTransactionTool,
@@ -164,12 +165,14 @@ export function createCreateTransactionAgent({
   model,
   accountService,
   categoryService,
+  logger,
   transactionRepository,
   transactionService,
 }: {
   model: BaseChatModel;
   accountService: AccountService;
   categoryService: CategoryService;
+  logger: Logger;
   transactionRepository: TransactionRepository;
   transactionService: TransactionService;
 }) {
@@ -198,7 +201,7 @@ export function createCreateTransactionAgent({
         toolName: CREATE_TRANSACTION_TOOL_NAME,
         runLimit: 1,
       }),
-      toolUserFacingErrorMiddleware,
+      createToolUserFacingErrorMiddleware(logger),
     ],
   });
 }

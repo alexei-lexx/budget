@@ -9,6 +9,7 @@ import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
 import { DynCategoryRepository } from "./dyn-category-repository";
 
 describe("DynCategoryRepository", () => {
@@ -19,7 +20,11 @@ describe("DynCategoryRepository", () => {
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new DynCategoryRepository(tableName, client);
+    repository = new DynCategoryRepository({
+      documentClient: client,
+      logger: createMockLogger(),
+      tableName,
+    });
   });
 
   beforeEach(async () => {

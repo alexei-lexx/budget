@@ -4,6 +4,7 @@ import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
 import { fakeTelegramBot } from "../utils/test-utils/models/telegram-bot-fakes";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
 import { createMockTelegramApiClient } from "../utils/test-utils/providers/telegram-api-client-mocks";
 import { createMockTelegramBotRepository } from "../utils/test-utils/repositories/telegram-bot-repository-mocks";
 import { AssistantChatService } from "./assistant-chat-service";
@@ -24,6 +25,7 @@ describe("ProcessTelegramMessageService", () => {
 
     service = new ProcessTelegramMessageService({
       assistantChatService: mockAssistantChatService,
+      logger: createMockLogger(),
       telegramApiClient: mockTelegramApiClient,
       telegramBotRepository: mockTelegramBotRepository,
     });

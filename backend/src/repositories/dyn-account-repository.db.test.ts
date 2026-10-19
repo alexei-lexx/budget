@@ -10,6 +10,7 @@ import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCreateAccountInput } from "../utils/test-utils/models/account-fakes";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
 import { DynAccountRepository } from "./dyn-account-repository";
 
 describe("DynAccountRepository", () => {
@@ -20,7 +21,11 @@ describe("DynAccountRepository", () => {
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new DynAccountRepository(tableName, client);
+    repository = new DynAccountRepository({
+      documentClient: client,
+      logger: createMockLogger(),
+      tableName,
+    });
   });
 
   beforeEach(async () => {

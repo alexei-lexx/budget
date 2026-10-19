@@ -270,7 +270,7 @@ export class DynTransactionRepository
 
       return toTransaction(dbItem);
     } catch (error) {
-      console.error("Error finding transaction by ID:", error);
+      this.logger.error("Error finding transaction by ID:", error);
       throw new RepositoryError("Failed to find transaction", error);
     }
   }
@@ -305,7 +305,7 @@ export class DynTransactionRepository
 
       return items.map((dbItem) => toTransaction(dbItem));
     } catch (error) {
-      console.error("Error finding transactions by user ID:", error);
+      this.logger.error("Error finding transactions by user ID:", error);
       throw new RepositoryError(
         "Failed to find transactions by user ID",
         error,
@@ -394,7 +394,7 @@ export class DynTransactionRepository
         throw error;
       }
 
-      console.error("Error finding paginated transactions:", error);
+      this.logger.error("Error finding paginated transactions:", error);
       throw new RepositoryError("Failed to find paginated transactions", error);
     }
   }
@@ -433,7 +433,7 @@ export class DynTransactionRepository
 
       return items.map((dbItem) => toTransaction(dbItem));
     } catch (error) {
-      console.error("Error finding transactions by account ID:", error);
+      this.logger.error("Error finding transactions by account ID:", error);
       throw new RepositoryError(
         "Failed to find transactions by account",
         error,
@@ -475,7 +475,7 @@ export class DynTransactionRepository
 
       return items.map((dbItem) => toTransaction(dbItem));
     } catch (error) {
-      console.error("Error finding transactions by transfer ID:", error);
+      this.logger.error("Error finding transactions by transfer ID:", error);
       throw new RepositoryError(
         "Failed to find transactions by transfer",
         error,
@@ -528,7 +528,7 @@ export class DynTransactionRepository
 
       return transactions.map((dbItem) => toTransaction(dbItem));
     } catch (error) {
-      console.error("Error searching transactions by description:", error);
+      this.logger.error("Error searching transactions by description:", error);
       throw new RepositoryError(
         "Failed to search transactions by description",
         error,
@@ -547,7 +547,7 @@ export class DynTransactionRepository
         throw new RepositoryError("Transaction with this ID already exists");
       }
 
-      console.error("Error creating transaction:", error);
+      this.logger.error("Error creating transaction:", error);
       throw new RepositoryError("Failed to create transaction", error);
     }
   }
@@ -605,7 +605,7 @@ export class DynTransactionRepository
       const result = await this.client.send(command);
       return (result.Count || 0) > 0;
     } catch (error) {
-      console.error("Error checking transactions for account:", error);
+      this.logger.error("Error checking transactions for account:", error);
       throw new RepositoryError(
         "Failed to check transactions for account",
         error,
@@ -659,7 +659,7 @@ export class DynTransactionRepository
 
       return false;
     } catch (error) {
-      console.error("Error checking transactions for category:", error);
+      this.logger.error("Error checking transactions for category:", error);
       throw new RepositoryError(
         "Failed to check transactions for category",
         error,
@@ -763,7 +763,7 @@ export class DynTransactionRepository
         throw error;
       }
 
-      console.error("Error getting account category patterns:", error);
+      this.logger.error("Error getting account category patterns:", error);
       throw new RepositoryError(
         "Failed to get account category patterns",
         error,
@@ -921,7 +921,7 @@ export class DynTransactionRepository
       const result = await this.client.send(command);
       return result.Count || 0;
     } catch (error) {
-      console.error("Error getting active transaction count:", error);
+      this.logger.error("Error getting active transaction count:", error);
       throw new RepositoryError(
         "Failed to get active transaction count",
         error,

@@ -18,6 +18,7 @@ import {
   resolveCurrencyService,
   resolveExpenseTrendService,
   resolveJwtAuthService,
+  resolveLogger,
   resolveTelegramBotService,
   resolveTransactionService,
   resolveTransferService,
@@ -75,7 +76,7 @@ export const server = new ApolloServer<GraphQLContext>({
     }
 
     // Internal: log full details for debugging, hide from client
-    console.error(
+    resolveLogger().error(
       `GraphQL error at ${formattedError.path?.join(".")}:`,
       original,
     );
@@ -155,14 +156,16 @@ export async function createContext(req: {
 
   // Create fresh DataLoaders for this request with lazy user ID resolution
   // Each loader is scoped per-request with proper internal user ID for authorization
-  const accountLoader = createAccountLoader(
-    resolveAccountRepository(),
+  const accountLoader = createAccountLoader({
+    accountRepository: resolveAccountRepository(),
     getUserId,
-  );
-  const categoryLoader = createCategoryLoader(
-    resolveCategoryRepository(),
+    logger: resolveLogger(),
+  });
+  const categoryLoader = createCategoryLoader({
+    categoryRepository: resolveCategoryRepository(),
     getUserId,
-  );
+    logger: resolveLogger(),
+  });
 
   return {
     ...contextWithoutLoaders,

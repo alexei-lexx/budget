@@ -1,6 +1,7 @@
 import DataLoader from "dataloader";
 import { Account } from "../../models/account";
 import { AccountRepository } from "../../ports/account-repository";
+import { Logger } from "../../ports/logger";
 import { TransactionEmbeddedAccount } from "../embedded-types";
 
 export type { TransactionEmbeddedAccount };
@@ -18,14 +19,21 @@ const createStubAccount = (id: string): TransactionEmbeddedAccount => ({
  *
  * @param accountIds - Array of account IDs to batch load
  * @param accountRepository - Repository instance for account lookups
+ * @param logger - Logger for data consistency warnings and errors
  * @param userId - Authenticated user ID for authorization scoping
  * @returns Array of accounts or stub data, in same order as input IDs
  */
-export async function batchLoadAccounts(
-  accountIds: readonly string[],
-  accountRepository: AccountRepository,
-  userId: string,
-): Promise<TransactionEmbeddedAccount[]> {
+export async function batchLoadAccounts({
+  accountIds,
+  accountRepository,
+  logger,
+  userId,
+}: {
+  accountIds: readonly string[];
+  accountRepository: AccountRepository;
+  logger: Logger;
+  userId: string;
+}): Promise<TransactionEmbeddedAccount[]> {
   if (accountIds.length === 0) {
     return [];
   }
@@ -52,7 +60,7 @@ export async function batchLoadAccounts(
 
       if (!account) {
         // Log warning for missing accounts (data consistency edge case)
-        console.warn(`Missing account ${id} for transaction context`);
+        logger.warn(`Missing account ${id} for transaction context`);
         // Return stub data instead of null
         return createStubAccount(id);
       }
@@ -64,7 +72,7 @@ export async function batchLoadAccounts(
       };
     });
   } catch (error) {
-    console.error("Error batch loading accounts:", error);
+    logger.error("Error batch loading accounts:", error);
     throw error;
   }
 }
@@ -75,14 +83,25 @@ export async function batchLoadAccounts(
  *
  * @param accountRepository - Repository instance for account lookups
  * @param getUserId - Function that returns the authenticated user ID (called during batch operations)
+ * @param logger - Logger for data consistency warnings and errors
  * @returns DataLoader instance configured for account batching
  */
-export function createAccountLoader(
-  accountRepository: AccountRepository,
-  getUserId: () => Promise<string>,
-): DataLoader<string, TransactionEmbeddedAccount> {
+export function createAccountLoader({
+  accountRepository,
+  getUserId,
+  logger,
+}: {
+  accountRepository: AccountRepository;
+  getUserId: () => Promise<string>;
+  logger: Logger;
+}): DataLoader<string, TransactionEmbeddedAccount> {
   return new DataLoader(async (accountIds) => {
     const userId = await getUserId();
-    return batchLoadAccounts(accountIds, accountRepository, userId);
+    return batchLoadAccounts({
+      accountIds,
+      accountRepository,
+      logger,
+      userId,
+    });
   });
 }

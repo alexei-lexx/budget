@@ -1,6 +1,7 @@
 import DataLoader from "dataloader";
 import { describe, expect, it } from "vitest";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
+import { createMockLogger } from "../../utils/test-utils/providers/logger-mocks";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { batchLoadCategories, createCategoryLoader } from "./category-loader";
 
@@ -45,11 +46,12 @@ describe("Category Batch Loader", () => {
         category5,
       ]);
 
-      const result = await batchLoadCategories(
-        ["cat-1", "cat-2", "cat-3", "cat-4", "cat-5"],
-        mockRepository,
-        "test-user-id",
-      );
+      const result = await batchLoadCategories({
+        categoryIds: ["cat-1", "cat-2", "cat-3", "cat-4", "cat-5"],
+        categoryRepository: mockRepository,
+        logger: createMockLogger(),
+        userId: "test-user-id",
+      });
 
       expect(result).toHaveLength(5);
 
@@ -93,11 +95,12 @@ describe("Category Batch Loader", () => {
         validCategory,
       ]);
 
-      const result = await batchLoadCategories(
-        ["cat-valid", "cat-missing"],
-        mockRepository,
-        "test-user-id",
-      );
+      const result = await batchLoadCategories({
+        categoryIds: ["cat-valid", "cat-missing"],
+        categoryRepository: mockRepository,
+        logger: createMockLogger(),
+        userId: "test-user-id",
+      });
 
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
@@ -120,11 +123,12 @@ describe("Category Batch Loader", () => {
 
       mockRepository.findManyWithArchivedByIds.mockResolvedValue([category]);
 
-      const result = await batchLoadCategories(
-        ["cat-1", "cat-1", "cat-1"],
-        mockRepository,
-        "test-user-id",
-      );
+      const result = await batchLoadCategories({
+        categoryIds: ["cat-1", "cat-1", "cat-1"],
+        categoryRepository: mockRepository,
+        logger: createMockLogger(),
+        userId: "test-user-id",
+      });
 
       // Should still return 3 items (same count as input), all with same category data
       expect(result).toHaveLength(3);
@@ -140,11 +144,12 @@ describe("Category Batch Loader", () => {
     it("returns empty array for empty input", async () => {
       const mockRepository = createMockCategoryRepository();
 
-      const result = await batchLoadCategories(
-        [],
-        mockRepository,
-        "test-user-id",
-      );
+      const result = await batchLoadCategories({
+        categoryIds: [],
+        categoryRepository: mockRepository,
+        logger: createMockLogger(),
+        userId: "test-user-id",
+      });
 
       expect(result).toEqual([]);
       expect(mockRepository.findManyWithArchivedByIds).not.toHaveBeenCalled();
@@ -154,10 +159,11 @@ describe("Category Batch Loader", () => {
   describe("createCategoryLoader", () => {
     it("creates DataLoader instance", () => {
       const mockRepository = createMockCategoryRepository();
-      const loader = createCategoryLoader(
-        mockRepository,
-        async () => "test-user-id",
-      );
+      const loader = createCategoryLoader({
+        categoryRepository: mockRepository,
+        getUserId: async () => "test-user-id",
+        logger: createMockLogger(),
+      });
 
       expect(loader).toBeInstanceOf(DataLoader);
     });
@@ -168,10 +174,11 @@ describe("Category Batch Loader", () => {
 
       mockRepository.findManyWithArchivedByIds.mockResolvedValue([category]);
 
-      const loader = createCategoryLoader(
-        mockRepository,
-        async () => "test-user-id",
-      );
+      const loader = createCategoryLoader({
+        categoryRepository: mockRepository,
+        getUserId: async () => "test-user-id",
+        logger: createMockLogger(),
+      });
 
       const result = await loader.load("cat-1");
 

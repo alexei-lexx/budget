@@ -20,6 +20,7 @@ import {
   fakeTransferIn,
   fakeTransferOut,
 } from "../utils/test-utils/models/transaction-fakes";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
 import { DynTransactionRepository } from "./dyn-transaction-repository";
 
 describe("DynTransactionRepository", () => {
@@ -29,7 +30,11 @@ describe("DynTransactionRepository", () => {
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new DynTransactionRepository(tableName, client);
+    repository = new DynTransactionRepository({
+      documentClient: client,
+      logger: createMockLogger(),
+      tableName,
+    });
   });
 
   beforeEach(async () => {

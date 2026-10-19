@@ -4,6 +4,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { describe, expect, it, vi } from "vitest";
 import { ZodError, z } from "zod";
+import { createMockLogger } from "../utils/test-utils/providers/logger-mocks";
 import { DynBaseRepository, QueryResult } from "./dyn-base-repository";
 
 const testSchema = z.object({
@@ -15,7 +16,11 @@ type TestItem = z.infer<typeof testSchema>;
 
 class TestRepo extends DynBaseRepository {
   constructor(documentClient: DynamoDBDocumentClient) {
-    super("test-table", documentClient);
+    super({
+      documentClient,
+      logger: createMockLogger(),
+      tableName: "test-table",
+    });
   }
 
   async run<T>(args: {
