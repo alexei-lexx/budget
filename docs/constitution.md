@@ -178,6 +178,45 @@ graph TD
 5. Generate the frontend types with `npm run codegen` in `frontend`
 6. Use the generated types in the backend and frontend code
 
+### Backend Hexagonal Architecture
+
+**Non-negotiable rule**: Use a hexagonal architecture in the backend. Keep the business logic in the core. Make all dependencies point to the core.
+
+**Core**:
+
+- **Domain** (`src/models`)
+  - Define the entities and their invariants
+  - Do not call other layers
+- **Services** (`src/services`)
+  - Implement the business operations and validations
+  - Call the domain, ports, and other services
+- **Ports** (`src/ports`)
+  - Define the interfaces that services use to access the database and external services
+
+**Inbound Adapters**:
+
+- **GraphQL** (`src/graphql`)
+  - Give the frontend access to the core
+  - Call only services
+- **MCP Server** (`src/mcp`)
+  - Give external AI agents access to the core
+  - Call only services
+- **LangChain Agent Tools** (`src/langchain`)
+  - Give internal AI agents access to the core
+  - Call only services
+- **Lambda Handlers** (`src/lambdas`)
+  - Give HTTP clients and background jobs access to the core
+  - Call only services
+
+**Outbound Adapters**:
+
+- **Repositories** (`src/repositories`)
+  - Implement the database ports
+- **Providers** (`src/providers`)
+  - Implement the ports for external services
+- **LangChain Agents** (`src/langchain`)
+  - Implement the agent port with AI models
+
 ### Backend Layer Structure
 
 **Non-negotiable rule**: Backend MUST implement a clean three-layer architecture that separates concerns and maintains clear dependencies: **GraphQL Resolvers → Services → Repositories**.
