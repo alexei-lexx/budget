@@ -178,8 +178,6 @@ graph TD
 5. Generate the frontend types with `npm run codegen` in `frontend`
 6. Use the generated types in the backend and frontend code
 
-**Rationale**: One contract prevents type mismatches between the frontend and the backend. Generated types find API mismatches at compile time.
-
 ### Backend Layer Structure
 
 **Non-negotiable rule**: Backend MUST implement a clean three-layer architecture that separates concerns and maintains clear dependencies: **GraphQL Resolvers → Services → Repositories**.
