@@ -18,22 +18,18 @@ const createStubAccount = (id: string): TransactionEmbeddedAccount => ({
  * Always returns account data (either real or stub with name "Unknown")
  *
  * @param accountIds - Array of account IDs to batch load
+ * @param userId - Authenticated user ID for authorization scoping
  * @param accountRepository - Repository instance for account lookups
  * @param logger - Logger for data consistency warnings and errors
- * @param userId - Authenticated user ID for authorization scoping
  * @returns Array of accounts or stub data, in same order as input IDs
  */
-export async function batchLoadAccounts({
-  accountIds,
-  accountRepository,
-  logger,
-  userId,
-}: {
-  accountIds: readonly string[];
-  accountRepository: AccountRepository;
-  logger: Logger;
-  userId: string;
-}): Promise<TransactionEmbeddedAccount[]> {
+export async function batchLoadAccounts(
+  { accountIds, userId }: { accountIds: readonly string[]; userId: string },
+  {
+    accountRepository,
+    logger,
+  }: { accountRepository: AccountRepository; logger: Logger },
+): Promise<TransactionEmbeddedAccount[]> {
   if (accountIds.length === 0) {
     return [];
   }
@@ -97,11 +93,9 @@ export function createAccountLoader({
 }): DataLoader<string, TransactionEmbeddedAccount> {
   return new DataLoader(async (accountIds) => {
     const userId = await getUserId();
-    return batchLoadAccounts({
-      accountIds,
-      accountRepository,
-      logger,
-      userId,
-    });
+    return batchLoadAccounts(
+      { accountIds, userId },
+      { accountRepository, logger },
+    );
   });
 }

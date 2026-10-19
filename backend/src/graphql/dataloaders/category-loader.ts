@@ -18,22 +18,18 @@ const createStubCategory = (id: string): TransactionEmbeddedCategory => ({
  * Always returns category data (either real or stub with name "Unknown")
  *
  * @param categoryIds - Array of category IDs to batch load
+ * @param userId - Authenticated user ID for authorization scoping
  * @param categoryRepository - Repository instance for category lookups
  * @param logger - Logger for data consistency warnings and errors
- * @param userId - Authenticated user ID for authorization scoping
  * @returns Array of categories or stub data, in same order as input IDs
  */
-export async function batchLoadCategories({
-  categoryIds,
-  categoryRepository,
-  logger,
-  userId,
-}: {
-  categoryIds: readonly string[];
-  categoryRepository: CategoryRepository;
-  logger: Logger;
-  userId: string;
-}): Promise<TransactionEmbeddedCategory[]> {
+export async function batchLoadCategories(
+  { categoryIds, userId }: { categoryIds: readonly string[]; userId: string },
+  {
+    categoryRepository,
+    logger,
+  }: { categoryRepository: CategoryRepository; logger: Logger },
+): Promise<TransactionEmbeddedCategory[]> {
   if (categoryIds.length === 0) {
     return [];
   }
@@ -97,11 +93,9 @@ export function createCategoryLoader({
 }): DataLoader<string, TransactionEmbeddedCategory> {
   return new DataLoader(async (categoryIds) => {
     const userId = await getUserId();
-    return batchLoadCategories({
-      categoryIds,
-      categoryRepository,
-      logger,
-      userId,
-    });
+    return batchLoadCategories(
+      { categoryIds, userId },
+      { categoryRepository, logger },
+    );
   });
 }

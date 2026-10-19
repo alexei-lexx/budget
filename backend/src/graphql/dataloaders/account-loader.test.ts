@@ -46,12 +46,13 @@ describe("Account Batch Loader", () => {
         account5,
       ]);
 
-      const result = await batchLoadAccounts({
-        accountIds: ["acc-1", "acc-2", "acc-3", "acc-4", "acc-5"],
-        accountRepository: mockRepository,
-        logger: createMockLogger(),
-        userId: "test-user-id",
-      });
+      const result = await batchLoadAccounts(
+        {
+          accountIds: ["acc-1", "acc-2", "acc-3", "acc-4", "acc-5"],
+          userId: "test-user-id",
+        },
+        { accountRepository: mockRepository, logger: createMockLogger() },
+      );
 
       expect(result).toHaveLength(5);
 
@@ -95,12 +96,10 @@ describe("Account Batch Loader", () => {
         validAccount,
       ]);
 
-      const result = await batchLoadAccounts({
-        accountIds: ["acc-valid", "acc-missing"],
-        accountRepository: mockRepository,
-        logger: createMockLogger(),
-        userId: "test-user-id",
-      });
+      const result = await batchLoadAccounts(
+        { accountIds: ["acc-valid", "acc-missing"], userId: "test-user-id" },
+        { accountRepository: mockRepository, logger: createMockLogger() },
+      );
 
       expect(result).toHaveLength(2);
 
@@ -125,12 +124,10 @@ describe("Account Batch Loader", () => {
 
       mockRepository.findManyWithArchivedByIds.mockResolvedValue([account]);
 
-      const result = await batchLoadAccounts({
-        accountIds: ["acc-1", "acc-1", "acc-1"],
-        accountRepository: mockRepository,
-        logger: createMockLogger(),
-        userId: "test-user-id",
-      });
+      const result = await batchLoadAccounts(
+        { accountIds: ["acc-1", "acc-1", "acc-1"], userId: "test-user-id" },
+        { accountRepository: mockRepository, logger: createMockLogger() },
+      );
 
       // Should still return 3 items (same count as input), all with same account data
       expect(result).toHaveLength(3);
@@ -147,12 +144,10 @@ describe("Account Batch Loader", () => {
     it("returns empty array for empty input", async () => {
       const mockRepository = createMockAccountRepository();
 
-      const result = await batchLoadAccounts({
-        accountIds: [],
-        accountRepository: mockRepository,
-        logger: createMockLogger(),
-        userId: "test-user-id",
-      });
+      const result = await batchLoadAccounts(
+        { accountIds: [], userId: "test-user-id" },
+        { accountRepository: mockRepository, logger: createMockLogger() },
+      );
 
       expect(result).toEqual([]);
       expect(mockRepository.findManyWithArchivedByIds).not.toHaveBeenCalled();
