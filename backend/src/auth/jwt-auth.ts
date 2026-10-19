@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
+import { Logger } from "../ports/logger";
 import { normalizeAndValidateEmail } from "../utils/email";
 
 /**
@@ -31,39 +32,51 @@ export interface AuthContext {
  *
  * Supports both Auth0 and Cognito identity providers with backward compatibility:
  *
- * Required environment variables:
- * - AUTH_ISSUER: Identity Provider URL (e.g., "https://cognito-idp.region.amazonaws.com/poolId")
- * - AUTH_CLAIM_NAMESPACE: Custom namespace for email claim
+ * Required configuration:
+ * - issuer: Identity Provider URL (e.g., "https://cognito-idp.region.amazonaws.com/poolId")
+ * - claimNamespace: Custom namespace for email claim
  *
  * Provider-specific configuration:
- * - AUTH_AUDIENCE: API identifier for Auth0 (validates `aud` claim) - required for Auth0
- * - AUTH_CLIENT_ID: Client ID for Cognito (validates `client_id` claim) - required for Cognito
+ * - audience: API identifier for Auth0 (validates `aud` claim) - required for Auth0
+ * - clientId: Client ID for Cognito (validates `client_id` claim) - required for Cognito
  *
- * At least one of AUTH_AUDIENCE or AUTH_CLIENT_ID must be configured.
+ * At least one of audience or clientId must be configured.
  */
 export class JwtAuthService {
   private client: jwksClient.JwksClient;
   private issuer: string;
   private audience?: string;
   private clientId?: string;
+  private claimNamespace: string;
+  private logger: Logger;
 
   /**
    * Initialize JWT authentication service
-   * @throws Error if required environment variables are missing
+   * @throws Error if neither audience nor clientId is configured
    */
-  constructor() {
-    this.issuer = process.env["AUTH_ISSUER"] || "";
-    this.audience = process.env["AUTH_AUDIENCE"];
-    this.clientId = process.env["AUTH_CLIENT_ID"];
-
-    if (!this.issuer) {
-      throw new Error("AUTH_ISSUER environment variable is required");
-    }
+  constructor({
+    issuer,
+    audience,
+    clientId,
+    claimNamespace,
+    logger,
+  }: {
+    issuer: string;
+    audience?: string;
+    clientId?: string;
+    claimNamespace: string;
+    logger: Logger;
+  }) {
+    this.issuer = issuer;
+    this.audience = audience;
+    this.clientId = clientId;
+    this.claimNamespace = claimNamespace;
+    this.logger = logger;
 
     // At least one of audience (Auth0) or clientId (Cognito) must be configured
     if (!this.audience && !this.clientId) {
       throw new Error(
-        "At least one of AUTH_AUDIENCE (Auth0) or AUTH_CLIENT_ID (Cognito) must be configured",
+        "At least one of audience (Auth0) or client ID (Cognito) must be configured",
       );
     }
 
@@ -82,37 +95,50 @@ export class JwtAuthService {
   }
 
   /**
-   * Callback function to get signing key for JWT verification
-   * Fetches the public key from JWKS endpoint using the key ID
+   * Extract and verify authentication from Authorization header
+   * @param authHeader - Authorization header value (e.g., "Bearer <token>")
+   * @returns Authentication context with user info if valid, or unauthenticated context
    */
-  private getKey = (
-    header: jwt.JwtHeader,
-    callback: jwt.SigningKeyCallback,
-  ): void => {
-    const startTime = Date.now();
+  async getAuthContext(authHeader?: string): Promise<AuthContext> {
+    if (!authHeader) {
+      return { isAuthenticated: false };
+    }
 
-    this.client.getSigningKey(header.kid, (err, key) => {
-      const duration = Date.now() - startTime;
+    // Extract token from "Bearer <token>" format
+    const tokenMatch = authHeader.match(/^Bearer\s+(.+)$/i);
+    if (!tokenMatch || !tokenMatch[1]) {
+      return { isAuthenticated: false };
+    }
 
-      if (err) {
-        console.error(
-          `[JWT-AUTH] Failed to fetch signing key for kid ${header.kid} after ${duration}ms:`,
-          err.message,
-        );
-        callback(err);
-        return;
+    const token = tokenMatch[1];
+
+    try {
+      const payload = await this.verifyToken(token);
+
+      // Read email from custom namespaced claim
+      const namespacedEmail = payload[`${this.claimNamespace}/email`];
+      const email =
+        typeof namespacedEmail === "string" ? namespacedEmail : payload.email;
+
+      // Validate email claim exists
+      if (!email) {
+        throw new Error("Email claim missing in JWT token");
       }
 
-      // Fast response (< 50ms) likely indicates cache hit
-      const likelyCached = duration < 50;
-      console.log(
-        `[JWT-AUTH] Signing key for kid ${header.kid} (${duration}ms) ${likelyCached ? "[LIKELY CACHED]" : "[LIKELY NETWORK]"}`,
-      );
+      // Normalize and validate email
+      const normalizedEmail = normalizeAndValidateEmail(email);
 
-      const signingKey = key?.getPublicKey();
-      callback(null, signingKey);
-    });
-  };
+      return {
+        isAuthenticated: true,
+        user: {
+          email: normalizedEmail,
+        },
+      };
+    } catch (error) {
+      this.logger.error("JWT verification error:", error);
+      return { isAuthenticated: false };
+    }
+  }
 
   /**
    * Verify a JWT token against public keys
@@ -125,7 +151,7 @@ export class JwtAuthService {
    * @returns Decoded JWT payload
    * @throws Error if token is invalid or verification fails
    */
-  async verifyToken(token: string): Promise<JwtPayload> {
+  private async verifyToken(token: string): Promise<JwtPayload> {
     return new Promise((resolve, reject) => {
       const options: jwt.VerifyOptions = {
         issuer: this.issuer,
@@ -163,94 +189,35 @@ export class JwtAuthService {
   }
 
   /**
-   * Get user info from Identity Provider userinfo endpoint
-   * @param token - Access token
-   * @returns User info including email
+   * Callback function to get signing key for JWT verification
+   * Fetches the public key from JWKS endpoint using the key ID
    */
-  async getUserInfo(token: string): Promise<{ email?: string; sub: string }> {
-    const response = await fetch(`${this.issuer}/userinfo`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  private getKey = (
+    header: jwt.JwtHeader,
+    callback: jwt.SigningKeyCallback,
+  ): void => {
+    const startTime = Date.now();
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch user info");
-    }
+    this.client.getSigningKey(header.kid, (err, key) => {
+      const duration = Date.now() - startTime;
 
-    return (await response.json()) as { email?: string; sub: string };
-  }
-
-  /**
-   * Get user info from Identity Provider userinfo endpoint using Authorization header
-   * @param authHeader - Authorization header (e.g., "Bearer <token>")
-   * @returns User info including email
-   */
-  async getUserInfoFromHeader(
-    authHeader?: string,
-  ): Promise<{ email?: string; sub: string } | null> {
-    if (!authHeader) {
-      return null;
-    }
-
-    const tokenMatch = authHeader.match(/^Bearer\s+(.+)$/i);
-    if (!tokenMatch || !tokenMatch[1]) {
-      return null;
-    }
-
-    return this.getUserInfo(tokenMatch[1]);
-  }
-
-  /**
-   * Extract and verify authentication from Authorization header
-   * @param authHeader - Authorization header value (e.g., "Bearer <token>")
-   * @returns Authentication context with user info if valid, or unauthenticated context
-   */
-  async getAuthContext(authHeader?: string): Promise<AuthContext> {
-    if (!authHeader) {
-      return { isAuthenticated: false };
-    }
-
-    // Extract token from "Bearer <token>" format
-    const tokenMatch = authHeader.match(/^Bearer\s+(.+)$/i);
-    if (!tokenMatch || !tokenMatch[1]) {
-      return { isAuthenticated: false };
-    }
-
-    const token = tokenMatch[1];
-
-    try {
-      const payload = await this.verifyToken(token);
-
-      // Read email from custom namespaced claim
-      const namespace = process.env["AUTH_CLAIM_NAMESPACE"];
-      if (!namespace) {
-        throw new Error(
-          "AUTH_CLAIM_NAMESPACE environment variable must be configured",
+      if (err) {
+        this.logger.error(
+          `[JWT-AUTH] Failed to fetch signing key for kid ${header.kid} after ${duration}ms:`,
+          err.message,
         );
+        callback(err);
+        return;
       }
 
-      const namespacedEmail = payload[`${namespace}/email`];
-      const email =
-        typeof namespacedEmail === "string" ? namespacedEmail : payload.email;
+      // Fast response (< 50ms) likely indicates cache hit
+      const likelyCached = duration < 50;
+      this.logger.info(
+        `[JWT-AUTH] Signing key for kid ${header.kid} (${duration}ms) ${likelyCached ? "[LIKELY CACHED]" : "[LIKELY NETWORK]"}`,
+      );
 
-      // Validate email claim exists
-      if (!email) {
-        throw new Error("Email claim missing in JWT token");
-      }
-
-      // Normalize and validate email
-      const normalizedEmail = normalizeAndValidateEmail(email);
-
-      return {
-        isAuthenticated: true,
-        user: {
-          email: normalizedEmail,
-        },
-      };
-    } catch (error) {
-      console.error("JWT verification error:", error);
-      return { isAuthenticated: false };
-    }
-  }
+      const signingKey = key?.getPublicKey();
+      callback(null, signingKey);
+    });
+  };
 }
