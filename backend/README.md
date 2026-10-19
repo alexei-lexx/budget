@@ -96,3 +96,4 @@ In the Inspector UI, set Transport Type to `Streamable HTTP`, paste the copied U
 - `npm run test:unit` - Run unit tests only (excluding integration and database tests)
 - `npm run test` - Run unit and database tests (excludes integration tests)
 - `npm run typecheck` - Run TypeScript type checker
+- `npm run stryker` - Run [Stryker](https://stryker-mutator.io/) mutation testing on unit tests (HTML report in `reports/mutation/`)
