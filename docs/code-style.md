@@ -31,13 +31,6 @@ This includes generated code and code written manually.
 - For functions and methods with 3 or more arguments, use keyword arguments (object destructuring)
 - For functions and methods with an optional argument that is not last, use keyword arguments
 
-## Comments
-
-- Break lines at punctuation or logical boundaries, not mid-phrase
-  - For example, keep an adjective on the same line as its noun
-- Prefer short sentences over long compound ones
-- Comment lines MUST NOT exceed the project's line-length limit
-
 ## Finder Method Naming
 
 Finder method names MUST show cardinality and error behavior.
@@ -61,3 +54,10 @@ Methods in a class MUST follow a consistent order.
 3. A caller MUST come above the methods it calls (Stepdown Rule)
 
 **Test files**: `describe` blocks MUST follow the method order of the source class.
+
+## Comments
+
+- Break lines at punctuation or logical boundaries, not mid-phrase
+  - For example, keep an adjective on the same line as its noun
+- Prefer short sentences over long compound ones
+- Comment lines MUST NOT exceed the project's line-length limit
