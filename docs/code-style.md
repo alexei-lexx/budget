@@ -1,8 +1,9 @@
 # Code Style
 
-## TypeScript Code Generation
+Apply these rules to all code.
+This includes generated code and code written manually.
 
-### Type Safety
+## TypeScript: Type Safety
 
 - Avoid non-null assertions (`!`) unless necessary
   - Allowed for an array index (or similar) that other code proves to be in bounds, because TypeScript can't track that proof
@@ -11,24 +12,24 @@
   - Document the reason when used
 - Avoid type checks (`typeof`, non-null checks, non-undefined checks) that the declared type makes unnecessary
 
-### Naming
+## TypeScript: Enum-Like Values
+
+- Enum-like values MUST use `as const` string-union types, not TypeScript `enum`
+- Members MUST use UPPER_CASE
+- Members MUST be in alphabetical order or in a meaningful order (for example, a workflow sequence)
+
+## Naming
 
 - Use descriptive names for variables, methods, parameters, and types
 - Avoid single-character names, except loop indices `i`, `j`, `k`
 - Avoid abbreviations that hide meaning (for example, use `user`, not `usr`, and `transaction`, not `tx`)
 - Keep names short, but put clarity first
 
-### Function and Method Arguments
+## Function and Method Arguments
 
 - For functions and methods with 0–2 arguments, use positional arguments
 - For functions and methods with 3 or more arguments, use keyword arguments (object destructuring)
 - For functions and methods with an optional argument that is not last, use keyword arguments
-
-### Enum-Like Values
-
-- Enum-like values MUST use `as const` string-union types, not TypeScript `enum`
-- Members MUST use UPPER_CASE
-- Members MUST be in alphabetical order or in a meaningful order (for example, a workflow sequence)
 
 ## Comments
 
