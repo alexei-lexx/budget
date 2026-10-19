@@ -295,7 +295,7 @@ graph LR
 
 **Rationale**: Maintains clean API boundaries, enables backend refactoring without breaking clients, enforces proper authentication patterns.
 
-### GraphQL Pagination Strategy
+#### GraphQL Pagination Strategy
 
 **Non-negotiable rule**: Apply pagination strategy based on expected list size.
 
