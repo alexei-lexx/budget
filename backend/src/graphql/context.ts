@@ -1,5 +1,5 @@
 import DataLoader from "dataloader";
-import { AuthContext, JwtAuthService } from "../auth/jwt-auth";
+import { AuthContext } from "../auth/jwt-auth";
 import { UserRepository } from "../ports/user-repository";
 import { AccountService } from "../services/account-service";
 import { AssistantChatService } from "../services/assistant-chat-service";
@@ -33,8 +33,6 @@ export interface GraphQLContext {
   expenseTrendService: ExpenseTrendService;
   trendPresetService: TrendPresetService;
   telegramBotService: TelegramBotService;
-  jwtAuthService: JwtAuthService;
-  authHeader?: string;
   accountLoader: DataLoader<string, TransactionEmbeddedAccount>;
   categoryLoader: DataLoader<string, TransactionEmbeddedCategory>;
 }

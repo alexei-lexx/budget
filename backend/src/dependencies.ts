@@ -17,6 +17,7 @@ import {
   DEFAULT_CHAT_MESSAGE_TTL_SECONDS,
 } from "./models/chat-message";
 import { UserRepository } from "./ports/user-repository";
+import { ConsoleLogger } from "./providers/console-logger";
 import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
 import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
@@ -55,9 +56,19 @@ import {
 
 registerProviderForBundling("bedrock", aws);
 
+// Logging
+const resolveLogger = createSingleton(() => new ConsoleLogger());
+
 // Auth
 export const resolveJwtAuthService = createSingleton(
-  () => new JwtAuthService(),
+  () =>
+    new JwtAuthService({
+      issuer: requireEnv("AUTH_ISSUER"),
+      audience: process.env["AUTH_AUDIENCE"] || undefined,
+      clientId: process.env["AUTH_CLIENT_ID"] || undefined,
+      claimNamespace: requireEnv("AUTH_CLAIM_NAMESPACE"),
+      logger: resolveLogger(),
+    }),
 );
 
 // Repositories

@@ -101,7 +101,8 @@ export async function createContext(req: {
     ? authHeader[0]
     : authHeader;
 
-  const auth = await resolveJwtAuthService().getAuthContext(authHeaderString);
+  const jwtAuthService = resolveJwtAuthService();
+  const auth = await jwtAuthService.getAuthContext(authHeaderString);
 
   // Build the context first
   const contextWithoutLoaders: Omit<
@@ -110,8 +111,6 @@ export async function createContext(req: {
   > = {
     // Auth
     auth,
-    authHeader: authHeaderString,
-    jwtAuthService: resolveJwtAuthService(),
 
     // Repositories
     userRepository: resolveUserRepository(),
