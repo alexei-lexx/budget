@@ -293,43 +293,41 @@ graph LR
 
 ### Backend Services
 
-**Non-negotiable rule**: Make each service class follow one of two patterns, based on its complexity and purpose.
+**Non-negotiable rule**: Keep all business logic in services. Make each service class follow one of two patterns, based on its complexity and purpose.
 
 **Responsibilities**:
 
 - Implement the business logic and the domain rules
 - Provide business-specific error messages
 - Orchestrate operations across multiple repositories
-- Implement complex validation logic, such as currency matching and category type checks
+- Implement validation that needs the database or other entities, such as currency matching and category type checks
 - Orchestrate database transactions to keep the data consistent
 
 **Implementation**:
 
 - Get dependencies, such as repositories and providers, as ports through the constructor
-- Define public methods that GraphQL resolvers call directly
+- Define public methods that entry points, such as GraphQL resolvers, call directly
 
 **Domain Entity Services (Default)**:
 
-- Represent a single domain entity
-- Expose multiple public methods such as CRUD operations
-- Centralize validation, business rules, and helper methods within domain
-- Depend primarily on one repository for related entity
-- May depend on other repositories if needed
+- Represent one domain entity
+- Expose multiple public methods, such as CRUD operations
+- Keep the validation, business rules, and helper methods of the entity in one place
+- Depend mainly on the repository of the entity
+- Can depend on the repositories of related entities
 
 **Single-Purpose Services**:
 
-- Expose one public method (typically named `call`)
-- Contain complex, unique business logic
-- Handle non-CRUD operations requiring specialized orchestration
-- May orchestrate multiple repositories
+- Expose one public method, usually named `call`
+- Contain complex and unique business logic
+- Handle non-CRUD operations that need special orchestration
+- Can orchestrate multiple repositories, services, and providers
 
 **Selection Criteria**:
 
-- Default to domain entity services for standard entity operations
-- Use single-purpose services when complexity is high and implementation is unique
-- Prefer single-purpose services when orchestrating multiple repositories
-
-**Rationale**: Balances maintainability with flexibility for complex operations.
+- Use domain entity services for standard entity operations by default
+- Use single-purpose services for complex and unique operations
+- Prefer single-purpose services for complex orchestration that is not tied to one entity
 
 ### Repository Layer
 
