@@ -254,96 +254,95 @@ graph LR
     Provider -.->|dispatch| BgJob
 ```
 
-### Backend Layer Structure
+### Backend GraphQL API
 
-**Non-negotiable rule**: Backend MUST implement a clean three-layer architecture that separates concerns and maintains clear dependencies: **GraphQL Resolvers → Services → Repositories**.
+**Non-negotiable rule**: Design the GraphQL schema as a Backend-For-Frontend (BFF) contract for the frontend.
 
-**Repository Layer**:
+**Responsibilities**:
 
-- Provide database access interface
-- Perform pure data access operations (CRUD)
-- Handle errors for database operations
-- Avoid business logic
-- Organize one repository per entity (recommended)
-
-**Service Layer**:
-
-- Implement business logic and domain rules
-- Provide business-specific error messages
-- Orchestrate multi-repository operations (operations across multiple repositories)
-- Inject repository dependencies in service constructor
-- Implement complex validation logic (currency matching, category type validation)
-- Orchestrate transactions (atomic operations ensuring data consistency)
-- Group related CRUD operations for one entity in one service
-- Expose public methods for direct calling by GraphQL resolvers
-
-**GraphQL Layer**:
-
-- Enforce authentication and authorization
-- Define API schema and documentation
-- Transform requests and responses between GraphQL schema and service layer
-- Call appropriate service methods
-- Avoid direct database access
-- Rely on GraphQL schema validation
-- Can add minimal validation/parsing if needed to properly call service methods
-
-**Rationale**: Enables independent testing, maintainable code, and portable architecture.
-
-### Backend GraphQL Layer
-
-**Non-negotiable rule**: GraphQL schema reflects user-facing functionality, not database implementation details. The schema serves as a Backend-For-Frontend (BFF) contract optimized for the frontend client.
+- Define and document the API schema
+- Authenticate the current user
+- Check GraphQL arguments only as much as a service call needs
+- Let the GraphQL schema validate the input structure
+- Convert GraphQL arguments to service method arguments
+- Call service methods
+- Convert service responses and failures to GraphQL output and errors
 
 **Implementation**:
 
-- Expose only business-relevant fields with meaningful names
-- Never expose internal fields such as internal statuses or database timestamps
-- Current user ID handled automatically through authentication context, never passed as query/mutation parameters
-- Pagination follows Relay Connection specification for standardized cursor-based navigation
-- Field naming prioritizes clarity and domain language over technical implementation details
+- Expose only fields that users must see
+- Do not expose internal fields that users do not see
+- Use domain terms for type and field names, not technical terms
+- Get the current user ID from the authentication context, not from query or mutation arguments
+- Use the Relay Connection specification for cursor pagination
 
-**Rationale**: Maintains clean API boundaries, enables backend refactoring without breaking clients, enforces proper authentication patterns.
+#### GraphQL Pagination
 
-#### GraphQL Pagination Strategy
+**Non-negotiable rule**: Select the pagination strategy by the expected list size.
 
-**Non-negotiable rule**: Apply pagination strategy based on expected list size.
+**For Lists That Can Become Large**:
 
-**For Potentially Large Lists**:
+- Use Relay-compatible cursor pagination
+- Show a "Load More" button in the frontend, not page numbers
+- Pagination keeps the performance high
 
-- MUST use Relay-Compatible Cursor pagination
-- Frontend MUST use "Load More" button instead of page numbers
+**For Short Lists** (usually fewer than 100 items):
 
-**For Short Lists** (typically < 100 items):
+- Use a plain array without a pagination wrapper
+- A plain array keeps the code simple
 
-- MAY return plain arrays without pagination wrapper
+### Backend Services
 
-**Rationale**: Balances performance with simplicity. Load-more pattern provides better mobile UX and stable navigation.
+**Non-negotiable rule**: Keep all business logic in services. Make each service class follow one of two patterns, based on its complexity and purpose.
 
-### Backend Service Layer
+**Responsibilities**:
 
-**Non-negotiable rule**: Service classes follow one of two patterns based on complexity and purpose.
+- Implement the business logic and the domain rules
+- Provide business-specific error messages
+- Orchestrate operations across multiple repositories
+- Implement validation that needs the database or other entities, such as currency matching and category type checks
+- Orchestrate database transactions to keep the data consistent
+
+**Implementation**:
+
+- Get dependencies, such as repositories and providers, as ports through the constructor
+- Define public methods that entry points, such as GraphQL resolvers, call directly
 
 **Domain Entity Services (Default)**:
 
-- Represent a single domain entity
-- Expose multiple public methods such as CRUD operations
-- Centralize validation, business rules, and helper methods within domain
-- Depend primarily on one repository for related entity
-- May depend on other repositories if needed
+- Represent one domain entity
+- Expose multiple public methods, such as CRUD operations
+- Keep the validation, business rules, and helper methods of the entity in one place
+- Depend mainly on the repository of the entity
+- Can depend on the repositories of related entities
 
 **Single-Purpose Services**:
 
-- Expose one public method (typically named `call`)
-- Contain complex, unique business logic
-- Handle non-CRUD operations requiring specialized orchestration
-- May orchestrate multiple repositories
+- Expose one public method, usually named `call`
+- Contain complex and unique business logic
+- Handle non-CRUD operations that need special orchestration
+- Can orchestrate multiple repositories, services, and providers
 
 **Selection Criteria**:
 
-- Default to domain entity services for standard entity operations
-- Use single-purpose services when complexity is high and implementation is unique
-- Prefer single-purpose services when orchestrating multiple repositories
+- Use domain entity services for standard entity operations by default
+- Use single-purpose services for complex and unique operations
+- Prefer single-purpose services for complex orchestration that is not tied to one entity
 
-**Rationale**: Balances maintainability with flexibility for complex operations.
+### Backend Repositories
+
+**Non-negotiable rule**: Keep all database access in repositories.
+
+**Responsibilities**:
+
+- Load and save domain entities
+- Hydrate database records to catch corrupted stored data
+
+**Implementation**:
+
+- Make one repository for each entity
+- Implement the database ports
+- Accept and return domain entities, not database records
 
 ### Backend Domain Entities
 
@@ -433,7 +432,7 @@ graph LR
 - Force user authentication via AWS Cognito before allowing access to protected routes
 - Include JWT token in Authorization header for every GraphQL request to backend
 
-**Backend GraphQL Layer**:
+**Backend GraphQL API**:
 
 - Verify JWT token against AWS Cognito public keys before any resolver runs
 - Reject requests with missing or invalid JWT tokens
@@ -442,12 +441,12 @@ graph LR
 - Never trust user IDs from mutation/query input - always use authenticated user from context
 - Propagate internal database user ID to service layer
 
-**Backend Service Layer**:
+**Backend Services**:
 
 - Accept internal database user ID as parameter in all service methods
 - Pass internal database user ID down to repository layer
 
-**Backend Repository Layer**:
+**Backend Repositories**:
 
 - Design repository methods to require internal database user ID parameter and filter all queries by it
 
