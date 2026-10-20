@@ -4,73 +4,74 @@
 
 ### Overview
 
-The project comprises three independent npm packages distributed across the repository:
+The project has 3 independent npm packages:
 
-- **backend/** – GraphQL server exposing the API for the frontend, includes database integration
-- **frontend/** – User-facing single-page application
-- **infra-cdk/** – Deployable infrastructure for both backend and frontend
-
-Each package maintains its own `package.json`, dependencies, and build configuration. They are versioned and deployed independently while remaining architecturally coupled through shared GraphQL schema and deployment order requirements.
+- **backend** – API for all clients, business logic, and data storage
+- **frontend** – Single-page web application
+- **infra-cdk** – Deployable infrastructure for the backend, the frontend, and authentication
 
 ### Backend
 
-An npm package providing Apollo GraphQL server and API implementation.
+This npm package contains the GraphQL API (Apollo Server), the MCP server, the Telegram bot webhook, and AI agents.
 
 **Technologies**:
 
 - **Language**: TypeScript
-- **Framework**: Apollo Server, Node.js
-- **Testing**: Vitest
-- **Quality**: ESLint, Prettier, TypeScript strict mode
+- **API**: Apollo Server (GraphQL), MCP SDK
+- **AI Agents**: LangChain
+- **Database**: DynamoDB
 
 **Responsibilities**:
 
-- **Business Logic**: Implement application domain logic and service layer operations
-- **GraphQL API**: Expose data and operations through GraphQL resolvers
-- **Database Access**: Handle all data persistence and retrieval operations
-- **Authentication**: Verify JWT tokens and establish user identity
-- **Authorization**: Enforce user data scoping and prevent cross-user data access
+- **Business Logic**: Implement domain rules in domain entities and services
+- **GraphQL API**: Give the frontend access to data and operations through GraphQL resolvers
+- **MCP API**: Give external AI agents access to user data through MCP tools
+- **Telegram Bot**: Answer Telegram messages through an AI agent
+- **AI Agents**: Run AI agents that answer user questions and create transactions from text
+- **Database Access**: Store and read all data
+- **Authentication**: Verify the credentials of each caller to find the matching user
+- **Authorization**: Prevent access to the data of other users
 
 ### Frontend
 
-An npm package providing the user-facing single-page application.
+This npm package contains the single-page web application.
 
 **Technologies**:
 
 - **Language**: TypeScript
-- **Framework**: Vue 3, Vite, Vuetify, Apollo Client
-- **Testing**: Vitest
-- **Quality**: ESLint, Prettier, TypeScript strict mode, Vue type-checking
+- **UI**: Vue 3, Vuetify
+- **API Client**: Apollo Client (GraphQL)
+- **Build**: Vite
 
 **Responsibilities**:
 
-- **User Interface**: User interface and interactions
-- **Client Routing**: Single-page navigation and routing
-- **Authentication**: User sign-in and JWT token management
-- **GraphQL Client**: GraphQL API client communication
+- **User Interface**: Let the user see and change their data
+- **Authentication**: Let the user sign in
+- **API Access**: Connect to the backend through the GraphQL API
+- **Localization**: Show the interface in the language of the user
+- **PWA**: Let the user install the app on a mobile device without an app store
 
 ### Infra CDK
 
-An npm package providing unified infrastructure-as-code for both backend and frontend deployment to AWS.
+This npm package contains the AWS infrastructure code for the whole project.
 
 **Technologies**:
 
 - **Language**: TypeScript
-- **Framework**: AWS CDK
-- **Testing**: Vitest
-- **Quality**: ESLint, Prettier, TypeScript strict mode
+- **Infrastructure as Code**: AWS CDK
 
 **Responsibilities**:
 
-- **Backend Infrastructure**: DynamoDB tables, Lambda functions, API Gateway for GraphQL endpoint
-- **Frontend Infrastructure**: S3 bucket for static assets, CloudFront distribution for content delivery
-- **Deployment Orchestration**: Single CDK app managing both BackendCdkStack and FrontendCdkStack
+- **Backend Infrastructure**: Create the DynamoDB tables, the Lambda functions, and the API Gateway
+- **Frontend Infrastructure**: Create the S3 bucket and the CloudFront distribution
+- **Authentication Infrastructure**: Create the Cognito user pool
+- **Deployment**: Deploy all stacks from one CDK app
 
 ## General Requirements
 
-- Deploy with free or minimal cost (use free-tier cloud services, no mandatory paid subscriptions)
-- Enable mobile installation via PWA without app store publishing
-- Minimize vendor lock-in (see [Vendor Independence](#vendor-independence) for details)
+- Use only free-tier or pay-per-use cloud services
+- Make the app installable on mobile devices as a PWA, without an app store
+- Minimize vendor lock-in (see [Vendor Independence](#vendor-independence))
 
 ## Infrastructure and Environments
 
@@ -78,16 +79,20 @@ An npm package providing unified infrastructure-as-code for both backend and fro
 
 **AWS Services**:
 
-- **CloudFront**: Entry point, CDN, HTTPS enforcement
-- **S3**: Vue.js bundle storage
-- **API Gateway**: Routes GraphQL requests from CloudFront to Lambda
-- **Lambda**: Apollo Server runtime
-- **DynamoDB**: User data storage (on-demand scaling)
-- **Cognito**: User authentication and JWT token generation
+- **CloudFront**: Serve the frontend over HTTPS and forward API requests to API Gateway
+- **S3**: Store the frontend build
+- **API Gateway**: Route GraphQL, MCP, and Telegram webhook requests to Lambda
+- **Lambda**: Run the backend
+- **DynamoDB**: Store user data
+- **Cognito**: Sign in users and issue JWT tokens
+- **Bedrock**: Run the AI models for the AI agents
+- **SSM Parameter Store**: Keep runtime configuration and secrets
 
 ```mermaid
 graph TD
     Browser["User Browser"]
+    MCPClient["MCP Client"]
+    Telegram["Telegram"]
 
     CloudFront["CloudFront<br/>Distribution"]
     Cognito["AWS Cognito<br/>(Authentication)"]
@@ -95,69 +100,122 @@ graph TD
     S3["S3 Bucket<br/>(Frontend Assets)"]
     APIGateway["API Gateway<br/>(HTTP API)"]
 
-    Lambda["Lambda<br/>(/graphql)"]
+    Lambda["Lambda<br/>(Backend)"]
 
     DynamoDB["DynamoDB"]
+    Bedrock["Bedrock<br/>(AI Models)"]
+    SSM["SSM Parameter Store<br/>(Config)"]
 
     Browser -->|Static & API| CloudFront
     Browser -->|Login| Cognito
     CloudFront -->|Serve| S3
     CloudFront -->|Forward| APIGateway
+    MCPClient -->|MCP| APIGateway
+    Telegram -->|Webhook| APIGateway
     APIGateway -->|Route| Lambda
     Lambda -->|Read/Write| DynamoDB
     Lambda -->|Verify JWT| Cognito
+    Lambda -->|Invoke| Bedrock
+    Lambda -->|Read config| SSM
 ```
 
 **Deployment**:
 
-- Manual deployment via `deploy.sh` script
+- Deploy manually with `deploy.sh`
 
 ### Development
 
-**Local Stack**:
+**Local Services**:
 
-- **Vite** dev server replaces S3 + CloudFront
-- **Apollo Server** replaces Lambda + API Gateway
-- **DynamoDB Local** (Docker) replaces AWS DynamoDB
+- **Vite Dev Server**: Serve the frontend instead of S3 and CloudFront
+- **Express Server**: Run the GraphQL API and the MCP API instead of API Gateway and Lambda
+- **DynamoDB Local**: Store user data in Docker instead of AWS DynamoDB
+- **`.env` File**: Keep runtime configuration and secrets instead of SSM Parameter Store
 
-### External Dependencies
+**AWS Services**:
 
-- **AWS Cognito**: Authentication service for both production and development
+- **Cognito**: Use a deployed user pool with `localhost` in its callback URLs
+- **Bedrock**: Call the AI models with an API key from the `.env` file
+
+**Limitations**:
+
+- The Telegram webhook is not available
+- Background jobs do not run
 
 ## Core Principles
 
 ### Vendor Independence
 
-**Non-negotiable rule**: Minimize vendor lock-in through technology choices and architectural decisions that preserve deployment flexibility.
+**Non-negotiable rule**: Choose technologies and an architecture that let the app move to a different provider.
 
-- **Frontend**: Must be deployable to any static hosting provider without code changes
-  (S3, GitHub Pages, nginx, Cloudflare Pages, Vercel, or equivalent)
-- **Backend**: Must be deployable to any Node.js runtime without code changes
-  (AWS Lambda, Docker containers, VPS, bare metal, or equivalent)
-- **Data Layer**: Database access must be abstracted to enable migration to another database
-  - **Repository Pattern**: Use repository pattern for all database access to support
-    database portability and maintainability
-  - **Portable Query Patterns**: Use only database operations and query patterns that
-    can be reproduced in popular SQL and NoSQL databases (PostgreSQL, MongoDB, MySQL, etc.).
+- **Frontend**: Keep the frontend deployable to any static host, such as S3 or nginx, without code changes
+- **Backend**: Keep the backend deployable to any Node.js runtime, such as AWS Lambda or Docker, without code changes
+- **Database**: Access the database through abstractions so that a different database can replace it
+  - Use the repository pattern for all database operations
+  - Use only database operations that other popular SQL and NoSQL databases also support
   - Avoid vendor-specific features and optimizations
-- **Infrastructure Code**: CDK is AWS-specific but frontend and backend remain portable
+- **External Services**: Access external services through abstractions
+- **Authentication**: Use standard OpenID Connect and JWT so that a configuration change can replace the identity provider
+- **Configuration**: Read runtime configuration only from environment variables
+  - Load values from an external store into environment variables
+- **Infrastructure Code**: CDK is AWS-specific, but the frontend and the backend stay portable
 
 ### Schema-Driven Development
 
-**Non-negotiable rule**: GraphQL schema is the single source of truth for API contracts. All API changes begin with schema modification.
+**Non-negotiable rule**: The GraphQL schema is the single source of truth for the GraphQL API contract. Start every API change with a change to the schema.
+
+**Schema Files**:
+
+- **Backend**: `backend/src/graphql/schema.graphql` is the source schema
+- **Frontend**: `frontend/src/schema.graphql` is a copy of the backend schema
 
 **Development Process**:
 
-- Backend GraphQL schema defined at `backend/src/graphql/schema.graphql` (canonical source)
-- Before making any change, read the schema
-- Start all API changes with schema updates
-- Backend generates TypeScript types via `npm run codegen` after schema changes
-- Frontend syncs schema from backend using `npm run codegen:sync-schema` in `frontend/src/schema.graphql`
-- Frontend generates typed composables via `npm run codegen` for all GraphQL operations
-- Code generation provides full TypeScript type checking across frontend and backend
-- Both frontend and backend consume generated types for compile-time type safety
+1. Read the backend schema before an API change
+2. Change the backend schema
+3. Generate the backend types with `npm run codegen` in `backend`
+4. Write the GraphQL operations in `frontend/src/graphql`
+5. Generate the frontend types with `npm run codegen` in `frontend`
+6. Use the generated types in the backend and frontend code
 
-**Rationale**: Ensures unambiguous API contracts, prevents type mismatches, enables safe refactoring.
+### Backend Hexagonal Architecture
+
+**Non-negotiable rule**: Use a hexagonal architecture in the backend. Keep the business logic in the core. Make all dependencies point to the core.
+
+**Core**:
+
+- **Domain** (`src/models`)
+  - Define the entities and their invariants
+  - Do not call other layers
+- **Services** (`src/services`)
+  - Implement the business operations and validations
+  - Call the domain, ports, and other services
+- **Ports** (`src/ports`)
+  - Define the interfaces that services use to access the database and external services
+
+**Inbound Adapters**:
+
+- **GraphQL** (`src/graphql`)
+  - Give the frontend access to the core
+  - Call only services
+- **MCP Server** (`src/mcp`)
+  - Give external AI agents access to the core
+  - Call only services
+- **LangChain Agent Tools** (`src/langchain`)
+  - Give internal AI agents access to the core
+  - Call only services
+- **Lambda Handlers** (`src/lambdas`)
+  - Give HTTP clients and background jobs access to the core
+  - Call only services
+
+**Outbound Adapters**:
+
+- **Repositories** (`src/repositories`)
+  - Implement the database ports
+- **Providers** (`src/providers`)
+  - Implement the ports for external services
+- **LangChain Agents** (`src/langchain`)
+  - Implement the agent port with AI models
 
 ### Backend Layer Structure
 
@@ -237,7 +295,7 @@ graph LR
 
 **Rationale**: Maintains clean API boundaries, enables backend refactoring without breaking clients, enforces proper authentication patterns.
 
-### GraphQL Pagination Strategy
+#### GraphQL Pagination Strategy
 
 **Non-negotiable rule**: Apply pagination strategy based on expected list size.
 
