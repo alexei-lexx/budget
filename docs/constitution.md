@@ -217,6 +217,43 @@ graph TD
 - **LangChain Agents** (`src/langchain`)
   - Implement the agent port with AI models
 
+### Backend Request Flow
+
+```mermaid
+graph LR
+    Client["Client"]
+
+    GraphQL["GraphQL Resolvers"]
+    MCP["MCP Tools"]
+    Webhook["Telegram Webhook"]
+    BgJob["Background Job"]
+
+    Service["Services<br/>(Business Logic)"]
+
+    Repo["Repositories"]
+    Provider["Providers"]
+
+    DB["Database"]
+    External["External Services"]
+
+    Client --> GraphQL
+    Client --> MCP
+    Client --> Webhook
+
+    GraphQL --> Service
+    MCP --> Service
+    Webhook --> Service
+    BgJob --> Service
+
+    Service --> Repo
+    Service --> Provider
+
+    Repo --> DB
+
+    Provider --> External
+    Provider -.->|dispatch| BgJob
+```
+
 ### Backend Layer Structure
 
 **Non-negotiable rule**: Backend MUST implement a clean three-layer architecture that separates concerns and maintains clear dependencies: **GraphQL Resolvers → Services → Repositories**.
@@ -249,35 +286,6 @@ graph TD
 - Avoid direct database access
 - Rely on GraphQL schema validation
 - Can add minimal validation/parsing if needed to properly call service methods
-
-**Request Flow:**
-
-```mermaid
-graph LR
-    Client["Client"]
-
-    subgraph GraphQL["GraphQL Layer"]
-        Resolver["Resolver<br/>(Auth)"]
-    end
-
-    subgraph Service_Layer["Service Layer"]
-        Service["Service<br/>(Business Logic)"]
-    end
-
-    subgraph Repo_Layer["Repository Layer"]
-        Repo1["Repository 1"]
-        Repo2["Repository 2"]
-    end
-
-    DB["Database"]
-
-    Client --> Resolver
-    Resolver --> Service
-    Service --> Repo1
-    Service --> Repo2
-    Repo1 --> DB
-    Repo2 --> DB
-```
 
 **Rationale**: Enables independent testing, maintainable code, and portable architecture.
 
