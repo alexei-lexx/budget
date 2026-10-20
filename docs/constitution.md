@@ -254,30 +254,11 @@ graph LR
     Provider -.->|dispatch| BgJob
 ```
 
-### Backend Layer Structure
+### Backend GraphQL Layer
 
-**Non-negotiable rule**: Backend MUST implement a clean three-layer architecture that separates concerns and maintains clear dependencies: **GraphQL Resolvers → Services → Repositories**.
+**Non-negotiable rule**: GraphQL schema reflects user-facing functionality, not database implementation details. The schema serves as a Backend-For-Frontend (BFF) contract optimized for the frontend client.
 
-**Repository Layer**:
-
-- Provide database access interface
-- Perform pure data access operations (CRUD)
-- Handle errors for database operations
-- Avoid business logic
-- Organize one repository per entity (recommended)
-
-**Service Layer**:
-
-- Implement business logic and domain rules
-- Provide business-specific error messages
-- Orchestrate multi-repository operations (operations across multiple repositories)
-- Inject repository dependencies in service constructor
-- Implement complex validation logic (currency matching, category type validation)
-- Orchestrate transactions (atomic operations ensuring data consistency)
-- Group related CRUD operations for one entity in one service
-- Expose public methods for direct calling by GraphQL resolvers
-
-**GraphQL Layer**:
+**Responsibilities**:
 
 - Enforce authentication and authorization
 - Define API schema and documentation
@@ -286,12 +267,6 @@ graph LR
 - Avoid direct database access
 - Rely on GraphQL schema validation
 - Can add minimal validation/parsing if needed to properly call service methods
-
-**Rationale**: Enables independent testing, maintainable code, and portable architecture.
-
-### Backend GraphQL Layer
-
-**Non-negotiable rule**: GraphQL schema reflects user-facing functionality, not database implementation details. The schema serves as a Backend-For-Frontend (BFF) contract optimized for the frontend client.
 
 **Implementation**:
 
@@ -322,6 +297,17 @@ graph LR
 
 **Non-negotiable rule**: Service classes follow one of two patterns based on complexity and purpose.
 
+**Responsibilities**:
+
+- Implement business logic and domain rules
+- Provide business-specific error messages
+- Orchestrate multi-repository operations (operations across multiple repositories)
+- Inject repository dependencies in service constructor
+- Implement complex validation logic (currency matching, category type validation)
+- Orchestrate transactions (atomic operations ensuring data consistency)
+- Group related CRUD operations for one entity in one service
+- Expose public methods for direct calling by GraphQL resolvers
+
 **Domain Entity Services (Default)**:
 
 - Represent a single domain entity
@@ -344,6 +330,16 @@ graph LR
 - Prefer single-purpose services when orchestrating multiple repositories
 
 **Rationale**: Balances maintainability with flexibility for complex operations.
+
+### Repository Layer
+
+**Responsibilities**:
+
+- Provide database access interface
+- Perform pure data access operations (CRUD)
+- Handle errors for database operations
+- Avoid business logic
+- Organize one repository per entity (recommended)
 
 ### Backend Domain Entities
 
