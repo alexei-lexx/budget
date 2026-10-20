@@ -291,20 +291,22 @@ graph LR
 - Use a plain array without a pagination wrapper
 - A plain array keeps the code simple
 
-### Backend Service Layer
+### Backend Services
 
-**Non-negotiable rule**: Service classes follow one of two patterns based on complexity and purpose.
+**Non-negotiable rule**: Make each service class follow one of two patterns, based on its complexity and purpose.
 
 **Responsibilities**:
 
-- Implement business logic and domain rules
+- Implement the business logic and the domain rules
 - Provide business-specific error messages
-- Orchestrate multi-repository operations (operations across multiple repositories)
-- Inject repository dependencies in service constructor
-- Implement complex validation logic (currency matching, category type validation)
-- Orchestrate transactions (atomic operations ensuring data consistency)
-- Group related CRUD operations for one entity in one service
-- Expose public methods for direct calling by GraphQL resolvers
+- Orchestrate operations across multiple repositories
+- Implement complex validation logic, such as currency matching and category type checks
+- Orchestrate database transactions to keep the data consistent
+
+**Implementation**:
+
+- Get dependencies, such as repositories and providers, as ports through the constructor
+- Define public methods that GraphQL resolvers call directly
 
 **Domain Entity Services (Default)**:
 
@@ -427,7 +429,7 @@ graph LR
 - Force user authentication via AWS Cognito before allowing access to protected routes
 - Include JWT token in Authorization header for every GraphQL request to backend
 
-**Backend GraphQL Layer**:
+**Backend GraphQL API**:
 
 - Verify JWT token against AWS Cognito public keys before any resolver runs
 - Reject requests with missing or invalid JWT tokens
@@ -436,12 +438,12 @@ graph LR
 - Never trust user IDs from mutation/query input - always use authenticated user from context
 - Propagate internal database user ID to service layer
 
-**Backend Service Layer**:
+**Backend Services**:
 
 - Accept internal database user ID as parameter in all service methods
 - Pass internal database user ID down to repository layer
 
-**Backend Repository Layer**:
+**Backend Repositories**:
 
 - Design repository methods to require internal database user ID parameter and filter all queries by it
 
