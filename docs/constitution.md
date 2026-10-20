@@ -276,20 +276,20 @@ graph LR
 - Get the current user ID from the authentication context, not from query or mutation arguments
 - Use the Relay Connection specification for cursor pagination
 
-#### GraphQL Pagination Strategy
+#### GraphQL Pagination
 
-**Non-negotiable rule**: Apply pagination strategy based on expected list size.
+**Non-negotiable rule**: Select the pagination strategy by the expected list size.
 
-**For Potentially Large Lists**:
+**For Lists That Can Become Large**:
 
-- MUST use Relay-Compatible Cursor pagination
-- Frontend MUST use "Load More" button instead of page numbers
+- Use Relay-compatible cursor pagination
+- Show a "Load More" button in the frontend, not page numbers
+- Pagination keeps the performance high
 
-**For Short Lists** (typically < 100 items):
+**For Short Lists** (usually fewer than 100 items):
 
-- MAY return plain arrays without pagination wrapper
-
-**Rationale**: Balances performance with simplicity. Load-more pattern provides better mobile UX and stable navigation.
+- Use a plain array without a pagination wrapper
+- A plain array keeps the code simple
 
 ### Backend Service Layer
 
