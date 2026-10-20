@@ -346,17 +346,26 @@ graph LR
 
 ### Backend Domain Entities
 
-**Non-negotiable rule**: Domain entities MUST be rich and immutable, enforcing their own invariants.
+**Non-negotiable rule**: Make domain entities immutable. Keep the business rules of each entity inside the entity. Make each entity enforce its own invariants.
+
+**Responsibilities**:
+
+- Hold the data of one entity
+- Enforce the domain invariants
+- Implement the lifecycle methods that change one entity
 
 **Implementation**:
 
-- All properties are `readonly`; business operations (`.update()`, `.archive()`, `.approve()`) return a new instance rather than mutating state
-- Private constructor validates all domain invariants, making invalid state unrepresentable
-- `create()` static factory constructs a new entity from new data, applies managed defaults, and delegates to the private constructor
-- `fromPersistence()` static factory rehydrates an entity from a stored record and delegates to the private constructor
-- Domain invariant violations throw `ModelError`
-
-**Rationale**: The private constructor guarantees every instance satisfies domain rules regardless of caller. Two named factories make intent explicit — creation versus rehydration — while both paths enforce invariants.
+- Add the `create()` static factory that creates a new entity from input and sets defaults
+- Add the `fromPersistence()` static factory that restores an entity from a stored record
+- Check all invariants in the private constructor so that an invalid instance cannot exist
+- Throw `ModelError` when a change breaks an invariant
+- Do not change the current instance
+- Add lifecycle methods, such as `update()` and `archive()`, that return a new instance
+- Keep the data in a private `readonly` field named `data`
+- Expose each property through a public getter
+- Add the `toData()` method that returns a plain copy of the data for repositories
+- Give entities with a `version` field the `nextVersion()` and `bumpVersion()` methods for optimistic locking
 
 ### Backend Port Interfaces
 
