@@ -254,29 +254,27 @@ graph LR
     Provider -.->|dispatch| BgJob
 ```
 
-### Backend GraphQL Layer
+### Backend GraphQL API
 
-**Non-negotiable rule**: GraphQL schema reflects user-facing functionality, not database implementation details. The schema serves as a Backend-For-Frontend (BFF) contract optimized for the frontend client.
+**Non-negotiable rule**: Design the GraphQL schema as a Backend-For-Frontend (BFF) contract for the frontend.
 
 **Responsibilities**:
 
-- Enforce authentication and authorization
-- Define API schema and documentation
-- Transform requests and responses between GraphQL schema and service layer
-- Call appropriate service methods
-- Avoid direct database access
-- Rely on GraphQL schema validation
-- Can add minimal validation/parsing if needed to properly call service methods
+- Define and document the API schema
+- Authenticate the current user
+- Check GraphQL arguments only as much as a service call needs
+- Let the GraphQL schema validate the input structure
+- Convert GraphQL arguments to service method arguments
+- Call service methods
+- Convert service responses and failures to GraphQL output and errors
 
 **Implementation**:
 
-- Expose only business-relevant fields with meaningful names
-- Never expose internal fields such as internal statuses or database timestamps
-- Current user ID handled automatically through authentication context, never passed as query/mutation parameters
-- Pagination follows Relay Connection specification for standardized cursor-based navigation
-- Field naming prioritizes clarity and domain language over technical implementation details
-
-**Rationale**: Maintains clean API boundaries, enables backend refactoring without breaking clients, enforces proper authentication patterns.
+- Expose only fields that users must see
+- Do not expose internal fields that users do not see
+- Use domain terms for type and field names, not technical terms
+- Get the current user ID from the authentication context, not from query or mutation arguments
+- Use the Relay Connection specification for cursor pagination
 
 #### GraphQL Pagination Strategy
 
