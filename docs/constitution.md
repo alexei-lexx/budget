@@ -329,15 +329,20 @@ graph LR
 - Use single-purpose services for complex and unique operations
 - Prefer single-purpose services for complex orchestration that is not tied to one entity
 
-### Repository Layer
+### Backend Repositories
+
+**Non-negotiable rule**: Keep all database access in repositories.
 
 **Responsibilities**:
 
-- Provide database access interface
-- Perform pure data access operations (CRUD)
-- Handle errors for database operations
-- Avoid business logic
-- Organize one repository per entity (recommended)
+- Load and save domain entities
+- Hydrate database records to catch corrupted stored data
+
+**Implementation**:
+
+- Make one repository for each entity
+- Implement the database ports
+- Accept and return domain entities, not database records
 
 ### Backend Domain Entities
 
