@@ -40,7 +40,10 @@ export default defineConfig({
           exclude: ["**/node_modules/**"],
           testTimeout: 100000,
           maxWorkers: 1,
-          setupFiles: ["src/utils/test-utils/integration-matchers.ts"],
+          setupFiles: [
+            "src/utils/test-utils/integration-matchers.ts",
+            "src/utils/test-utils/langsmith-flush.ts",
+          ],
         },
       },
       {
@@ -52,7 +55,10 @@ export default defineConfig({
           exclude: ["**/node_modules/**"],
           testTimeout: 100000,
           maxWorkers: 1,
-          setupFiles: ["src/utils/test-utils/eval-matchers.ts"],
+          setupFiles: [
+            "src/utils/test-utils/eval-matchers.ts",
+            "src/utils/test-utils/langsmith-flush.ts",
+          ],
           retry: 2,
         },
       },

@@ -21,7 +21,6 @@ export class LangChainAgent<
   constructor(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private agent: ReactAgent<any>,
-    private runName?: string,
   ) {}
 
   async invoke(
@@ -82,7 +81,6 @@ export class LangChainAgent<
       {
         ...config,
         callbacks: callbackManager,
-        ...(this.runName === undefined ? {} : { runName: this.runName }),
       },
     );
 

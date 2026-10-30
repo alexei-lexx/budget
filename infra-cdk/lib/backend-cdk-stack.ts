@@ -200,6 +200,7 @@ export class BackendCdkStack extends cdk.Stack {
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
         CATEGORIES_TABLE_NAME: categoriesTable.tableName,
         CHAT_MESSAGES_TABLE_NAME: chatMessagesTable.tableName,
+        LANGCHAIN_CALLBACKS_BACKGROUND: "false", // See https://docs.langchain.com/langsmith/trace-with-langchain#ensure-all-traces-are-submitted-before-exiting
         MIGRATIONS_TABLE_NAME: migrationsTable.tableName,
         TELEGRAM_BOTS_TABLE_NAME: telegramBotsTable.tableName,
         TRANSACTIONS_TABLE_NAME: transactionsTable.tableName,
