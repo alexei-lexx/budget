@@ -86,44 +86,6 @@ describe("LangChainAgent", () => {
       expect(passedConfig.context.userId).toBe("user-123");
     });
 
-    it("forwards runName to underlying agent when provided", async () => {
-      // Arrange
-      const namedAgent = new LangChainAgent(
-        mockAgent as unknown as ReactAgent,
-        "my-agent",
-      );
-      mockAgent.invoke.mockResolvedValue({
-        messages: [new AIMessage({ content: "Answer" })],
-      });
-
-      // Act
-      await namedAgent.invoke(state, config);
-
-      // Assert
-      const [, passedConfig] = mockAgent.invoke.mock.calls[0] as [
-        unknown,
-        { runName?: string },
-      ];
-      expect(passedConfig.runName).toBe("my-agent");
-    });
-
-    it("does not include runName in forwarded config when not provided", async () => {
-      // Arrange
-      mockAgent.invoke.mockResolvedValue({
-        messages: [new AIMessage({ content: "Answer" })],
-      });
-
-      // Act
-      await agent.invoke(state, config);
-
-      // Assert
-      const [, passedConfig] = mockAgent.invoke.mock.calls[0] as [
-        unknown,
-        Record<string, unknown>,
-      ];
-      expect(passedConfig).not.toHaveProperty("runName");
-    });
-
     it("builds agentTrace TEXT entry from text block", async () => {
       // Arrange
       mockAgent.invoke.mockImplementation(async (_state, options) => {

@@ -44,8 +44,12 @@ const defaultSsmEnvBindings: SsmEnvBindingsFactory = (nodeEnv) => [
     envVar: "LANGSMITH_API_KEY",
   },
   {
-    ssmPath: `/manual/budget/${nodeEnv}/langsmith/project`,
-    envVar: "LANGSMITH_PROJECT",
+    ssmPath: `/manual/budget/${nodeEnv}/langsmith/agent-id`,
+    envVar: "LANGSMITH_AGENT_ID",
+  },
+  {
+    ssmPath: `/manual/budget/${nodeEnv}/langsmith/agent-environment`,
+    envVar: "LANGSMITH_AGENT_ENVIRONMENT",
   },
 ];
 

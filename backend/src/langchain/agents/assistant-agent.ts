@@ -143,6 +143,7 @@ export function createAssistantAgent({
   const tools = [...dataTools, ...mathTools, ...writeTools, ...subagentTools];
 
   return createAgent({
+    name: "assistant-agent",
     model,
     tools,
     contextSchema: agentContextSchema,

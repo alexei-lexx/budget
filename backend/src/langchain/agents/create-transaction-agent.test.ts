@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { RunCollectorCallbackHandler } from "@langchain/core/tracers/run_collector";
 import { AIMessage, ToolMessage, fakeModel } from "langchain";
 import { Failure, Success } from "ts-result";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
@@ -45,6 +46,25 @@ describe("createCreateTransactionAgent", () => {
   });
 
   // Happy path
+
+  it("is named create-transaction-agent", async () => {
+    // Arrange
+    const runCollector = new RunCollectorCallbackHandler();
+
+    // Model emits final text without tool calls
+    mockModel.respond(new AIMessage("OK"));
+
+    // Act
+    await agent.invoke(
+      { messages },
+      { context: baseContext, callbacks: [runCollector] },
+    );
+
+    // Assert
+    expect(runCollector.tracedRuns.map((run) => run.name)).toEqual([
+      "create-transaction-agent",
+    ]);
+  });
 
   it("creates transaction", async () => {
     // Arrange

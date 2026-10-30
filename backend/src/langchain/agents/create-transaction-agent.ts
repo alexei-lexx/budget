@@ -184,6 +184,7 @@ export function createCreateTransactionAgent({
   ];
 
   return createAgent({
+    name: "create-transaction-agent",
     model,
     tools,
     contextSchema: agentContextSchema,

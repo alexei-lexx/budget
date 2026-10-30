@@ -62,7 +62,6 @@ export const createCreateTransactionSubagentTool = ({
           // This line carries the loosely-typed context through
           // so TS accepts the stricter target.
           context: config.context,
-          runName: "create-transaction-subagent",
         },
       );
 

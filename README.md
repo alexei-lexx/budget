@@ -169,10 +169,15 @@ aws ssm put-parameter --overwrite --type SecureString \
     --name "/manual/budget/production/langsmith/api-key" \
     --value "<your-langsmith-api-key>"
 
-# LangSmith project name
+# LangSmith agent ID
 aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/langsmith/project" \
-    --value "<your-langsmith-project>"
+    --name "/manual/budget/production/langsmith/agent-id" \
+    --value "<your-langsmith-agent-id>"
+
+# LangSmith agent environment (local, development, staging, or production)
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/langsmith/agent-environment" \
+    --value "production"
 ```
 
 To override configuration for a specific environment, replace `production` in the parameter names with your target environment (e.g., `/manual/budget/staging/auth/domain-prefix`).

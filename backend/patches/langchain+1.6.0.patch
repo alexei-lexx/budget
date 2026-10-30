@@ -1,5 +1,5 @@
 diff --git a/node_modules/langchain/dist/chat_models/universal.cjs b/node_modules/langchain/dist/chat_models/universal.cjs
-index be26688..78414c7 100644
+index 7a58872..74911ee 100644
 --- a/node_modules/langchain/dist/chat_models/universal.cjs
 +++ b/node_modules/langchain/dist/chat_models/universal.cjs
 @@ -12,8 +12,10 @@ var universal_exports = /* @__PURE__ */ require_runtime.__exportAll({
@@ -33,7 +33,7 @@ index be26688..78414c7 100644
  function _inferModelProvider(modelName) {
  	if (modelName.startsWith("gpt-3") || modelName.startsWith("gpt-4") || modelName.startsWith("gpt-5") || modelName.startsWith("o1") || modelName.startsWith("o3") || modelName.startsWith("o4")) return "openai";
  	else if (modelName.startsWith("claude")) return "anthropic";
-@@ -644,6 +651,7 @@ exports.MODEL_PROVIDER_CONFIG = MODEL_PROVIDER_CONFIG;
+@@ -646,6 +653,7 @@ exports.MODEL_PROVIDER_CONFIG = MODEL_PROVIDER_CONFIG;
  exports._inferModelProvider = _inferModelProvider;
  exports.getChatModelByClassName = getChatModelByClassName;
  exports.initChatModel = initChatModel;
@@ -42,13 +42,13 @@ index be26688..78414c7 100644
  	enumerable: true,
  	get: function() {
 diff --git a/node_modules/langchain/dist/chat_models/universal.d.cts b/node_modules/langchain/dist/chat_models/universal.d.cts
-index e46895f..df39204 100644
+index b0462e1..362a7b2 100644
 --- a/node_modules/langchain/dist/chat_models/universal.d.cts
 +++ b/node_modules/langchain/dist/chat_models/universal.d.cts
-@@ -122,6 +122,28 @@ declare function getChatModelByClassName(className: string, modelProvider?: stri
+@@ -122,6 +122,28 @@ export declare function getChatModelByClassName(className: string, modelProvider
   * _inferModelProvider("unknown-model"); // returns undefined
   */
- declare function _inferModelProvider(modelName: string): string | undefined;
+ export declare function _inferModelProvider(modelName: string): string | undefined;
 +/**
 + * Register a provider package module so bundlers
 + * (esbuild, rollup, webpack)
@@ -70,26 +70,18 @@ index e46895f..df39204 100644
 + *
 + *   registerProviderForBundling("bedrock", aws);
 + */
-+declare function registerProviderForBundling(provider: ChatModelProvider, packageModule: Record<string, unknown>): void;
++export declare function registerProviderForBundling(provider: ChatModelProvider, packageModule: Record<string, unknown>): void;
  interface ConfigurableModelFields extends BaseChatModelParams {
    defaultConfig?: Record<string, any>;
    /**
-@@ -257,5 +279,5 @@ declare function initChatModel<RunInput extends BaseLanguageModelInput = BaseLan
-   profile?: ModelProfile;
- }): Promise<ConfigurableModel<RunInput, CallOptions>>;
- //#endregion
--export { ChatModelProvider, ConfigurableChatModelCallOptions, ConfigurableFields, ConfigurableModel, InitChatModelFields, MODEL_PROVIDER_CONFIG, _inferModelProvider, getChatModelByClassName, initChatModel };
-+export { ChatModelProvider, ConfigurableChatModelCallOptions, ConfigurableFields, ConfigurableModel, InitChatModelFields, MODEL_PROVIDER_CONFIG, _inferModelProvider, getChatModelByClassName, initChatModel, registerProviderForBundling };
- //# sourceMappingURL=universal.d.cts.map
-\ No newline at end of file
 diff --git a/node_modules/langchain/dist/chat_models/universal.d.ts b/node_modules/langchain/dist/chat_models/universal.d.ts
-index 50c57ea..21ebe81 100644
+index 470fba7..4c8bf39 100644
 --- a/node_modules/langchain/dist/chat_models/universal.d.ts
 +++ b/node_modules/langchain/dist/chat_models/universal.d.ts
-@@ -122,6 +122,28 @@ declare function getChatModelByClassName(className: string, modelProvider?: stri
+@@ -122,6 +122,28 @@ export declare function getChatModelByClassName(className: string, modelProvider
   * _inferModelProvider("unknown-model"); // returns undefined
   */
- declare function _inferModelProvider(modelName: string): string | undefined;
+ export declare function _inferModelProvider(modelName: string): string | undefined;
 +/**
 + * Register a provider package module so bundlers
 + * (esbuild, rollup, webpack)
@@ -111,20 +103,12 @@ index 50c57ea..21ebe81 100644
 + *
 + *   registerProviderForBundling("bedrock", aws);
 + */
-+declare function registerProviderForBundling(provider: ChatModelProvider, packageModule: Record<string, unknown>): void;
++export declare function registerProviderForBundling(provider: ChatModelProvider, packageModule: Record<string, unknown>): void;
  interface ConfigurableModelFields extends BaseChatModelParams {
    defaultConfig?: Record<string, any>;
    /**
-@@ -257,5 +279,5 @@ declare function initChatModel<RunInput extends BaseLanguageModelInput = BaseLan
-   profile?: ModelProfile;
- }): Promise<ConfigurableModel<RunInput, CallOptions>>;
- //#endregion
--export { ChatModelProvider, ConfigurableChatModelCallOptions, ConfigurableFields, ConfigurableModel, InitChatModelFields, MODEL_PROVIDER_CONFIG, _inferModelProvider, getChatModelByClassName, initChatModel };
-+export { ChatModelProvider, ConfigurableChatModelCallOptions, ConfigurableFields, ConfigurableModel, InitChatModelFields, MODEL_PROVIDER_CONFIG, _inferModelProvider, getChatModelByClassName, initChatModel, registerProviderForBundling };
- //# sourceMappingURL=universal.d.ts.map
-\ No newline at end of file
 diff --git a/node_modules/langchain/dist/chat_models/universal.js b/node_modules/langchain/dist/chat_models/universal.js
-index 4fdbb3e..2fc6430 100644
+index e95596b..043e9a7 100644
 --- a/node_modules/langchain/dist/chat_models/universal.js
 +++ b/node_modules/langchain/dist/chat_models/universal.js
 @@ -11,8 +11,10 @@ var universal_exports = /* @__PURE__ */ __exportAll({
@@ -158,7 +142,7 @@ index 4fdbb3e..2fc6430 100644
  function _inferModelProvider(modelName) {
  	if (modelName.startsWith("gpt-3") || modelName.startsWith("gpt-4") || modelName.startsWith("gpt-5") || modelName.startsWith("o1") || modelName.startsWith("o3") || modelName.startsWith("o4")) return "openai";
  	else if (modelName.startsWith("claude")) return "anthropic";
-@@ -638,6 +645,6 @@ async function initChatModel(model, fields) {
+@@ -640,6 +647,6 @@ async function initChatModel(model, fields) {
  	return configurableModel;
  }
  //#endregion

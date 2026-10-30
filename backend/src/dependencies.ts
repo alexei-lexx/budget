@@ -251,7 +251,6 @@ export const resolveAssistantAgent = createAsyncSingleton(
         transactionRepository: resolveTransactionRepository(),
         transactionService: resolveTransactionService(),
       }),
-      "assistant-agent",
     ),
 );
 export const resolveCreateTransactionAgent = createAsyncSingleton(
@@ -265,7 +264,6 @@ export const resolveCreateTransactionAgent = createAsyncSingleton(
         transactionRepository: resolveTransactionRepository(),
         transactionService: resolveTransactionService(),
       }),
-      "create-transaction-agent",
     ),
 );
 
