@@ -4,7 +4,6 @@ import { Success } from "ts-result";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
-import { isDateString } from "../../types/date-string";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
@@ -19,6 +18,8 @@ describe("createGetCategoriesTool", () => {
   let mockCategoryService: Mocked<CategoryService>;
   let mockTransactionRepository: Mocked<TransactionRepository>;
   const userId = faker.string.uuid();
+  const today = "2000-01-02";
+  const context = { userId, today };
 
   beforeEach(() => {
     mockCategoryService = createMockCategoryService();
@@ -49,7 +50,7 @@ describe("createGetCategoriesTool", () => {
     });
 
     // Act
-    await categoriesTool.invoke({ scope: "ALL" }, { context: { userId } });
+    await categoriesTool.invoke({ scope: "ALL" }, { context });
 
     // Assert
     expect(mockCategoryService.getCategoriesByUser).toHaveBeenCalledWith(
@@ -87,10 +88,7 @@ describe("createGetCategoriesTool", () => {
     });
 
     // Act
-    const result = await categoriesTool.invoke(
-      { scope: "ALL" },
-      { context: { userId } },
-    );
+    const result = await categoriesTool.invoke({ scope: "ALL" }, { context });
 
     // Assert
     expect(result).toEqual({
@@ -129,10 +127,7 @@ describe("createGetCategoriesTool", () => {
     });
 
     // Act
-    const result = await categoriesTool.invoke(
-      { scope: "ALL" },
-      { context: { userId } },
-    );
+    const result = await categoriesTool.invoke({ scope: "ALL" }, { context });
 
     // Assert
     expect(result).toEqual({ success: true, data: [] });
@@ -151,7 +146,23 @@ describe("createGetCategoriesTool", () => {
     await expect(
       categoriesTool.invoke(
         { scope: "ALL" },
-        { context: { userId: "not-a-uuid" } },
+        { context: { ...context, userId: "not-a-uuid" } },
+      ),
+    ).rejects.toThrow();
+  });
+
+  it("fails when today in context is not valid date", async () => {
+    // Arrange
+    const categoriesTool = createGetCategoriesTool({
+      categoryService: mockCategoryService,
+      transactionRepository: mockTransactionRepository,
+    });
+
+    // Act & Assert
+    await expect(
+      categoriesTool.invoke(
+        { scope: "ALL" },
+        { context: { ...context, today: "not-a-date" } },
       ),
     ).rejects.toThrow();
   });
@@ -177,7 +188,7 @@ describe("createGetCategoriesTool", () => {
       // Act
       const result = await categoriesTool.invoke(
         { scope: "ACTIVE" },
-        { context: { userId } },
+        { context },
       );
 
       // Assert
@@ -216,7 +227,7 @@ describe("createGetCategoriesTool", () => {
       // Act
       const result = await categoriesTool.invoke(
         { scope: "ACTIVE" },
-        { context: { userId } },
+        { context },
       );
 
       // Assert
@@ -252,7 +263,7 @@ describe("createGetCategoriesTool", () => {
       // Act
       const result = await categoriesTool.invoke(
         { scope: "ACTIVE" },
-        { context: { userId } },
+        { context },
       );
 
       // Assert
@@ -296,7 +307,7 @@ describe("createGetCategoriesTool", () => {
       // Act
       const result = await categoriesTool.invoke(
         { scope: "ACTIVE" },
-        { context: { userId } },
+        { context },
       );
 
       // Assert
@@ -340,7 +351,7 @@ describe("createGetCategoriesTool", () => {
       // Act
       const result = await categoriesTool.invoke(
         { scope: "ACTIVE" },
-        { context: { userId } },
+        { context },
       );
 
       // Assert
@@ -400,7 +411,7 @@ describe("createGetCategoriesTool", () => {
       // Act
       const result = await categoriesTool.invoke(
         { scope: "ACTIVE" },
-        { context: { userId } },
+        { context },
       );
 
       // Assert
@@ -446,7 +457,7 @@ describe("createGetCategoriesTool", () => {
       // Act
       const result = await categoriesTool.invoke(
         { scope: "ACTIVE" },
-        { context: { userId } },
+        { context },
       );
 
       // Assert
@@ -477,33 +488,18 @@ describe("createGetCategoriesTool", () => {
       });
 
       // Act
-      await categoriesTool.invoke({ scope: "ACTIVE" }, { context: { userId } });
+      await categoriesTool.invoke({ scope: "ACTIVE" }, { context });
 
       // Assert
-      expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledTimes(
-        1,
+      expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
+        userId,
+        {
+          dateAfter: Temporal.PlainDate.from(today)
+            .subtract({ days: CATEGORY_HISTORY_LOOKBACK_DAYS })
+            .toString(),
+          dateBefore: today,
+        },
       );
-
-      const callFilters =
-        mockTransactionRepository.findManyByUserId.mock.calls[0]?.[1];
-      const dateAfterArg = callFilters?.dateAfter;
-      const dateBeforeArg = callFilters?.dateBefore;
-
-      expect(dateAfterArg && isDateString(dateAfterArg)).toBe(true);
-      expect(dateBeforeArg && isDateString(dateBeforeArg)).toBe(true);
-
-      if (!dateAfterArg || !dateBeforeArg) {
-        throw new Error("Expected dateAfter and dateBefore to be defined");
-      }
-
-      const afterPlainDate = Temporal.PlainDate.from(dateAfterArg);
-      const beforePlainDate = Temporal.PlainDate.from(dateBeforeArg);
-      const daysDiff = afterPlainDate.until(beforePlainDate).days;
-
-      expect(daysDiff).toBeGreaterThanOrEqual(
-        CATEGORY_HISTORY_LOOKBACK_DAYS - 1,
-      );
-      expect(daysDiff).toBeLessThanOrEqual(CATEGORY_HISTORY_LOOKBACK_DAYS);
     });
   });
 });
