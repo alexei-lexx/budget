@@ -34,6 +34,9 @@ export const createGetCategoriesTool = ({
       const userId = agentContextSchema.shape.userId.parse(
         config?.context?.userId,
       );
+      const today = agentContextSchema.shape.today.parse(
+        config?.context?.today,
+      );
       const result = await categoryService.getCategoriesByUser(userId, {
         scope,
       });
@@ -54,7 +57,7 @@ export const createGetCategoriesTool = ({
       );
 
       // Enrich with recent transaction descriptions
-      const todayPlainDate = Temporal.Now.plainDateISO();
+      const todayPlainDate = Temporal.PlainDate.from(today);
       const lookbackPlainDate = todayPlainDate.subtract({
         days: CATEGORY_HISTORY_LOOKBACK_DAYS,
       });
