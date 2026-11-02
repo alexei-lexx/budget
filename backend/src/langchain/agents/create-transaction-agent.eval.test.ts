@@ -20,7 +20,7 @@ import {
 import { AccountData } from "../../models/account";
 import { CategoryData } from "../../models/category";
 import { TransactionData, TransactionType } from "../../models/transaction";
-import { toDateString } from "../../types/date-string";
+import { DateString, toDateString } from "../../types/date-string";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
@@ -57,7 +57,7 @@ ls.describe("CreateTransactionAgent", () => {
   const transactionService = resolveTransactionService();
   const userRepository = resolveUserRepository();
 
-  const today = "2000-01-02";
+  const today = toDateString("2000-01-02");
   const userId = testId("current-user");
 
   let model: Awaited<ReturnType<typeof createChatModel>>;
@@ -609,6 +609,7 @@ ls.describe("CreateTransactionAgent", () => {
         message: "sandwich 987",
         accounts: [{ id: testId("default"), currency: "EUR" }],
         categories: [{ id: testId("food"), type: "EXPENSE", name: "food" }],
+        // Create 3 prior "food" expenses around 5–15 EUR
         transactions: [
           {
             accountId: testId("default"),
@@ -656,6 +657,7 @@ ls.describe("CreateTransactionAgent", () => {
         message: "sandwich 987",
         accounts: [{ id: testId("default"), currency: "EUR" }],
         categories: [{ id: testId("food"), type: "EXPENSE", name: "food" }],
+        // Create 3 prior "food" expenses around 5–15 EUR
         transactions: [
           {
             accountId: testId("default"),
@@ -983,7 +985,7 @@ function testId(name: string) {
 }
 
 // Returns date that is given number of days before today
-function daysAgo(days: number, today: string) {
+function daysAgo(days: number, today: DateString) {
   return toDateString(
     Temporal.PlainDate.from(today).subtract({ days }).toString(),
   );
