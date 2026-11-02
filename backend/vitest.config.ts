@@ -46,22 +46,6 @@ export default defineConfig({
           ],
         },
       },
-      {
-        extends: true,
-        test: {
-          name: "evals",
-          environment: "node",
-          include: ["src/**/*.eval.test.ts"],
-          exclude: ["**/node_modules/**"],
-          testTimeout: 100000,
-          maxWorkers: 1,
-          setupFiles: [
-            "src/utils/test-utils/eval-matchers.ts",
-            "src/utils/test-utils/langsmith-flush.ts",
-          ],
-          retry: 2,
-        },
-      },
     ],
     globals: false,
     coverage: {

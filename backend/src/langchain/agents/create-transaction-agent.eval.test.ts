@@ -1,1436 +1,1016 @@
-import { faker } from "@faker-js/faker";
 import {
   createTrajectoryLLMAsJudge,
   createTrajectoryMatchEvaluator,
 } from "agentevals";
 import { AIMessage, HumanMessage } from "langchain";
+import * as ls from "langsmith/vitest";
 import { Temporal } from "temporal-polyfill";
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { v5 as uuidv5 } from "uuid";
+import { beforeAll, beforeEach, expect } from "vitest";
 import {
   createChatModel,
   resolveAccountRepository,
   resolveAccountService,
   resolveCategoryRepository,
   resolveCategoryService,
-  resolveLogger,
   resolveTransactionRepository,
   resolveTransactionService,
   resolveUserRepository,
 } from "../../dependencies";
-import { TransactionType } from "../../models/transaction";
-import { dateToDateString, toDateString } from "../../types/date-string";
+import { AccountData } from "../../models/account";
+import { CategoryData } from "../../models/category";
+import { TransactionData, TransactionType } from "../../models/transaction";
+import { DateString, toDateString } from "../../types/date-string";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
-import { fakeExpense } from "../../utils/test-utils/models/transaction-fakes";
+import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { fakeUser } from "../../utils/test-utils/models/user-fakes";
+import { createMockLogger } from "../../utils/test-utils/providers/logger-mocks";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
 import { createCreateTransactionAgent } from "./create-transaction-agent";
 
-const accountRepository = resolveAccountRepository();
-const accountService = resolveAccountService();
-const categoryRepository = resolveCategoryRepository();
-const categoryService = resolveCategoryService();
-const transactionRepository = resolveTransactionRepository();
-const transactionService = resolveTransactionService();
-const userRepository = resolveUserRepository();
+interface TestInputs {
+  message: string;
+  accounts: Partial<AccountData>[];
+  categories?: Partial<CategoryData>[];
+  transactions?: Partial<TransactionData>[];
+  isVoiceInput?: boolean;
+}
 
-describe("CreateTransactionAgent (evals)", () => {
-  let context: { userId: string; today: string; isVoiceInput?: boolean };
-  let today: string;
-  let userId: string;
-  let agent: ReturnType<typeof createCreateTransactionAgent>;
+interface TestReferenceToolCalls {
+  toolCalls: {
+    name: string;
+    args: Record<string, unknown>;
+  }[];
+}
+
+interface TestReferenceCriteria {
+  criteria: string;
+}
+
+ls.describe("CreateTransactionAgent", () => {
+  const accountService = resolveAccountService();
+  const categoryService = resolveCategoryService();
+  const transactionRepository = resolveTransactionRepository();
+  const transactionService = resolveTransactionService();
+  const userRepository = resolveUserRepository();
+
+  const today = toDateString("2000-01-02");
+  const userId = testId("current-user");
+
   let model: Awaited<ReturnType<typeof createChatModel>>;
+  let agent: ReturnType<typeof createCreateTransactionAgent>;
+  let context: { userId: string; today: string; isVoiceInput?: boolean };
 
   beforeAll(async () => {
     model = await createChatModel();
+    const logger = createMockLogger();
+
     agent = createCreateTransactionAgent({
       model,
+      transactionRepository,
       accountService,
       categoryService,
-      logger: resolveLogger(),
-      transactionRepository,
       transactionService,
+      logger,
     });
-  });
-
-  beforeEach(() => {
-    vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
   });
 
   beforeEach(async () => {
     await truncateAllTables(createDynamoDBDocumentClient());
 
-    const user = fakeUser();
+    const user = fakeUser({ id: userId });
     await userRepository.create(user);
-    userId = user.id;
 
-    today = Temporal.Now.plainDateISO().toString();
     context = { userId, today };
   });
 
-  it("creates expense transaction", async () => {
+  async function testToolCalls({
+    inputs,
+    referenceOutputs,
+  }: {
+    inputs: TestInputs;
+    referenceOutputs?: TestReferenceToolCalls;
+  }) {
     // Arrange
-    const account = fakeAccount({ userId, currency: "EUR" });
-    await accountRepository.create(account);
-    const category = fakeCategory({
-      userId,
-      type: "EXPENSE",
-      name: "groceries",
-    });
-    await categoryRepository.create(category);
+    await seedDatabase(inputs, userId);
 
     // Act
     const response = await agent.invoke(
-      { messages: [new HumanMessage("bought apples for 10 euro")] },
-      { context },
+      { messages: [new HumanMessage(inputs.message)] },
+      { context: { ...context, isVoiceInput: inputs.isVoiceInput } },
     );
+    ls.logOutputs({ answer: response.messages.at(-1)?.text });
 
     // Assert
+
+    // Agent may call tools with more args than reference lists.
+    // Compares only args listed in reference tool calls.
+    const toolArgsToCompare: Record<string, string[]> = {};
+    for (const toolCall of referenceOutputs?.toolCalls || []) {
+      toolArgsToCompare[toolCall.name] = Object.keys(toolCall.args);
+    }
+
     const evaluator = createTrajectoryMatchEvaluator({
       trajectoryMatchMode: "superset",
-      toolArgsMatchOverrides: {
-        [CREATE_TRANSACTION_TOOL_NAME]: [
-          "accountId",
-          "amount",
-          "categoryId",
-          "date",
-          "type",
-        ],
-      },
+      toolArgsMatchOverrides: toolArgsToCompare,
     });
 
-    await expect(evaluator).toEvaluateTrue({
-      outputs: response,
-      referenceOutputs: [
-        new AIMessage({
-          tool_calls: [
-            {
-              name: CREATE_TRANSACTION_TOOL_NAME,
-              args: {
-                accountId: account.id,
-                amount: 10,
-                categoryId: category.id,
-                date: today,
-                type: TransactionType.EXPENSE,
-              },
-              id: "create-transaction-reference-call",
-            },
-          ],
-        }),
-      ],
-    });
-  });
-
-  it("creates expense transaction by default", async () => {
-    // Arrange
-    const account = fakeAccount({ userId, currency: "EUR" });
-    await accountRepository.create(account);
-
-    // Act
-    const response = await agent.invoke(
-      // No explicit "bought" or "spent" verb
-      { messages: [new HumanMessage("apples 10 euro")] },
-      { context },
-    );
-
-    // Assert
-    const evaluator = createTrajectoryMatchEvaluator({
-      trajectoryMatchMode: "superset",
-      toolArgsMatchOverrides: {
-        [CREATE_TRANSACTION_TOOL_NAME]: ["type"],
-      },
-    });
-
-    await expect(evaluator).toEvaluateTrue({
+    const result = await evaluator({
       outputs: response.messages,
       referenceOutputs: [
         new AIMessage({
-          tool_calls: [
-            {
-              name: CREATE_TRANSACTION_TOOL_NAME,
-              args: { type: TransactionType.EXPENSE },
-              id: "create-transaction-reference-call",
-            },
-          ],
+          tool_calls: referenceOutputs?.toolCalls.map((toolCall) => ({
+            ...toolCall,
+            id: "required-dummy-id",
+          })),
         }),
       ],
     });
-  });
 
-  it("creates income transaction", async () => {
+    expect(result.score).toBe(true);
+  }
+
+  async function testWithJudge({
+    inputs,
+    referenceOutputs,
+  }: {
+    inputs: TestInputs;
+    referenceOutputs?: TestReferenceCriteria;
+  }) {
     // Arrange
-    const account = fakeAccount({ userId, currency: "EUR" });
-    await accountRepository.create(account);
-    const category = fakeCategory({
-      userId,
-      type: "INCOME",
-      name: "salary",
-    });
-    await categoryRepository.create(category);
+    await seedDatabase(inputs, userId);
 
     // Act
     const response = await agent.invoke(
-      { messages: [new HumanMessage("received salary of 1000 euro")] },
+      { messages: [new HumanMessage(inputs.message)] },
       { context },
     );
+    ls.logOutputs({ answer: response.messages.at(-1)?.text });
 
     // Assert
-    const evaluator = createTrajectoryMatchEvaluator({
-      trajectoryMatchMode: "superset",
-      toolArgsMatchOverrides: {
-        [CREATE_TRANSACTION_TOOL_NAME]: [
-          "accountId",
-          "amount",
-          "categoryId",
-          "date",
-          "type",
-        ],
-      },
+    const evaluator = createTrajectoryLLMAsJudge({
+      continuous: true,
+      judge: model,
+      prompt: `{criteria}
+
+        Grade the following trajectory:
+        <trajectory>{outputs}</trajectory>
+      `.trim(),
     });
 
-    await expect(evaluator).toEvaluateTrue({
+    // Judge prompt gets criteria through extra param
+    const result = await evaluator({
       outputs: response.messages,
-      referenceOutputs: [
-        new AIMessage({
-          tool_calls: [
-            {
-              name: CREATE_TRANSACTION_TOOL_NAME,
-              args: {
-                accountId: account.id,
-                amount: 1000,
-                categoryId: category.id,
-                date: today,
-                type: TransactionType.INCOME,
-              },
-              id: "create-transaction-reference-call",
-            },
-          ],
-        }),
-      ],
+      criteria: referenceOutputs?.criteria,
     });
-  });
 
-  it("creates refund transaction", async () => {
+    expect(result.score).toBeGreaterThanOrEqual(0.9);
+  }
+
+  async function testNoTransactionCreated({ inputs }: { inputs: TestInputs }) {
     // Arrange
-    const account = fakeAccount({ userId, currency: "EUR" });
-    await accountRepository.create(account);
-    const category = fakeCategory({
-      userId,
-      type: "EXPENSE",
-      name: "shoes",
-    });
-    await categoryRepository.create(category);
+    await seedDatabase(inputs, userId);
 
     // Act
     const response = await agent.invoke(
-      { messages: [new HumanMessage("got a refund of 50 euro for shoes")] },
-      { context },
+      { messages: [new HumanMessage(inputs.message)] },
+      { context: { ...context, isVoiceInput: inputs.isVoiceInput } },
     );
+    ls.logOutputs({ answer: response.messages.at(-1)?.text });
 
     // Assert
-    const evaluator = createTrajectoryMatchEvaluator({
-      trajectoryMatchMode: "superset",
-      toolArgsMatchOverrides: {
-        [CREATE_TRANSACTION_TOOL_NAME]: [
-          "accountId",
-          "amount",
-          "categoryId",
-          "date",
-          "type",
+    const toolNames = response.messages
+      .filter(AIMessage.isInstance)
+      .flatMap((message) => message.tool_calls ?? [])
+      .map((toolCall) => toolCall.name);
+    expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+  }
+
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "creates expense transaction",
+    {
+      inputs: {
+        message: "bought apples for 10 euro",
+        accounts: [{ id: testId("default"), currency: "EUR" }],
+        categories: [
+          {
+            id: testId("groceries"),
+            type: "EXPENSE",
+            name: "groceries",
+          },
         ],
       },
-    });
-
-    await expect(evaluator).toEvaluateTrue({
-      outputs: response.messages,
-      referenceOutputs: [
-        new AIMessage({
-          tool_calls: [
-            {
-              name: CREATE_TRANSACTION_TOOL_NAME,
-              args: {
-                accountId: account.id,
-                amount: 50,
-                categoryId: category.id,
-                date: today,
-                type: TransactionType.REFUND,
-              },
-              id: "create-transaction-reference-call",
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: {
+              accountId: testId("default"),
+              amount: 10,
+              categoryId: testId("groceries"),
+              date: today,
+              type: TransactionType.EXPENSE,
             },
-          ],
-        }),
-      ],
-    });
-  });
-
-  it("fetches active accounts and active categories to create transaction", async () => {
-    // Arrange
-    const account = fakeAccount({ userId, currency: "EUR" });
-    await accountRepository.create(account);
-
-    // Act
-    const response = await agent.invoke(
-      { messages: [new HumanMessage("bought apples for 10 euro")] },
-      { context },
-    );
-
-    // Assert
-    const evaluator = createTrajectoryMatchEvaluator({
-      trajectoryMatchMode: "superset",
-      toolArgsMatchOverrides: {
-        [CREATE_TRANSACTION_TOOL_NAME]: [],
-        get_accounts: ["scope"],
-        get_categories: ["scope"],
+          },
+        ],
       },
-    });
+    },
+    testToolCalls,
+  );
 
-    await expect(evaluator).toEvaluateTrue({
-      outputs: response.messages,
-      referenceOutputs: [
-        new AIMessage({
-          tool_calls: [
-            {
-              name: "get_accounts",
-              args: { scope: "ACTIVE" },
-              id: "get-accounts-reference-call",
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "creates expense transaction by default",
+    {
+      inputs: {
+        // No explicit "bought" or "spent" verb
+        message: "apples 10 euro",
+        accounts: [{ currency: "EUR" }],
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { type: TransactionType.EXPENSE },
+          },
+        ],
+      },
+    },
+    testToolCalls,
+  );
+
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "creates income transaction",
+    {
+      inputs: {
+        message: "received salary of 1000 euro",
+        accounts: [{ id: testId("default"), currency: "EUR" }],
+        categories: [
+          {
+            id: testId("salary"),
+            type: "INCOME",
+            name: "salary",
+          },
+        ],
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: {
+              accountId: testId("default"),
+              amount: 1000,
+              categoryId: testId("salary"),
+              date: today,
+              type: TransactionType.INCOME,
             },
-            {
-              name: "get_categories",
-              args: { scope: "ACTIVE" },
-              id: "get-categories-reference-call",
+          },
+        ],
+      },
+    },
+    testToolCalls,
+  );
+
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "creates refund transaction",
+    {
+      inputs: {
+        message: "got a refund of 50 euro for shoes",
+        accounts: [{ id: testId("default"), currency: "EUR" }],
+        categories: [
+          {
+            id: testId("shoes"),
+            type: "EXPENSE",
+            name: "shoes",
+          },
+        ],
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: {
+              accountId: testId("default"),
+              amount: 50,
+              categoryId: testId("shoes"),
+              date: today,
+              type: TransactionType.REFUND,
             },
-            {
-              name: CREATE_TRANSACTION_TOOL_NAME,
-              args: {},
-              id: "create-transaction-reference-call",
-            },
-          ],
-        }),
-      ],
-    });
-  });
-
-  describe("account inference", () => {
-    it("selects account by currency", async () => {
-      // Arrange
-      const euroAccount = fakeAccount({ userId, currency: "EUR" });
-      await accountRepository.create(euroAccount);
-      const gbpAccount = fakeAccount({ userId, currency: "GBP" });
-      await accountRepository.create(gbpAccount);
-      const usdAccount = fakeAccount({ userId, currency: "USD" });
-      await accountRepository.create(usdAccount);
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("bought apples for 50 pounds")] },
-        { context },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: {
-          [CREATE_TRANSACTION_TOOL_NAME]: ["accountId"],
-        },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: {
-                  accountId: gbpAccount.id,
-                },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+          },
         ],
-      });
-    });
+      },
+    },
+    testToolCalls,
+  );
 
-    it("selects account by name", async () => {
-      // Arrange
-      const cardAccount = fakeAccount({
-        userId,
-        name: "My Visa",
-        currency: "EUR",
-      });
-      await accountRepository.create(cardAccount);
-      const cashAccount = fakeAccount({
-        userId,
-        name: "My Cash",
-        currency: "EUR",
-      });
-      await accountRepository.create(cashAccount);
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("bought apples for 50 in cash")] },
-        { context },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: {
-          [CREATE_TRANSACTION_TOOL_NAME]: ["accountId"],
-        },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: {
-                  accountId: cashAccount.id,
-                },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "fetches active accounts and active categories to create transaction",
+    {
+      inputs: {
+        message: "bought apples for 10 euro",
+        accounts: [{ currency: "EUR" }],
+      },
+      referenceOutputs: {
+        toolCalls: [
+          { name: "get_accounts", args: { scope: "ACTIVE" } },
+          { name: "get_categories", args: { scope: "ACTIVE" } },
+          { name: CREATE_TRANSACTION_TOOL_NAME, args: {} },
         ],
-      });
-    });
+      },
+    },
+    testToolCalls,
+  );
 
-    it("selects most used account for category", async () => {
-      // Arrange
-      const cash = fakeAccount({ userId, name: "cash", currency: "EUR" });
-      await accountRepository.create(cash);
-
-      const card = fakeAccount({ userId, name: "card", currency: "EUR" });
-      await accountRepository.create(card);
-
-      const groceries = fakeCategory({
-        userId,
-        type: "EXPENSE",
-        name: "groceries",
-      });
-      await categoryRepository.create(groceries);
-
-      const transport = fakeCategory({
-        userId,
-        type: "EXPENSE",
-        name: "transport",
-      });
-      await categoryRepository.create(transport);
-
-      // Create 3 groceries purchases using cash - weaker signal for groceries
-      for (let i = 0; i < 3; i++) {
-        await transactionRepository.create(
-          fakeExpense({
-            userId,
-            account: cash,
-            categoryId: groceries.id,
-            date: dateToDateString(
-              faker.date.recent({ days: { min: 1, max: 30 } }),
-            ),
-          }),
-        );
-      }
-      // Create 5 transport purchases using cash - noise, unrelated category
-      for (let i = 0; i < 5; i++) {
-        await transactionRepository.create(
-          fakeExpense({
-            userId,
-            account: cash,
-            categoryId: transport.id,
-            date: dateToDateString(
-              faker.date.recent({ days: { min: 1, max: 30 } }),
-            ),
-          }),
-        );
-      }
-      // Create 5 groceries purchases using card - stronger signal, expected account
-      for (let i = 0; i < 5; i++) {
-        await transactionRepository.create(
-          fakeExpense({
-            userId,
-            account: card,
-            categoryId: groceries.id,
-            date: dateToDateString(
-              faker.date.recent({ days: { min: 1, max: 30 } }),
-            ),
-          }),
-        );
-      }
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("bought apples for 50 euro")] },
-        { context },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: {
-          [CREATE_TRANSACTION_TOOL_NAME]: ["accountId"],
-        },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: {
-                  accountId: card.id,
-                },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "infers account by currency",
+    {
+      inputs: {
+        message: "bought apples for 50 pounds",
+        accounts: [
+          { currency: "EUR" },
+          { id: testId("gbp"), currency: "GBP" },
+          { currency: "USD" },
         ],
-      });
-    });
-
-    it("selects most used account overall", async () => {
-      // Arrange
-      const account1 = fakeAccount({ userId, currency: "EUR" });
-      await accountRepository.create(account1);
-      const account2 = fakeAccount({ userId, currency: "EUR" });
-      await accountRepository.create(account2);
-
-      // Create 3 purchases on account1
-      for (let i = 0; i < 3; i++) {
-        await transactionRepository.create(
-          fakeExpense({
-            userId,
-            account: account1,
-            amount: faker.number.int({ min: 10, max: 100 }),
-            date: dateToDateString(
-              faker.date.recent({ days: { min: 1, max: 30 } }),
-            ),
-          }),
-        );
-      }
-      // Create 5 purchases on account2
-      for (let i = 0; i < 5; i++) {
-        await transactionRepository.create(
-          fakeExpense({
-            userId,
-            account: account2,
-            amount: faker.number.int({ min: 10, max: 100 }),
-            date: dateToDateString(
-              faker.date.recent({ days: { min: 1, max: 30 } }),
-            ),
-          }),
-        );
-      }
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("bought apples for 50 euro")] },
-        { context },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: {
-          [CREATE_TRANSACTION_TOOL_NAME]: ["accountId"],
-        },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: {
-                  accountId: account2.id,
-                },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { accountId: testId("gbp") },
+          },
         ],
-      });
-    });
-  });
+      },
+    },
+    testToolCalls,
+  );
 
-  describe("category inference", () => {
-    it("selects category by name", async () => {
-      // Arrange
-      const account = fakeAccount({ userId, currency: "EUR" });
-      await accountRepository.create(account);
-
-      const groceries = fakeCategory({
-        userId,
-        type: "EXPENSE",
-        name: "groceries",
-      });
-      await categoryRepository.create(groceries);
-
-      await categoryRepository.create(
-        fakeCategory({
-          userId,
-          type: "EXPENSE",
-          name: "household",
-        }),
-      );
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("bought groceries for 10 euros")] },
-        { context },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: {
-          [CREATE_TRANSACTION_TOOL_NAME]: ["categoryId"],
-        },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: {
-                  categoryId: groceries.id,
-                },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "selects account by name",
+    {
+      inputs: {
+        message: "bought apples for 50 in cash",
+        accounts: [
+          { name: "My Visa", currency: "EUR" },
+          { id: testId("cash"), name: "My Cash", currency: "EUR" },
         ],
-      });
-    });
-
-    it("selects category by signal", async () => {
-      // Arrange
-      const account = fakeAccount({ userId, currency: "EUR" });
-      await accountRepository.create(account);
-
-      await categoryRepository.create(
-        fakeCategory({
-          userId,
-          type: "EXPENSE",
-          name: "groceries",
-        }),
-      );
-
-      const household = fakeCategory({
-        userId,
-        type: "EXPENSE",
-        name: "household",
-      });
-      await categoryRepository.create(household);
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("bought detergents for 10 euro")] },
-        { context },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: {
-          [CREATE_TRANSACTION_TOOL_NAME]: ["categoryId"],
-        },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: {
-                  categoryId: household.id,
-                },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { accountId: testId("cash") },
+          },
         ],
-      });
-    });
+      },
+    },
+    testToolCalls,
+  );
 
-    it("leaves category blank when no match", async () => {
-      // Arrange
-      const account = fakeAccount({ userId, currency: "EUR" });
-      await accountRepository.create(account);
-      await categoryRepository.create(
-        fakeCategory({
-          userId,
-          type: "EXPENSE",
-          name: "electronics",
-        }),
-      );
-      await categoryRepository.create(
-        fakeCategory({
-          userId,
-          type: "EXPENSE",
-          name: "household",
-        }),
-      );
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("bought apples for 10 euro")] },
-        { context },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: {
-          [CREATE_TRANSACTION_TOOL_NAME]: ["categoryId"],
-        },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: {
-                  categoryId: undefined,
-                },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "selects most used account for category",
+    {
+      inputs: {
+        message: "bought apples for 50 euro",
+        accounts: [
+          { id: testId("cash"), name: "cash", currency: "EUR" },
+          { id: testId("card"), name: "card", currency: "EUR" },
         ],
-      });
-    });
-  });
+        categories: [
+          { id: testId("groceries"), type: "EXPENSE", name: "groceries" },
+          { id: testId("transport"), type: "EXPENSE", name: "transport" },
+        ],
+        transactions: [
+          // 3 groceries purchases using cash - weaker signal for groceries
+          ...Array.from({ length: 3 }, (_, i) => ({
+            accountId: testId("cash"),
+            categoryId: testId("groceries"),
+            currency: "EUR",
+            date: daysAgo(i + 1, today),
+            description: undefined, // No description: random one can mislead agent
+          })),
+          // 5 transport purchases using cash - noise, unrelated category
+          ...Array.from({ length: 5 }, (_, i) => ({
+            accountId: testId("cash"),
+            categoryId: testId("transport"),
+            currency: "EUR",
+            date: daysAgo(i + 1, today),
+            description: undefined, // No description: random one can mislead agent
+          })),
+          // 5 groceries purchases using card - stronger signal, expected account
+          ...Array.from({ length: 5 }, (_, i) => ({
+            accountId: testId("card"),
+            categoryId: testId("groceries"),
+            currency: "EUR",
+            date: daysAgo(i + 1, today),
+            description: undefined, // No description: random one can mislead agent
+          })),
+        ],
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { accountId: testId("card") },
+          },
+        ],
+      },
+    },
+    testToolCalls,
+  );
 
-  describe("description inference", () => {
-    it("produces description that only lists purchased items", async () => {
-      // Arrange
-      await accountRepository.create(fakeAccount({ userId }));
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "selects most used account overall",
+    {
+      inputs: {
+        message: "bought apples for 50 euro",
+        accounts: [
+          { id: testId("account-a"), name: "account A", currency: "EUR" },
+          { id: testId("account-b"), name: "account B", currency: "EUR" },
+        ],
+        transactions: [
+          // 3 purchases using account A - weaker signal
+          ...Array.from({ length: 3 }, (_, i) => ({
+            accountId: testId("account-a"),
+            currency: "EUR",
+            date: daysAgo(i + 1, today),
+            description: undefined, // No description: random one can mislead agent
+          })),
+          // 5 purchases using account B - stronger signal, expected account
+          ...Array.from({ length: 5 }, (_, i) => ({
+            accountId: testId("account-b"),
+            currency: "EUR",
+            date: daysAgo(i + 1, today),
+            description: undefined, // No description: random one can mislead agent
+          })),
+        ],
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { accountId: testId("account-b") },
+          },
+        ],
+      },
+    },
+    testToolCalls,
+  );
 
-      // Act
-      const response = await agent.invoke(
-        {
-          messages: [
-            new HumanMessage(
-              "bought a used mountain bike and waterproof bike bags for 200",
-            ),
-          ],
-        },
-        { context },
-      );
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "selects category by name",
+    {
+      inputs: {
+        message: "bought groceries for 10 euros",
+        accounts: [{ currency: "EUR" }],
+        categories: [
+          { id: testId("groceries"), type: "EXPENSE", name: "groceries" },
+          { type: "EXPENSE", name: "household" },
+        ],
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { categoryId: testId("groceries") },
+          },
+        ],
+      },
+    },
+    testToolCalls,
+  );
 
-      // Assert
-      const evaluator = createTrajectoryLLMAsJudge({
-        continuous: true,
-        judge: model,
-        prompt: `Description must list only the purchased items
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "selects category by signal",
+    {
+      inputs: {
+        message: "bought detergents for 10 euro",
+        accounts: [{ currency: "EUR" }],
+        categories: [
+          { type: "EXPENSE", name: "groceries" },
+          { id: testId("household"), type: "EXPENSE", name: "household" },
+        ],
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { categoryId: testId("household") },
+          },
+        ],
+      },
+    },
+    testToolCalls,
+  );
+
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "leaves category blank when no match",
+    {
+      inputs: {
+        message: "bought apples for 10 euro",
+        accounts: [{ currency: "EUR" }],
+        categories: [
+          { type: "EXPENSE", name: "electronics" },
+          { type: "EXPENSE", name: "household" },
+        ],
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { categoryId: undefined },
+          },
+        ],
+      },
+    },
+    testToolCalls,
+  );
+
+  ls.test<TestInputs, TestReferenceCriteria>(
+    "produces description that only lists purchased items",
+    {
+      inputs: {
+        message:
+          "bought a used mountain bike and waterproof bike bags for 200 euro",
+        accounts: [{ currency: "EUR" }],
+      },
+      referenceOutputs: {
+        criteria: `Description must list only the purchased items
           (a used mountain bike, waterproof bike bags),
-          may contain conjunctions, and nothing else.
+          may contain conjunctions, and nothing else.`,
+      },
+    },
+    testWithJudge,
+  );
 
-          Grade the following trajectory:
-          <trajectory>{outputs}</trajectory>
-        `.trim(),
-      });
-
-      await expect(evaluator).toEvaluateAtLeast(
-        {
-          outputs: response.messages,
-        },
-        0.9,
-      );
-    });
-
-    it("skips description that equals category name", async () => {
-      // Arrange
-      await accountRepository.create(fakeAccount({ userId, currency: "EUR" }));
-      await categoryRepository.create(
-        fakeCategory({
-          userId,
-          type: "EXPENSE",
-          name: "groceries",
-        }),
-      );
-
-      // Act
-      const response = await agent.invoke(
-        {
-          messages: [new HumanMessage("purchased groceries for 50 euro")],
-        },
-        { context },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryLLMAsJudge({
-        continuous: true,
-        judge: model,
-        prompt: `Description must be empty
+  ls.test<TestInputs, TestReferenceCriteria>(
+    "skips description that equals category name",
+    {
+      inputs: {
+        message: "purchased groceries for 50 euro",
+        accounts: [{ currency: "EUR" }],
+        categories: [{ type: "EXPENSE", name: "groceries" }],
+      },
+      referenceOutputs: {
+        criteria: `Description must be empty
           because the purchased item "groceries"
           equals the category name.
 
-          "Description: N/A" in the agent's response means an empty description.
+          "Description: N/A" in the agent's response means an empty description.`,
+      },
+    },
+    testWithJudge,
+  );
 
-          Grade the following trajectory:
-          <trajectory>{outputs}</trajectory>
-        `.trim(),
-      });
+  ls.test<TestInputs, TestReferenceCriteria>(
+    "skips description that equals translated category name",
+    {
+      inputs: {
+        message: "Lebensmittel für 50 Euro gekauft",
+        accounts: [{ currency: "EUR" }],
+        categories: [{ type: "EXPENSE", name: "groceries" }],
+      },
+      referenceOutputs: {
+        criteria: `Description must be empty
+          because the purchased item "Lebensmittel"
+          is the German translation of the category name "groceries".
 
-      await expect(evaluator).toEvaluateAtLeast(
-        {
-          outputs: response.messages,
-        },
-        0.9,
-      );
-    });
+          "Description: N/A" in the agent's response means an empty description.`,
+      },
+    },
+    testWithJudge,
+  );
 
-    it("skips description that equals translated category name", async () => {
-      // Arrange
-      await accountRepository.create(fakeAccount({ userId, currency: "EUR" }));
-      await categoryRepository.create(
-        fakeCategory({
-          userId,
-          type: "EXPENSE",
-          name: "groceries",
-        }),
-      );
-
-      // Act
-      const response = await agent.invoke(
-        {
-          messages: [new HumanMessage("Lebensmittel für 50 Euro gekauft")],
-        },
-        { context },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryLLMAsJudge({
-        continuous: true,
-        judge: model,
-        prompt: `Description must be empty
-          because the purchased item "groceries"
-          equals the category name translated into German.
-
-          "Description: N/A" in the agent's response means an empty description.
-
-          Grade the following trajectory:
-          <trajectory>{outputs}</trajectory>
-        `.trim(),
-      });
-
-      await expect(evaluator).toEvaluateAtLeast(
-        {
-          outputs: response.messages,
-        },
-        0.9,
-      );
-    });
-  });
-
-  describe("when amount is suspiciously high", () => {
-    it("does not correct amount under voice input when no similar history exists", async () => {
-      // Arrange
-      await accountRepository.create(fakeAccount({ userId }));
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("sandwich 987")] },
-        { context: { ...context, isVoiceInput: true } },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: { amount: 987 },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "keeps suspiciously high amount from voice input without price history",
+    {
+      inputs: {
+        message: "sandwich 987",
+        accounts: [{ currency: "EUR" }],
+        isVoiceInput: true,
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { amount: 987 },
+          },
         ],
-      });
-    });
+      },
+    },
+    testToolCalls,
+  );
 
-    it("corrects amount under voice input when history suggests smaller price", async () => {
-      // Arrange
-      const account = fakeAccount({ userId });
-      await accountRepository.create(account);
-      const food = fakeCategory({
-        userId,
-        type: "EXPENSE",
-        name: "food",
-      });
-      await categoryRepository.create(food);
-      // Create 3 prior "food" expenses around 5–15 EUR
-      for (let i = 0; i < 3; i++) {
-        await transactionRepository.create(
-          fakeExpense({
-            userId,
-            account,
-            categoryId: food.id,
-            amount: faker.number.int({ min: 5, max: 15 }),
-            description: undefined,
-          }),
-        );
-      }
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("sandwich 987")] },
-        { context: { ...context, isVoiceInput: true } },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: { amount: 9.87 },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "corrects suspiciously high amount from voice input using price history",
+    {
+      inputs: {
+        message: "sandwich 987",
+        accounts: [{ id: testId("default"), currency: "EUR" }],
+        categories: [{ id: testId("food"), type: "EXPENSE", name: "food" }],
+        // Create 3 prior "food" expenses around 5–15 EUR
+        transactions: [
+          {
+            accountId: testId("default"),
+            categoryId: testId("food"),
+            amount: 10,
+            currency: "EUR",
+            date: daysAgo(3, today),
+            description: "bread",
+          },
+          {
+            accountId: testId("default"),
+            categoryId: testId("food"),
+            amount: 7,
+            currency: "EUR",
+            date: daysAgo(2, today),
+            description: "milk",
+          },
+          {
+            accountId: testId("default"),
+            categoryId: testId("food"),
+            amount: 10,
+            currency: "EUR",
+            date: daysAgo(1, today),
+            description: "meat",
+          },
         ],
-      });
-    });
-
-    it("does not correct amount under keyboard input when history suggests smaller price", async () => {
-      // Arrange
-      const account = fakeAccount({ userId });
-      await accountRepository.create(account);
-      const food = fakeCategory({
-        userId,
-        type: "EXPENSE",
-        name: "food",
-      });
-      await categoryRepository.create(food);
-      // Create 3 prior "food" expenses around 5–15 EUR
-      for (let i = 0; i < 3; i++) {
-        await transactionRepository.create(
-          fakeExpense({
-            userId,
-            account,
-            categoryId: food.id,
-            amount: faker.number.int({ min: 5, max: 15 }),
-            description: undefined,
-          }),
-        );
-      }
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("sandwich 987")] },
-        { context: { ...context, isVoiceInput: false } },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: { amount: 987 },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+        isVoiceInput: true,
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { amount: 9.87 },
+          },
         ],
-      });
-    });
-  });
+      },
+    },
+    testToolCalls,
+  );
 
-  describe("when message contains HH:MM", () => {
-    it("treats bare HH:MM as price under voice input", async () => {
-      // Arrange
-      await accountRepository.create(fakeAccount({ userId }));
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("11:23")] },
-        { context: { ...context, isVoiceInput: true } },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: { amount: 11.23 },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "keeps suspiciously high amount from keyboard input despite price history",
+    {
+      inputs: {
+        message: "sandwich 987",
+        accounts: [{ id: testId("default"), currency: "EUR" }],
+        categories: [{ id: testId("food"), type: "EXPENSE", name: "food" }],
+        // Create 3 prior "food" expenses around 5–15 EUR
+        transactions: [
+          {
+            accountId: testId("default"),
+            categoryId: testId("food"),
+            amount: 10,
+            currency: "EUR",
+            date: daysAgo(3, today),
+            description: "bread",
+          },
+          {
+            accountId: testId("default"),
+            categoryId: testId("food"),
+            amount: 7,
+            currency: "EUR",
+            date: daysAgo(2, today),
+            description: "milk",
+          },
+          {
+            accountId: testId("default"),
+            categoryId: testId("food"),
+            amount: 10,
+            currency: "EUR",
+            date: daysAgo(1, today),
+            description: "meat",
+          },
         ],
-      });
-    });
-
-    it("treats HH:MM in mixed text as price under voice input", async () => {
-      // Arrange
-      await accountRepository.create(fakeAccount({ userId }));
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("groceries 7:50")] },
-        { context: { ...context, isVoiceInput: true } },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: { amount: 7.5 },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+        isVoiceInput: false,
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { amount: 987 },
+          },
         ],
-      });
-    });
+      },
+    },
+    testToolCalls,
+  );
 
-    it("treats HH:MM as price when preposition refers to place", async () => {
-      // Arrange
-      await accountRepository.create(fakeAccount({ userId }));
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("lunch 11:23 at cafe")] },
-        { context: { ...context, isVoiceInput: true } },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: { amount: 11.23 },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "parses bare HH:MM as amount under voice input",
+    {
+      inputs: {
+        message: "11:23",
+        accounts: [{ currency: "EUR" }],
+        isVoiceInput: true,
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { amount: 11.23 },
+          },
         ],
-      });
-    });
+      },
+    },
+    testToolCalls,
+  );
 
-    it("prefers explicit numeric over HH:MM", async () => {
-      // Arrange
-      await accountRepository.create(fakeAccount({ userId }));
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("transferred 100 at 15:30")] },
-        { context: { ...context, isVoiceInput: true } },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: { amount: 100 },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "parses HH:MM in mixed text as amount under voice input",
+    {
+      inputs: {
+        message: "groceries 7:50",
+        accounts: [{ currency: "EUR" }],
+        isVoiceInput: true,
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { amount: 7.5 },
+          },
         ],
-      });
-    });
+      },
+    },
+    testToolCalls,
+  );
 
-    it("does not create transaction when HH:MM string is clock time", async () => {
-      // Arrange
-      await accountRepository.create(fakeAccount({ userId }));
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("I brought coffee at 12:34")] },
-        { context: { ...context, isVoiceInput: true } },
-      );
-
-      // Assert
-      const toolNames = response.messages
-        .filter(AIMessage.isInstance)
-        .flatMap((message) => message.tool_calls ?? [])
-        .map((toolCall) => toolCall.name);
-      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
-    });
-
-    it("does not create transaction for bare HH:MM under keyboard input", async () => {
-      // Arrange
-      await accountRepository.create(fakeAccount({ userId }));
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("11:23")] },
-        { context },
-      );
-
-      // Assert
-      const toolNames = response.messages
-        .filter(AIMessage.isInstance)
-        .flatMap((message) => message.tool_calls ?? [])
-        .map((toolCall) => toolCall.name);
-      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
-    });
-  });
-
-  describe("when message contains NN NN integer pair", () => {
-    it("recognizes NN NN as decimal amount under voice input", async () => {
-      // Arrange
-      await accountRepository.create(fakeAccount({ userId }));
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("apples, bananas 12 54")] },
-        { context: { ...context, isVoiceInput: true } },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: { amount: 12.54 },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "parses HH:MM as amount when preposition refers to place under voice input",
+    {
+      inputs: {
+        message: "lunch 11:23 at cafe",
+        accounts: [{ currency: "EUR" }],
+        isVoiceInput: true,
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { amount: 11.23 },
+          },
         ],
-      });
-    });
+      },
+    },
+    testToolCalls,
+  );
 
-    it("recognizes NN N as decimal amount with leading zero under voice input", async () => {
-      // Arrange
-      await accountRepository.create(fakeAccount({ userId }));
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("coffee 12 5")] },
-        { context: { ...context, isVoiceInput: true } },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: { amount: 12.05 },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "prefers explicit amount over HH:MM under voice input",
+    {
+      inputs: {
+        message: "transferred 100 at 15:30",
+        accounts: [{ currency: "EUR" }],
+        isVoiceInput: true,
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { amount: 100 },
+          },
         ],
-      });
-    });
+      },
+    },
+    testToolCalls,
+  );
 
-    it("does not create transaction under keyboard input", async () => {
-      // Arrange
-      await accountRepository.create(fakeAccount({ userId }));
+  ls.test<TestInputs>(
+    "does not create transaction when HH:MM is clock time under voice input",
+    {
+      inputs: {
+        message: "I brought coffee at 12:34",
+        accounts: [{ currency: "EUR" }],
+        isVoiceInput: true,
+      },
+    },
+    testNoTransactionCreated,
+  );
 
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("apples, bananas 12 54")] },
-        { context: { ...context, isVoiceInput: false } },
-      );
+  ls.test<TestInputs>(
+    "does not create transaction for bare HH:MM under keyboard input",
+    {
+      inputs: {
+        message: "11:23",
+        accounts: [{ currency: "EUR" }],
+        isVoiceInput: false,
+      },
+    },
+    testNoTransactionCreated,
+  );
 
-      // Assert
-      const toolNames = response.messages
-        .filter(AIMessage.isInstance)
-        .flatMap((message) => message.tool_calls ?? [])
-        .map((toolCall) => toolCall.name);
-      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
-    });
-  });
-
-  describe("when amount is not given", () => {
-    it("creates transaction from recurring matches with same amount", async () => {
-      // Arrange
-      const account = fakeAccount({ userId, currency: "EUR" });
-      await accountRepository.create(account);
-
-      const category = fakeCategory({
-        userId,
-        type: "EXPENSE",
-      });
-      await categoryRepository.create(category);
-
-      // Seed recurring history — same description and amount, recorded monthly
-      const todayPlainDate = Temporal.Now.plainDateISO();
-      const recurringAmount = 50;
-      const recurringDescription = "gym abo";
-      for (const days of [10, 40, 70, 100]) {
-        await transactionRepository.create(
-          fakeExpense({
-            userId,
-            account,
-            categoryId: category.id,
-            amount: recurringAmount,
-            description: recurringDescription,
-            date: toDateString(todayPlainDate.subtract({ days }).toString()),
-          }),
-        );
-      }
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("gym")] },
-        { context },
-      );
-
-      // Assert
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: {
-          [CREATE_TRANSACTION_TOOL_NAME]: [
-            "accountId",
-            "categoryId",
-            "amount",
-            "date",
-            "type",
-            "description",
-          ],
-        },
-      });
-
-      await expect(evaluator).toEvaluateTrue({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: [
-              {
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: {
-                  accountId: account.id,
-                  categoryId: category.id,
-                  amount: recurringAmount,
-                  date: today,
-                  type: TransactionType.EXPENSE,
-                  description: recurringDescription,
-                },
-                id: "create-transaction-reference-call",
-              },
-            ],
-          }),
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "parses NN NN as amount under voice input",
+    {
+      inputs: {
+        message: "apples, bananas 12 54",
+        accounts: [{ currency: "EUR" }],
+        isVoiceInput: true,
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { amount: 12.54 },
+          },
         ],
-      });
-    });
+      },
+    },
+    testToolCalls,
+  );
 
-    it("does not create transaction from varying-amount recurring matches", async () => {
-      // Arrange
-      const account = fakeAccount({ userId, currency: "EUR" });
-      await accountRepository.create(account);
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "parses NN N as amount with leading zero under voice input",
+    {
+      inputs: {
+        message: "coffee 12 5",
+        accounts: [{ currency: "EUR" }],
+        isVoiceInput: true,
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: { amount: 12.05 },
+          },
+        ],
+      },
+    },
+    testToolCalls,
+  );
 
-      const category = fakeCategory({
-        userId,
-        type: "EXPENSE",
-      });
-      await categoryRepository.create(category);
+  ls.test<TestInputs>(
+    "does not create transaction for NN NN under keyboard input",
+    {
+      inputs: {
+        message: "apples, bananas 12 54",
+        accounts: [{ currency: "EUR" }],
+        isVoiceInput: false,
+      },
+    },
+    testNoTransactionCreated,
+  );
 
-      // Seed recurring history that disagrees on amount
-      const todayPlainDate = Temporal.Now.plainDateISO();
-      const recurringDescription = "gym abo";
-      for (const [days, amount] of [
-        [10, 20],
-        [40, 35],
-        [70, 47],
-      ] as const) {
-        await transactionRepository.create(
-          fakeExpense({
-            userId,
-            account,
-            categoryId: category.id,
-            amount,
-            description: recurringDescription,
-            date: toDateString(todayPlainDate.subtract({ days }).toString()),
-          }),
-        );
-      }
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("gym")] },
-        { context },
-      );
-
-      // Assert
-      const toolNames = response.messages
-        .filter(AIMessage.isInstance)
-        .flatMap((message) => message.tool_calls ?? [])
-        .map((toolCall) => toolCall.name);
-      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
-    });
-
-    it("does not create transaction from single prior match", async () => {
-      // Arrange
-      const account = fakeAccount({ userId, currency: "EUR" });
-      await accountRepository.create(account);
-
-      const category = fakeCategory({
-        userId,
-        type: "EXPENSE",
-      });
-      await categoryRepository.create(category);
-
-      // Seed exactly one prior "gym abo" transaction — not a recurring pattern
-      const todayPlainDate = Temporal.Now.plainDateISO();
-      await transactionRepository.create(
-        fakeExpense({
-          userId,
-          account,
-          categoryId: category.id,
+  ls.test<TestInputs, TestReferenceToolCalls>(
+    "creates transaction from same-amount recurring matches",
+    {
+      inputs: {
+        message: "gym",
+        accounts: [{ id: testId("default"), currency: "EUR" }],
+        categories: [{ id: testId("sport"), type: "EXPENSE" }],
+        // Same description and amount, recorded monthly
+        transactions: [10, 40, 70, 100].map((days) => ({
+          accountId: testId("default"),
+          categoryId: testId("sport"),
           amount: 50,
+          currency: "EUR",
+          date: daysAgo(days, today),
           description: "gym abo",
-          date: toDateString(todayPlainDate.subtract({ days: 15 }).toString()),
-        }),
-      );
+        })),
+      },
+      referenceOutputs: {
+        toolCalls: [
+          {
+            name: CREATE_TRANSACTION_TOOL_NAME,
+            args: {
+              accountId: testId("default"),
+              categoryId: testId("sport"),
+              amount: 50,
+              date: today,
+              type: TransactionType.EXPENSE,
+              description: "gym abo",
+            },
+          },
+        ],
+      },
+    },
+    testToolCalls,
+  );
 
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("gym")] },
-        { context },
-      );
+  ls.test<TestInputs>(
+    "does not create transaction from varying-amount recurring matches",
+    {
+      inputs: {
+        message: "gym",
+        accounts: [{ id: testId("default"), currency: "EUR" }],
+        categories: [{ id: testId("sport"), type: "EXPENSE" }],
+        // Same description, different amounts
+        transactions: [
+          {
+            accountId: testId("default"),
+            categoryId: testId("sport"),
+            amount: 20,
+            currency: "EUR",
+            date: daysAgo(10, today),
+            description: "gym abo",
+          },
+          {
+            accountId: testId("default"),
+            categoryId: testId("sport"),
+            amount: 35,
+            currency: "EUR",
+            date: daysAgo(40, today),
+            description: "gym abo",
+          },
+          {
+            accountId: testId("default"),
+            categoryId: testId("sport"),
+            amount: 47,
+            currency: "EUR",
+            date: daysAgo(70, today),
+            description: "gym abo",
+          },
+        ],
+      },
+    },
+    testNoTransactionCreated,
+  );
 
-      // Assert
-      const toolNames = response.messages
-        .filter(AIMessage.isInstance)
-        .flatMap((message) => message.tool_calls ?? [])
-        .map((toolCall) => toolCall.name);
-      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
-    });
+  ls.test<TestInputs>(
+    "does not create transaction from single prior match",
+    {
+      inputs: {
+        message: "gym",
+        accounts: [{ id: testId("default"), currency: "EUR" }],
+        categories: [{ id: testId("sport"), type: "EXPENSE" }],
+        // One prior match is not recurring pattern
+        transactions: [
+          {
+            accountId: testId("default"),
+            categoryId: testId("sport"),
+            amount: 50,
+            currency: "EUR",
+            date: daysAgo(15, today),
+            description: "gym abo",
+          },
+        ],
+      },
+    },
+    testNoTransactionCreated,
+  );
 
-    it("does not create transaction when no prior matches exist", async () => {
-      // Arrange
-      const account = fakeAccount({ userId, currency: "EUR" });
-      await accountRepository.create(account);
-
-      const category = fakeCategory({
-        userId,
-        type: "EXPENSE",
-      });
-      await categoryRepository.create(category);
-
-      // Seed unrelated history — no transaction described "gym"
-      const todayPlainDate = Temporal.Now.plainDateISO();
-      await transactionRepository.create(
-        fakeExpense({
-          userId,
-          account,
-          categoryId: category.id,
-          amount: 50,
-          date: toDateString(todayPlainDate.subtract({ days: 20 }).toString()),
-        }),
-      );
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage("gym")] },
-        { context },
-      );
-
-      // Assert
-      const toolNames = response.messages
-        .filter(AIMessage.isInstance)
-        .flatMap((message) => message.tool_calls ?? [])
-        .map((toolCall) => toolCall.name);
-      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
-    });
-  });
+  ls.test<TestInputs>(
+    "does not create transaction without prior matches",
+    {
+      inputs: {
+        message: "gym",
+        accounts: [{ id: testId("default"), currency: "EUR" }],
+        categories: [{ id: testId("food"), type: "EXPENSE", name: "food" }],
+        // Unrelated history, no "gym" description
+        transactions: [
+          {
+            accountId: testId("default"),
+            categoryId: testId("food"),
+            amount: 50,
+            currency: "EUR",
+            date: daysAgo(20, today),
+            description: "bread",
+          },
+        ],
+      },
+    },
+    testNoTransactionCreated,
+  );
 });
+
+// Generates stable UUID from readable name, e.g. testId("groceries").
+// Schemas require UUID, and stable IDs keep LangSmith example IDs stable.
+// UUID v5 hashes name + fixed UUID below, so same name always gives same UUID.
+// Do not change fixed UUID: all IDs and dataset examples will change.
+function testId(name: string) {
+  return uuidv5(name, "fc0c6d23-9478-4607-a85c-2b32b5b6d8c8");
+}
+
+// Returns date that is given number of days before today
+function daysAgo(days: number, today: DateString) {
+  return toDateString(
+    Temporal.PlainDate.from(today).subtract({ days }).toString(),
+  );
+}
+
+// Creates accounts, categories and transactions for given user.
+async function seedDatabase(
+  { accounts, categories = [], transactions = [] }: TestInputs,
+  userId: string,
+) {
+  for (const accountData of accounts) {
+    await resolveAccountRepository().create(
+      fakeAccount({ ...accountData, userId }),
+    );
+  }
+
+  for (const categoryData of categories) {
+    await resolveCategoryRepository().create(
+      fakeCategory({ ...categoryData, userId }),
+    );
+  }
+
+  for (const transactionData of transactions) {
+    await resolveTransactionRepository().create(
+      fakeTransaction({ ...transactionData, userId }),
+    );
+  }
+}

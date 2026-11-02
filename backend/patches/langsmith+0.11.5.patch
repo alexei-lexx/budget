@@ -1,0 +1,12 @@
+diff --git a/node_modules/langsmith/lib/vitest/reporter.mjs b/node_modules/langsmith/lib/vitest/reporter.mjs
+index fadcc1b..2c85ce4 100644
+--- a/node_modules/langsmith/lib/vitest/reporter.mjs
++++ b/node_modules/langsmith/lib/vitest/reporter.mjs
+@@ -1,6 +1,6 @@
+ // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+ // @ts-ignore Import throws an error in internal CJS build, but seems to work fine after build
+-import { DefaultReporter } from "vitest/reporters";
++import { DefaultReporter } from "vitest/node";
+ import { printVitestReporterTable, printVitestTestModulesReporterTable, } from "./utils/reporter.mjs";
+ class LangSmithEvalReporter extends DefaultReporter {
+     constructor() {
