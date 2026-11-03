@@ -1,4 +1,5 @@
 import { APIGatewayProxyEventV2, Context } from "aws-lambda";
+import { resolveLogger } from "../dependencies";
 import { createSingleton } from "../utils/dependency-injection";
 import { injectRuntimeEnv } from "./bootstrap";
 import { apolloHandler } from "./web-handlers/apollo-handler";
@@ -7,6 +8,17 @@ import { telegramWebhookHandler } from "./web-handlers/telegram-webhook-handler"
 
 // Handler runs per invocation; cache so warm-start invocations skip the SSM fetch.
 const ensureRuntimeEnv = createSingleton(() => injectRuntimeEnv(process.env));
+
+// Node exits without an error when the event loop is empty
+// and a pending promise has nothing left to settle it.
+// Lambda then reports Runtime.ExitError with no logs.
+// Log the exit and the remaining resources to find the cause.
+process.on("beforeExit", (code) => {
+  resolveLogger().error("Process is about to exit", {
+    code,
+    activeResources: process.getActiveResourcesInfo(),
+  });
+});
 
 export const handler = async (
   event: APIGatewayProxyEventV2,
