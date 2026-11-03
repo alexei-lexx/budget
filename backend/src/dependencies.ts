@@ -1,5 +1,6 @@
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import * as aws from "@langchain/aws";
+import * as openai from "@langchain/openai";
 import { initChatModel } from "langchain";
 import { registerProviderForBundling } from "langchain/chat_models/universal";
 import { JwtAuthService } from "./auth/jwt-auth";
@@ -55,6 +56,7 @@ import {
 } from "./utils/require-env";
 
 registerProviderForBundling("bedrock", aws);
+registerProviderForBundling("openai", openai);
 
 // Logging
 export const resolveLogger = createSingleton(() => new ConsoleLogger());
@@ -221,21 +223,43 @@ const resolveTelegramApiClient = createSingleton(
 );
 
 // AI infrastructure
-export const createChatModel = async () =>
-  await initChatModel(
-    requireEnv("LANGCHAIN_MODEL_ID", DEFAULT_LANGCHAIN_MODEL_ID),
-    {
-      maxTokens: requireIntEnv(
-        "LANGCHAIN_MAX_TOKENS",
-        DEFAULT_LANGCHAIN_MAX_TOKENS,
-      ),
-      temperature: requireFloatEnv(
-        "LANGCHAIN_TEMPERATURE",
-        DEFAULT_LANGCHAIN_TEMPERATURE,
-      ),
-      timeout: requireIntEnv("LANGCHAIN_TIMEOUT", DEFAULT_LANGCHAIN_TIMEOUT),
-    },
+export const createChatModel = async (
+  modelId = requireEnv("LANGCHAIN_MODEL_ID", DEFAULT_LANGCHAIN_MODEL_ID),
+) => {
+  const maxTokens = requireIntEnv(
+    "LANGCHAIN_MAX_TOKENS",
+    DEFAULT_LANGCHAIN_MAX_TOKENS,
   );
+  const timeoutSeconds = requireIntEnv(
+    "LANGCHAIN_TIMEOUT",
+    DEFAULT_LANGCHAIN_TIMEOUT,
+  );
+
+  // OpenAI models need different options:
+  // - Reasoning models reject temperature, so LANGCHAIN_TEMPERATURE is ignored
+  // - ChatOpenAI reads timeout in milliseconds, not seconds
+  // - Only the Responses API allows tool calls with reasoning
+  // - zdrEnabled sends store: false, so OpenAI does not store user data
+  // - Encrypted reasoning keeps the reasoning between agent steps
+  const options = modelId.startsWith("openai:")
+    ? {
+        maxTokens,
+        timeout: timeoutSeconds * 1000,
+        useResponsesApi: true,
+        zdrEnabled: true,
+        modelKwargs: { include: ["reasoning.encrypted_content"] },
+      }
+    : {
+        maxTokens,
+        temperature: requireFloatEnv(
+          "LANGCHAIN_TEMPERATURE",
+          DEFAULT_LANGCHAIN_TEMPERATURE,
+        ),
+        timeout: timeoutSeconds,
+      };
+
+  return await initChatModel(modelId, options);
+};
 
 const resolveChatModel = createAsyncSingleton(() => createChatModel());
 

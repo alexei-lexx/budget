@@ -28,6 +28,10 @@ const defaultSsmEnvBindings: SsmEnvBindingsFactory = (nodeEnv) => [
     envVar: "LANGCHAIN_TIMEOUT",
   },
   {
+    ssmPath: `/manual/budget/${nodeEnv}/openai/api-key`,
+    envVar: "OPENAI_API_KEY",
+  },
+  {
     ssmPath: `/manual/budget/${nodeEnv}/app/chat-history-max-messages`,
     envVar: "CHAT_HISTORY_MAX_MESSAGES",
   },
