@@ -134,17 +134,22 @@ aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/langchain/max-tokens" \
     --value "2000"
 
-# AI model ID (e.g., openai.gpt-oss-120b-1:0)
+# AI model ID in <provider>:<model> format (see AI Model Provider)
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/langchain/model-id" \
-    --value "openai.gpt-oss-120b-1:0"
+    --value "bedrock:openai.gpt-oss-120b-1:0"
+
+# OpenAI API key (required only for openai:* models)
+aws ssm put-parameter --overwrite --type SecureString \
+    --name "/manual/budget/production/openai/api-key" \
+    --value "<your-openai-api-key>"
 
 # AI request timeout (in seconds)
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/langchain/timeout" \
     --value "30"
 
-# AI sampling temperature
+# AI sampling temperature (OpenAI models ignore it)
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/langchain/temperature" \
     --value "0.2"
@@ -181,6 +186,27 @@ aws ssm put-parameter --overwrite --type String \
 ```
 
 To override configuration for a specific environment, replace `production` in the parameter names with your target environment (e.g., `/manual/budget/staging/auth/domain-prefix`).
+
+### AI Model Provider
+
+The AI agents use [Amazon Bedrock](https://aws.amazon.com/bedrock/) by default.
+They can also use [OpenAI](https://platform.openai.com/) models.
+
+The model ID has the `<provider>:<model>` format:
+
+| Provider | Example model ID                  |
+| -------- | --------------------------------- |
+| Bedrock  | `bedrock:openai.gpt-oss-120b-1:0` |
+| OpenAI   | `openai:gpt-6-luna`               |
+
+To use an OpenAI model:
+
+1. Create an API key in the [OpenAI dashboard](https://platform.openai.com/api-keys)
+2. Store the key in the `/manual/budget/<env>/openai/api-key` parameter
+3. Set the `/manual/budget/<env>/langchain/model-id` parameter to the OpenAI model ID
+4. Wait for the next Lambda cold start, or redeploy
+
+For local development, set `OPENAI_API_KEY` and `LANGCHAIN_MODEL_ID` in `backend/.env`.
 
 ## Custom Domain Setup
 
