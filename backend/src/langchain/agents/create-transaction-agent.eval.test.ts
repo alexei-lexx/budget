@@ -787,7 +787,7 @@ ls.describe(
       "prefers explicit amount over HH:MM under voice input",
       {
         inputs: {
-          message: "transferred 100 at 15:30",
+          message: "paid 100 at 15:30",
           accounts: [{ currency: "EUR" }],
           isVoiceInput: true,
         },
