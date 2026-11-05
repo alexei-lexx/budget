@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import {
   createTrajectoryLLMAsJudge,
   createTrajectoryMatchEvaluator,
@@ -96,6 +97,8 @@ ls.describe(
         categoryService,
         transactionService,
         logger,
+        // Keep this run out of prompt cache of other runs
+        testOnlyPromptCacheIsolationPrefix: `Request ID: ${randomUUID()}`,
       });
     });
 
