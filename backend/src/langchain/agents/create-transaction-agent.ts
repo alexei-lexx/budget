@@ -168,6 +168,7 @@ export function createCreateTransactionAgent({
   logger,
   transactionRepository,
   transactionService,
+  testOnlyPromptCacheIsolationPrefix,
 }: {
   model: BaseChatModel;
   accountService: AccountService;
@@ -175,6 +176,10 @@ export function createCreateTransactionAgent({
   logger: Logger;
   transactionRepository: TransactionRepository;
   transactionService: TransactionService;
+  // Text at the very start of the system prompt.
+  // For tests only: evals set a unique value
+  // to isolate the provider prompt cache.
+  testOnlyPromptCacheIsolationPrefix?: string;
 }) {
   const tools = [
     createGetAccountsTool(accountService),
@@ -195,7 +200,9 @@ export function createCreateTransactionAgent({
           TODAY: today,
           VOICE_INPUT_SUBPROMPT: isVoiceInput ? VOICE_INPUT_SUBPROMPT : "",
         });
-        return prompt;
+        return testOnlyPromptCacheIsolationPrefix === undefined
+          ? prompt
+          : `${testOnlyPromptCacheIsolationPrefix}\n\n${prompt}`;
       }),
       // Prevent creating more than one transaction per invocation
       toolCallLimitMiddleware({

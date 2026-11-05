@@ -18,6 +18,7 @@ import {
 } from "./create-transaction-agent";
 
 describe("createCreateTransactionAgent", () => {
+  let deps: Parameters<typeof createCreateTransactionAgent>[0];
   let agent: ReturnType<typeof createCreateTransactionAgent>;
   let mockModel: ReturnType<typeof fakeModel>;
   let mockTransactionService: Mocked<TransactionService>;
@@ -35,14 +36,16 @@ describe("createCreateTransactionAgent", () => {
     mockModel = fakeModel();
     mockTransactionService = createMockTransactionService();
 
-    agent = createCreateTransactionAgent({
+    deps = {
       model: mockModel,
       accountService: createMockAccountService(),
       categoryService: createMockCategoryService(),
       logger: createMockLogger(),
       transactionRepository: createMockTransactionRepository(),
       transactionService: mockTransactionService,
-    });
+    };
+
+    agent = createCreateTransactionAgent(deps);
   });
 
   // Happy path
@@ -150,6 +153,38 @@ describe("createCreateTransactionAgent", () => {
     // Assert
     expect(mockModel.calls[0]?.messages[0]?.content).toContain(
       VOICE_INPUT_SUBPROMPT,
+    );
+  });
+
+  it("does not prefix system prompt when testOnlyPromptCacheIsolationPrefix is not set", async () => {
+    // Arrange
+
+    // Model emits final text without tool calls
+    mockModel.respond(new AIMessage("OK"));
+
+    // Act
+    await agent.invoke({ messages }, { context: baseContext });
+
+    // Assert
+    expect(mockModel.calls[0]?.messages[0]?.content).toMatch(/^## Role/);
+  });
+
+  it("starts system prompt with testOnlyPromptCacheIsolationPrefix", async () => {
+    // Arrange
+    const agentWithPrefix = createCreateTransactionAgent({
+      ...deps,
+      testOnlyPromptCacheIsolationPrefix: "Prefix",
+    });
+
+    // Model emits final text without tool calls
+    mockModel.respond(new AIMessage("OK"));
+
+    // Act
+    await agentWithPrefix.invoke({ messages }, { context: baseContext });
+
+    // Assert
+    expect(mockModel.calls[0]?.messages[0]?.content).toMatch(
+      /^Prefix\n\n## Role/,
     );
   });
 
