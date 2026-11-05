@@ -807,7 +807,7 @@ ls.describe(
       "does not create transaction when HH:MM is clock time under voice input",
       {
         inputs: {
-          message: "I brought coffee at 12:34",
+          message: "I bought coffee at 12:34",
           accounts: [{ currency: "EUR" }],
           isVoiceInput: true,
         },
