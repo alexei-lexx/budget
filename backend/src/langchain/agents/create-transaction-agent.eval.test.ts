@@ -63,6 +63,10 @@ const judgeModelId = requireEnv(
   DEFAULT_LANGCHAIN_MODEL_ID,
 );
 
+// Optional, LangSmith gives a random name when not set.
+// The name must be unique for each run.
+const experimentName = process.env["LANGSMITH_EXPERIMENT_NAME"];
+
 ls.describe(
   "CreateTransactionAgent",
   () => {
@@ -996,7 +1000,10 @@ ls.describe(
       testNoTransactionCreated,
     );
   },
-  { metadata: { agentModelId, judgeModelId } },
+  {
+    ...(experimentName && { projectName: experimentName }),
+    metadata: { agentModelId, judgeModelId },
+  },
 );
 
 // Generates stable UUID from readable name, e.g. testId("groceries").
