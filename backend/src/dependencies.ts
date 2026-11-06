@@ -241,12 +241,14 @@ export const createChatModel = async (
   // - Only the Responses API allows tool calls with reasoning
   // - zdrEnabled sends store: false, so OpenAI does not store user data
   // - Encrypted reasoning keeps the reasoning between agent steps
+  // - Reasoning summary makes the reasoning readable in traces
   const options = modelId.startsWith("openai:")
     ? {
         maxTokens,
         timeout: timeoutSeconds * 1000,
         useResponsesApi: true,
         zdrEnabled: true,
+        reasoning: { summary: "auto" },
         modelKwargs: { include: ["reasoning.encrypted_content"] },
       }
     : {

@@ -457,19 +457,25 @@ ls.describe(
             { id: testId("account-a"), name: "account A", currency: "EUR" },
             { id: testId("account-b"), name: "account B", currency: "EUR" },
           ],
+          // Dates alternate between the accounts.
+          // Account A has the most recent transaction.
+          // The agent must count transactions per account.
+          // The agent must not use the latest transaction.
           transactions: [
-            // 3 purchases using account A - weaker signal
+            // 3 purchases using account A - weaker signal.
+            // Dates: 1, 3, 5 days ago.
             ...Array.from({ length: 3 }, (_, i) => ({
               accountId: testId("account-a"),
               currency: "EUR",
-              date: daysAgo(i + 1, today),
+              date: daysAgo(2 * i + 1, today),
               description: undefined, // No description: random one can mislead agent
             })),
-            // 5 purchases using account B - stronger signal, expected account
+            // 5 purchases using account B - stronger signal, expected account.
+            // Dates: 2, 4, 6, 8, 10 days ago.
             ...Array.from({ length: 5 }, (_, i) => ({
               accountId: testId("account-b"),
               currency: "EUR",
-              date: daysAgo(i + 1, today),
+              date: daysAgo(2 * i + 2, today),
               description: undefined, // No description: random one can mislead agent
             })),
           ],
