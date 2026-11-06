@@ -250,6 +250,39 @@ ls.describe(
     );
 
     ls.test<TestInputs, TestReferenceToolCalls>(
+      "creates expense transaction from amount breakdown",
+      {
+        inputs: {
+          message: "bought apples for 10 and pears for 5 euro",
+          accounts: [{ id: testId("default"), currency: "EUR" }],
+          categories: [
+            {
+              id: testId("groceries"),
+              type: "EXPENSE",
+              name: "groceries",
+            },
+          ],
+        },
+        referenceOutputs: {
+          toolCalls: [
+            { name: "sum", args: {} },
+            {
+              name: CREATE_TRANSACTION_TOOL_NAME,
+              args: {
+                accountId: testId("default"),
+                amount: 15,
+                categoryId: testId("groceries"),
+                date: today,
+                type: TransactionType.EXPENSE,
+              },
+            },
+          ],
+        },
+      },
+      testToolCalls,
+    );
+
+    ls.test<TestInputs, TestReferenceToolCalls>(
       "creates expense transaction by default",
       {
         inputs: {
@@ -302,6 +335,39 @@ ls.describe(
     );
 
     ls.test<TestInputs, TestReferenceToolCalls>(
+      "creates income transaction from amount breakdown",
+      {
+        inputs: {
+          message: "received salary 1000 with bonus 200 euro on top",
+          accounts: [{ id: testId("default"), currency: "EUR" }],
+          categories: [
+            {
+              id: testId("salary"),
+              type: "INCOME",
+              name: "salary",
+            },
+          ],
+        },
+        referenceOutputs: {
+          toolCalls: [
+            { name: "sum", args: {} },
+            {
+              name: CREATE_TRANSACTION_TOOL_NAME,
+              args: {
+                accountId: testId("default"),
+                amount: 1200,
+                categoryId: testId("salary"),
+                date: today,
+                type: TransactionType.INCOME,
+              },
+            },
+          ],
+        },
+      },
+      testToolCalls,
+    );
+
+    ls.test<TestInputs, TestReferenceToolCalls>(
       "creates refund transaction",
       {
         inputs: {
@@ -322,6 +388,39 @@ ls.describe(
               args: {
                 accountId: testId("default"),
                 amount: 50,
+                categoryId: testId("shoes"),
+                date: today,
+                type: TransactionType.REFUND,
+              },
+            },
+          ],
+        },
+      },
+      testToolCalls,
+    );
+
+    ls.test<TestInputs, TestReferenceToolCalls>(
+      "creates refund transaction from amount breakdown",
+      {
+        inputs: {
+          message: "got a refund for boots 50 and sneakers 30 euro",
+          accounts: [{ id: testId("default"), currency: "EUR" }],
+          categories: [
+            {
+              id: testId("shoes"),
+              type: "EXPENSE",
+              name: "shoes",
+            },
+          ],
+        },
+        referenceOutputs: {
+          toolCalls: [
+            { name: "sum", args: {} },
+            {
+              name: CREATE_TRANSACTION_TOOL_NAME,
+              args: {
+                accountId: testId("default"),
+                amount: 80,
                 categoryId: testId("shoes"),
                 date: today,
                 type: TransactionType.REFUND,
@@ -614,6 +713,100 @@ ls.describe(
         },
       },
       testWithJudge,
+    );
+
+    ls.test<TestInputs, TestReferenceToolCalls>(
+      "creates one transaction from amount breakdown across categories",
+      {
+        inputs: {
+          message: "meat 5 and shampoo 3 euro",
+          accounts: [{ currency: "EUR" }],
+          categories: [
+            { type: "EXPENSE", name: "groceries" },
+            { type: "EXPENSE", name: "household" },
+          ],
+        },
+        referenceOutputs: {
+          toolCalls: [
+            { name: "sum", args: {} },
+            {
+              name: CREATE_TRANSACTION_TOOL_NAME,
+              args: { amount: 8 },
+            },
+          ],
+        },
+      },
+      testToolCalls,
+    );
+
+    ls.test<TestInputs, TestReferenceToolCalls>(
+      "creates transaction from decimal amount breakdown",
+      {
+        inputs: {
+          message: "bread 1.29, cheese 3.45, butter 2.19 euro",
+          accounts: [{ currency: "EUR" }],
+        },
+        referenceOutputs: {
+          toolCalls: [
+            { name: "sum", args: {} },
+            {
+              name: CREATE_TRANSACTION_TOOL_NAME,
+              args: { amount: 6.93 },
+            },
+          ],
+        },
+      },
+      testToolCalls,
+    );
+
+    ls.test<TestInputs, TestReferenceToolCalls>(
+      "creates transaction from written amount breakdown",
+      {
+        inputs: {
+          message: "coffee two euros and croissant three fifty",
+          accounts: [{ currency: "EUR" }],
+        },
+        referenceOutputs: {
+          toolCalls: [
+            { name: "sum", args: {} },
+            {
+              name: CREATE_TRANSACTION_TOOL_NAME,
+              args: { amount: 5.5 },
+            },
+          ],
+        },
+      },
+      testToolCalls,
+    );
+
+    ls.test<TestInputs, TestReferenceToolCalls>(
+      "does not treat quantity as amount breakdown",
+      {
+        inputs: {
+          message: "2 kg of apples for 5 euro",
+          accounts: [{ currency: "EUR" }],
+        },
+        referenceOutputs: {
+          toolCalls: [
+            {
+              name: CREATE_TRANSACTION_TOOL_NAME,
+              args: { amount: 5 },
+            },
+          ],
+        },
+      },
+      testToolCalls,
+    );
+
+    ls.test<TestInputs>(
+      "does not create transaction for alternative amounts",
+      {
+        inputs: {
+          message: "paid 10 or 20 euros",
+          accounts: [{ currency: "EUR" }],
+        },
+      },
+      testNoTransactionCreated,
     );
 
     ls.test<TestInputs, TestReferenceToolCalls>(

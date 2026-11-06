@@ -32,6 +32,14 @@ describe("sumTool", () => {
     // Assert
     expect(result).toEqual({ success: true, data: 45.8 });
   });
+
+  it("sums decimal numbers without floating-point error", async () => {
+    // Act
+    const result = await sumTool.invoke({ numbers: [0.1, 0.2] });
+
+    // Assert
+    expect(result).toEqual({ success: true, data: 0.3 });
+  });
 });
 
 describe("avgTool", () => {
