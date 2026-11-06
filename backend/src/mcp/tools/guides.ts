@@ -86,7 +86,8 @@ Use these rules whenever the user wants to log a transaction — a purchase, a p
 
 - Mandatory field
 - Numeric or written value representing a money quantity (e.g., 25, 20.5, "twenty five euros")
-- If multiple amounts are present, MUST stop and report an error — only one transaction at a time
+- If the input gives an amount breakdown and no total, MUST sum the breakdown
+- If the input gives multiple amounts that are not an amount breakdown, MUST stop and report an error
 
 If no amount is stated:
 - MUST search in this exact sequence, stopping as soon as a step finds at least two matches:

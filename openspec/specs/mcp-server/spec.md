@@ -600,6 +600,22 @@ The system SHALL provide an MCP tool named `create_transaction` that lets an age
 - **WHEN** the agent invokes `create_transaction` without a valid token for `basics`, for `create-transaction`, or for both
 - **THEN** the tool returns a failure naming the missing required guide(s) and no transaction is recorded
 
+### Requirement: Amount Breakdown in the Create-Transaction Guide
+
+The `create-transaction` guide SHALL tell the agent how to record a transaction when the input gives an amount breakdown and no total. The amount breakdown SHALL be summed into one transaction amount. Multiple amounts that are not an amount breakdown (for example, "10 or 20") SHALL be reported as an error, and no transaction SHALL be recorded.
+
+#### Scenario: Guide states the rule for an amount breakdown
+
+- **GIVEN** an authenticated MCP connection
+- **WHEN** the agent invokes `load_guides` with `names` = `["create-transaction"]`
+- **THEN** the guide text states that an amount breakdown without a total is summed into one transaction amount
+
+#### Scenario: Guide states the rule for alternative amounts
+
+- **GIVEN** an authenticated MCP connection
+- **WHEN** the agent invokes `load_guides` with `names` = `["create-transaction"]`
+- **THEN** the guide text states that multiple amounts that are not an amount breakdown are an error
+
 ### Requirement: Create Compound Transaction via MCP
 
 The system SHALL provide an MCP tool named `create_compound_transaction` that lets an agent record two or more related transactions, sharing one account and one date, on behalf of the authenticated user, in a single atomic operation. The tool SHALL enforce the same business rules as transaction creation elsewhere in the system, and SHALL reject a request that violates those rules without creating any transaction.

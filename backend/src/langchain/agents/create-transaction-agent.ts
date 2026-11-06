@@ -18,6 +18,7 @@ import {
 import { createGetAccountsTool } from "../tools/get-accounts";
 import { createGetCategoriesTool } from "../tools/get-categories";
 import { createGetTransactionsTool } from "../tools/get-transactions";
+import { sumTool } from "../tools/math";
 import { AgentContext, agentContextSchema } from "./agent-context";
 
 const SYSTEM_PROMPT_TEMPLATE = `
@@ -53,7 +54,11 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 
 - Mandatory field
 - Numeric or written value representing a money quantity (e.g., 25, 20.5, "twenty five euros")
-- If multiple amounts are present, MUST stop and report an error — only one transaction at a time
+- If the input gives an amount breakdown and no total, MUST sum the breakdown
+  - Good example: "item AAA 5 euro, item BBB 3.25 euro, item CCC 0.5 euro" sums to 8.75 euros
+  - Bad example: "item AAA, item BBB 10 20" is not summed because it is not clear which amount belongs to which item
+- MUST use the available calculation tools for any math
+- If the input gives multiple amounts that are not an amount breakdown, MUST stop and report an error
 
 {VOICE_INPUT_SUBPROMPT}
 
@@ -186,6 +191,7 @@ export function createCreateTransactionAgent({
     createGetCategoriesTool({ categoryService, transactionRepository }),
     createGetTransactionsTool({ transactionRepository }),
     createCreateTransactionTool({ transactionService }),
+    sumTool,
   ];
 
   return createAgent({

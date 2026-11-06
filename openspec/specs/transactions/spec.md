@@ -573,9 +573,9 @@ The system SHALL provide a text input field on the Transactions page that accept
 - **WHEN** the system cannot resolve the required amount
 - **THEN** an error message is displayed and the input text is preserved unchanged
 
-#### Scenario: Ambiguous multiple amounts result in an error
+#### Scenario: Alternative amounts result in an error
 
-- **GIVEN** the user submits text containing two or more distinct amount values (e.g. "paid 10 or 20 euros")
+- **GIVEN** the user submits text containing two or more alternative amount values (e.g. "paid 10 or 20 euros")
 - **WHEN** the system cannot determine which amount to use
 - **THEN** an error message is displayed and the input text is preserved unchanged
 
@@ -602,6 +602,31 @@ The system SHALL provide a text input field on the Transactions page that accept
 - **GIVEN** the agent's first creation attempt fails
 - AND the agent retries
 - **THEN** the retry succeeds and exactly one transaction is persisted
+
+### Requirement: Amount Breakdown in Natural Language Input
+
+When the natural language text gives an amount breakdown and no total, the system SHALL create one transaction with the sum of the breakdown as its amount. The system SHALL infer the other fields with the same rules as for text with one amount. Multiple amounts that are not an amount breakdown (for example, "paid 10 or 20 euros") SHALL continue to result in an error.
+
+#### Scenario: Amount breakdown is summed into one transaction
+
+- **GIVEN** the user submits "meat 2 and milk 3 euro"
+- **WHEN** the system processes the input
+- **THEN** one transaction is created with amount 5
+- AND the description lists the purchased items
+
+#### Scenario: Amount breakdown across categories gives one transaction
+
+- **GIVEN** the user submits "meat 2 and shampoo 3 euro"
+- **WHEN** the system processes the input
+- **THEN** one transaction is created with amount 5
+- AND the category is inferred with the same rules as for text with one amount
+
+#### Scenario: Alternative amounts still result in an error
+
+- **GIVEN** the user submits "paid 10 or 20 euros"
+- **WHEN** the system processes the input
+- **THEN** no transaction is created
+- AND an error message is displayed and the input text is preserved unchanged
 
 ### Requirement: Category Inference from Transaction History
 

@@ -1,14 +1,17 @@
 import { tool } from "langchain";
-import { evaluate, mean, sum } from "mathjs";
+import { bignumber, evaluate, mean, number, sum } from "mathjs";
 import { Failure, Success } from "ts-result";
 import { z } from "zod";
 
-export const sumTool = tool(({ numbers }) => Success(sum(numbers)), {
-  name: "sum",
-  description:
-    "Calculate the sum of an array of numbers. Use this to add up transaction amounts. Input should be a JSON string with a 'numbers' array. Example: {\"numbers\": [10.5, 20.3, 15.0]}",
-  schema: z.object({ numbers: z.array(z.number()) }),
-});
+export const sumTool = tool(
+  ({ numbers }) => Success(number(sum(bignumber(numbers)))),
+  {
+    name: "sum",
+    description:
+      "Calculate the sum of an array of numbers. Use this to add up transaction amounts. Input should be a JSON string with a 'numbers' array. Example: {\"numbers\": [10.5, 20.3, 15.0]}",
+    schema: z.object({ numbers: z.array(z.number()) }),
+  },
+);
 
 export const avgTool = tool(
   ({ numbers }) => {
