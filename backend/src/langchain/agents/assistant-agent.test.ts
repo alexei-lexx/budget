@@ -7,6 +7,7 @@ import { ModelError } from "../../models/model-error";
 import { createMockLogger } from "../../utils/test-utils/providers/logger-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
+import { createMockAggregateTransactionsService } from "../../utils/test-utils/services/aggregate-transactions-service-mocks";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { createAssistantAgent } from "./assistant-agent";
@@ -32,6 +33,7 @@ describe("createAssistantAgent", () => {
     agent = createAssistantAgent({
       model: mockModel,
       accountService: mockAccountService,
+      aggregateTransactionsService: createMockAggregateTransactionsService(),
       categoryService: createMockCategoryService(),
       logger: createMockLogger(),
       transactionRepository: createMockTransactionRepository(),

@@ -5,6 +5,7 @@ import {
   createChatModel,
   resolveAccountRepository,
   resolveAccountService,
+  resolveAggregateTransactionsService,
   resolveCategoryRepository,
   resolveCategoryService,
   resolveLogger,
@@ -21,6 +22,7 @@ import { createAssistantAgent } from "./assistant-agent";
 
 const accountRepository = resolveAccountRepository();
 const accountService = resolveAccountService();
+const aggregateTransactionsService = resolveAggregateTransactionsService();
 const categoryRepository = resolveCategoryRepository();
 const categoryService = resolveCategoryService();
 const transactionRepository = resolveTransactionRepository();
@@ -37,6 +39,7 @@ describe("AssistantAgent (integration)", () => {
     agent = createAssistantAgent({
       model: await createChatModel(),
       accountService,
+      aggregateTransactionsService,
       categoryService,
       logger: resolveLogger(),
       transactionRepository,

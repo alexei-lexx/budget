@@ -4,6 +4,7 @@ import { z } from "zod";
 import { Logger } from "../../ports/logger";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { AccountService } from "../../services/account-service";
+import { AggregateTransactionsService } from "../../services/aggregate-transactions-service";
 import { CategoryService } from "../../services/category-service";
 import { TransactionService } from "../../services/transaction-service";
 import { createCreateTransactionAgent } from "../agents/create-transaction-agent";
@@ -22,6 +23,7 @@ Do NOT translate, transliterate, romanize, or rephrase it.
 export const createCreateTransactionSubagentTool = ({
   model,
   accountService,
+  aggregateTransactionsService,
   categoryService,
   logger,
   transactionRepository,
@@ -29,6 +31,7 @@ export const createCreateTransactionSubagentTool = ({
 }: {
   model: BaseChatModel;
   accountService: AccountService;
+  aggregateTransactionsService: AggregateTransactionsService;
   categoryService: CategoryService;
   logger: Logger;
   transactionRepository: TransactionRepository;
@@ -37,6 +40,7 @@ export const createCreateTransactionSubagentTool = ({
   const agent = createCreateTransactionAgent({
     model,
     accountService,
+    aggregateTransactionsService,
     categoryService,
     logger,
     transactionRepository,

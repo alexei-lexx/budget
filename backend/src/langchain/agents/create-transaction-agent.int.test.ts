@@ -5,6 +5,7 @@ import {
   createChatModel,
   resolveAccountRepository,
   resolveAccountService,
+  resolveAggregateTransactionsService,
   resolveCategoryService,
   resolveLogger,
   resolveTransactionRepository,
@@ -20,6 +21,7 @@ import { createCreateTransactionAgent } from "./create-transaction-agent";
 
 const accountRepository = resolveAccountRepository();
 const accountService = resolveAccountService();
+const aggregateTransactionsService = resolveAggregateTransactionsService();
 const categoryService = resolveCategoryService();
 const transactionRepository = resolveTransactionRepository();
 const transactionService = resolveTransactionService();
@@ -35,6 +37,7 @@ describe("CreateTransactionAgent (integration)", () => {
     agent = createCreateTransactionAgent({
       model: await createChatModel(),
       accountService,
+      aggregateTransactionsService,
       categoryService,
       logger: resolveLogger(),
       transactionRepository,

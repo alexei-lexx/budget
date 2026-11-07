@@ -3,6 +3,7 @@ import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
 import { Logger } from "../../ports/logger";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { AccountService } from "../../services/account-service";
+import { AggregateTransactionsService } from "../../services/aggregate-transactions-service";
 import { CategoryService } from "../../services/category-service";
 import { TransactionService } from "../../services/transaction-service";
 import { createToolUserFacingErrorMiddleware } from "../tool-error-middleware";
@@ -97,6 +98,7 @@ treat it as a request to log a transaction.
 export function createAssistantAgent({
   model,
   accountService,
+  aggregateTransactionsService,
   categoryService,
   logger,
   transactionRepository,
@@ -104,6 +106,7 @@ export function createAssistantAgent({
 }: {
   model: BaseChatModel;
   accountService: AccountService;
+  aggregateTransactionsService: AggregateTransactionsService;
   categoryService: CategoryService;
   logger: Logger;
   transactionRepository: TransactionRepository;
@@ -119,7 +122,7 @@ export function createAssistantAgent({
       transactionRepository,
     }),
     createAggregateTransactionsTool({
-      transactionRepository,
+      aggregateTransactionsService,
     }),
   ];
 
@@ -134,6 +137,7 @@ export function createAssistantAgent({
     createCreateTransactionSubagentTool({
       model,
       accountService,
+      aggregateTransactionsService,
       categoryService,
       logger,
       transactionRepository,
