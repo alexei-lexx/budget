@@ -12,6 +12,7 @@ import {
   createChatModel,
   resolveAccountRepository,
   resolveAccountService,
+  resolveAggregateTransactionsService,
   resolveCategoryRepository,
   resolveCategoryService,
   resolveTransactionRepository,
@@ -72,6 +73,7 @@ ls.describe(
   "CreateTransactionAgent",
   () => {
     const accountService = resolveAccountService();
+    const aggregateTransactionsService = resolveAggregateTransactionsService();
     const categoryService = resolveCategoryService();
     const transactionRepository = resolveTransactionRepository();
     const transactionService = resolveTransactionService();
@@ -94,6 +96,7 @@ ls.describe(
         model,
         transactionRepository,
         accountService,
+        aggregateTransactionsService,
         categoryService,
         transactionService,
         logger,

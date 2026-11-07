@@ -8,9 +8,11 @@ import {
 import { Logger } from "../../ports/logger";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { AccountService } from "../../services/account-service";
+import { AggregateTransactionsService } from "../../services/aggregate-transactions-service";
 import { CategoryService } from "../../services/category-service";
 import { TransactionService } from "../../services/transaction-service";
 import { createToolUserFacingErrorMiddleware } from "../tool-error-middleware";
+import { createAggregateTransactionsTool } from "../tools/aggregate-transactions";
 import {
   CREATE_TRANSACTION_TOOL_NAME,
   createCreateTransactionTool,
@@ -169,6 +171,7 @@ Speech-to-text often transcribes a spoken price as two adjacent integers — "tw
 export function createCreateTransactionAgent({
   model,
   accountService,
+  aggregateTransactionsService,
   categoryService,
   logger,
   transactionRepository,
@@ -177,6 +180,7 @@ export function createCreateTransactionAgent({
 }: {
   model: BaseChatModel;
   accountService: AccountService;
+  aggregateTransactionsService: AggregateTransactionsService;
   categoryService: CategoryService;
   logger: Logger;
   transactionRepository: TransactionRepository;
@@ -190,6 +194,7 @@ export function createCreateTransactionAgent({
     createGetAccountsTool(accountService),
     createGetCategoriesTool({ categoryService, transactionRepository }),
     createGetTransactionsTool({ transactionRepository }),
+    createAggregateTransactionsTool({ aggregateTransactionsService }),
     createCreateTransactionTool({ transactionService }),
     sumTool,
   ];

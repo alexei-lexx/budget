@@ -9,6 +9,7 @@ import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes
 import { createMockLogger } from "../../utils/test-utils/providers/logger-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
+import { createMockAggregateTransactionsService } from "../../utils/test-utils/services/aggregate-transactions-service-mocks";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
@@ -39,6 +40,7 @@ describe("createCreateTransactionAgent", () => {
     deps = {
       model: mockModel,
       accountService: createMockAccountService(),
+      aggregateTransactionsService: createMockAggregateTransactionsService(),
       categoryService: createMockCategoryService(),
       logger: createMockLogger(),
       transactionRepository: createMockTransactionRepository(),
