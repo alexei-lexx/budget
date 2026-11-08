@@ -1,0 +1,61 @@
+diff --git a/node_modules/@arizeai/phoenix-client/dist/esm/testing/phoenix-test-tracking.js b/node_modules/@arizeai/phoenix-client/dist/esm/testing/phoenix-test-tracking.js
+index 0270283..7beda8d 100644
+--- a/node_modules/@arizeai/phoenix-client/dist/esm/testing/phoenix-test-tracking.js
++++ b/node_modules/@arizeai/phoenix-client/dist/esm/testing/phoenix-test-tracking.js
+@@ -245,7 +245,7 @@ async function createSuiteExperiment({ suite, client, datasetId, datasetName, de
+             .POST("/v1/datasets/{dataset_id}/experiments", {
+             params: { path: { dataset_id: datasetId } },
+             body: {
+-                name: suite.config.datasetName ?? suite.name,
++                name: suite.config.experimentName ?? suite.config.datasetName ?? suite.name,
+                 description,
+                 metadata: { ...(suite.config.metadata ?? {}), ...envMetadata() },
+                 project_name: projectName,
+diff --git a/node_modules/@arizeai/phoenix-client/dist/esm/testing/types.d.ts b/node_modules/@arizeai/phoenix-client/dist/esm/testing/types.d.ts
+index bc041c0..ca6113c 100644
+--- a/node_modules/@arizeai/phoenix-client/dist/esm/testing/types.d.ts
++++ b/node_modules/@arizeai/phoenix-client/dist/esm/testing/types.d.ts
+@@ -206,6 +206,8 @@ export type AcceptanceResult = AcceptanceCriterion & AcceptanceResultFields;
+ export interface SuiteConfig {
+     /** Override the dataset / experiment name used for the suite. */
+     datasetName?: string;
++    /** Override the experiment name only; the dataset keeps its name. */
++    experimentName?: string;
+     /** Description for the dataset and experiment. */
+     description?: string;
+     /** Suite-level metadata applied to every run in this experiment. */
+diff --git a/node_modules/@arizeai/phoenix-client/dist/src/testing/phoenix-test-tracking.js b/node_modules/@arizeai/phoenix-client/dist/src/testing/phoenix-test-tracking.js
+index a920efb..a9c4066 100644
+--- a/node_modules/@arizeai/phoenix-client/dist/src/testing/phoenix-test-tracking.js
++++ b/node_modules/@arizeai/phoenix-client/dist/src/testing/phoenix-test-tracking.js
+@@ -253,7 +253,7 @@ async function resolveSuiteExampleIds({ suite, client, datasetId, }) {
+     }
+ }
+ async function createSuiteExperiment({ suite, client, datasetId, datasetName, description, }) {
+-    var _a, _b, _c, _d;
++    var _a, _b, _c, _d, _e;
+     const projectName = `${datasetName}-${new Date().toISOString()}`;
+     suite.projectName = projectName;
+     try {
+@@ -261,7 +261,7 @@ async function createSuiteExperiment({ suite, client, datasetId, datasetName, de
+             .POST("/v1/datasets/{dataset_id}/experiments", {
+             params: { path: { dataset_id: datasetId } },
+             body: {
+-                name: (_a = suite.config.datasetName) !== null && _a !== void 0 ? _a : suite.name,
++                name: (_a = suite.config.experimentName) !== null && _a !== void 0 ? _a : ((_e = suite.config.datasetName) !== null && _e !== void 0 ? _e : suite.name),
+                 description,
+                 metadata: Object.assign(Object.assign({}, ((_b = suite.config.metadata) !== null && _b !== void 0 ? _b : {})), envMetadata()),
+                 project_name: projectName,
+diff --git a/node_modules/@arizeai/phoenix-client/dist/src/testing/types.d.ts b/node_modules/@arizeai/phoenix-client/dist/src/testing/types.d.ts
+index 4149343..bd4f198 100644
+--- a/node_modules/@arizeai/phoenix-client/dist/src/testing/types.d.ts
++++ b/node_modules/@arizeai/phoenix-client/dist/src/testing/types.d.ts
+@@ -206,6 +206,8 @@ export type AcceptanceResult = AcceptanceCriterion & AcceptanceResultFields;
+ export interface SuiteConfig {
+     /** Override the dataset / experiment name used for the suite. */
+     datasetName?: string;
++    /** Override the experiment name only; the dataset keeps its name. */
++    experimentName?: string;
+     /** Description for the dataset and experiment. */
+     description?: string;
+     /** Suite-level metadata applied to every run in this experiment. */

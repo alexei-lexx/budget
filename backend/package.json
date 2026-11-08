@@ -35,6 +35,7 @@
     "test:db:setup": "npm run db:start && sleep 1 && npm run test:db:create",
     "test:evals": "dotenvx run -f .env.test -- vitest run --config vitest.evals.config.ts",
     "test:integration": "dotenvx run -f .env.test -- vitest run --project integration",
+    "test:phoenix-evals": "dotenvx run -f .env.test -- vitest run --config vitest.phoenix-evals.config.ts",
     "test:unit": "dotenvx run -f .env.test -- vitest run --project unit",
     "test:watch": "dotenvx run -f .env.test -- vitest --project unit --project db",
     "test": "dotenvx run -f .env.test -- vitest run --project unit --project db",
@@ -68,6 +69,9 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@arizeai/openinference-instrumentation-langchain": "^4.1.5",
+    "@arizeai/phoenix-client": "7.18.2",
+    "@arizeai/phoenix-evals": "^2.7.1",
     "@as-integrations/express5": "^1.1.2",
     "@dotenvx/dotenvx": "^1.51.4",
     "@eslint/js": "^9.38.0",

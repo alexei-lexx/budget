@@ -19,3 +19,15 @@ services:
       - DYNAMO_ENDPOINT=http://dynamodb-local:8000
     depends_on:
       - dynamodb-local
+
+  phoenix:
+    image: "arizephoenix/phoenix:version-21.0.0"
+    ports:
+      - "127.0.0.1:6006:6006"
+    environment:
+      # Phoenix enables login for non-loopback hosts, such as 0.0.0.0 in Docker.
+      # Login off is safe because the port is open only on this machine.
+      - PHOENIX_ENABLE_AUTH=false
+      - PHOENIX_WORKING_DIR=/mnt/data
+    volumes:
+      - "./docker/phoenix:/mnt/data"

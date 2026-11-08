@@ -1,8 +1,11 @@
-!docker/dynamodb/.gitkeep
 coverage
 dist
-docker/dynamodb/*
 node_modules
+
+docker/dynamodb/*
+!docker/dynamodb/.gitkeep
+docker/phoenix/*
+!docker/phoenix/.gitkeep
 
 # Environment files
 .env*
