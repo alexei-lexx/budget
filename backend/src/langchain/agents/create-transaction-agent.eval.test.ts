@@ -67,7 +67,7 @@ const judgeModelId = requireEnv(
 
 // Optional, LangSmith gives a random name when not set.
 // The name must be unique for each run.
-const experimentName = process.env["LANGSMITH_EXPERIMENT_NAME"];
+const experimentName = process.env["EVAL_EXPERIMENT_NAME"];
 
 ls.describe(
   "CreateTransactionAgent",

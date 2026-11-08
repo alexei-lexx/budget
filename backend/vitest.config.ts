@@ -14,6 +14,7 @@ export default defineConfig({
             "**/*.db.test.ts",
             "**/*.int.test.ts",
             "**/*.eval.test.ts",
+            "**/*.phoenix-eval.test.ts",
           ],
           testTimeout: 10000,
           setupFiles: ["src/utils/test-utils/result-matchers.ts"],
