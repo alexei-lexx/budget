@@ -1,7 +1,10 @@
 version: "3.8"
 
 services:
+  # Each service needs a profile.
+  # A service without a profile starts with every profile command.
   dynamodb-local:
+    profiles: [db]
     image: "amazon/dynamodb-local:3.3.0"
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
     ports:
@@ -12,6 +15,7 @@ services:
 
   # DynamoDB Admin UI (alternative implementation)
   dynamodb-admin:
+    profiles: [db]
     image: "aaronshaf/dynamodb-admin:latest"
     ports:
       - "8001:8001"
@@ -21,6 +25,7 @@ services:
       - dynamodb-local
 
   phoenix:
+    profiles: [phoenix]
     image: "arizephoenix/phoenix:version-21.0.0"
     ports:
       - "127.0.0.1:6006:6006"
