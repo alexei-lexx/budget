@@ -1,240 +1,99 @@
 import { randomUUID } from "crypto";
-import {
-  createTrajectoryLLMAsJudge,
-  createTrajectoryMatchEvaluator,
-} from "agentevals";
-import { AIMessage, HumanMessage } from "langchain";
-import * as ls from "langsmith/vitest";
+import { LangChainInstrumentation } from "@arizeai/openinference-instrumentation-langchain";
+import * as px from "@arizeai/phoenix-client/vitest";
+import * as CallbackManagerModule from "@langchain/core/callbacks/manager";
+import { awaitAllCallbacks } from "@langchain/core/callbacks/promises";
 import { Temporal } from "temporal-polyfill";
-import { v5 as uuidv5 } from "uuid";
-import { beforeAll, beforeEach, expect } from "vitest";
+import { afterEach, beforeAll, beforeEach } from "vitest";
 import {
   createChatModel,
-  resolveAccountRepository,
   resolveAccountService,
   resolveAggregateTransactionsService,
-  resolveCategoryRepository,
   resolveCategoryService,
   resolveTransactionRepository,
   resolveTransactionService,
   resolveUserRepository,
 } from "../../dependencies";
-import { AccountData } from "../../models/account";
-import { CategoryData } from "../../models/category";
-import { TransactionData, TransactionType } from "../../models/transaction";
+import { TransactionType } from "../../models/transaction";
 import { DateString, toDateString } from "../../types/date-string";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
-import { requireEnv } from "../../utils/require-env";
+import {
+  agentModelId,
+  experimentName,
+  judgeModelId,
+  testAgentNoTransactionCreated,
+  testAgentToolCalls,
+  testAgentWithJudge,
+  testId,
+} from "../../utils/test-utils/agent-evals";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
-import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
-import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
-import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { fakeUser } from "../../utils/test-utils/models/user-fakes";
 import { createMockLogger } from "../../utils/test-utils/providers/logger-mocks";
-import { DEFAULT_LANGCHAIN_MODEL_ID } from "../settings";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
 import { createCreateTransactionAgent } from "./create-transaction-agent";
 
-interface TestInputs {
-  message: string;
-  accounts: Partial<AccountData>[];
-  categories?: Partial<CategoryData>[];
-  transactions?: Partial<TransactionData>[];
-  isVoiceInput?: boolean;
-}
-
-interface TestReferenceToolCalls {
-  toolCalls: {
-    name: string;
-    args: Record<string, unknown>;
-  }[];
-}
-
-interface TestReferenceCriteria {
-  criteria: string;
-}
-
-const agentModelId = requireEnv(
-  "LANGCHAIN_MODEL_ID",
-  DEFAULT_LANGCHAIN_MODEL_ID,
-);
-
-// Separate judge keeps scores comparable when LANGCHAIN_MODEL_ID changes
-const judgeModelId = requireEnv(
-  "JUDGE_LANGCHAIN_MODEL_ID",
-  DEFAULT_LANGCHAIN_MODEL_ID,
-);
-
-// Optional, LangSmith gives a random name when not set.
-// The name must be unique for each run.
-const experimentName = process.env["EVAL_EXPERIMENT_NAME"];
-
-ls.describe(
+px.describe(
   "CreateTransactionAgent",
   () => {
-    const accountService = resolveAccountService();
-    const aggregateTransactionsService = resolveAggregateTransactionsService();
-    const categoryService = resolveCategoryService();
-    const transactionRepository = resolveTransactionRepository();
-    const transactionService = resolveTransactionService();
-    const userRepository = resolveUserRepository();
-
     const today = toDateString("2000-01-02");
     const userId = testId("current-user");
 
-    let model: Awaited<ReturnType<typeof createChatModel>>;
-    let judgeModel: Awaited<ReturnType<typeof createChatModel>>;
     let agent: ReturnType<typeof createCreateTransactionAgent>;
-    let context: { userId: string; today: string; isVoiceInput?: boolean };
+    let context: { userId: string; today: string };
 
     beforeAll(async () => {
-      model = await createChatModel(agentModelId);
-      judgeModel = await createChatModel(judgeModelId);
-      const logger = createMockLogger();
-
       agent = createCreateTransactionAgent({
-        model,
-        transactionRepository,
-        accountService,
-        aggregateTransactionsService,
-        categoryService,
-        transactionService,
-        logger,
+        model: await createChatModel(agentModelId),
+        transactionRepository: resolveTransactionRepository(),
+        accountService: resolveAccountService(),
+        aggregateTransactionsService: resolveAggregateTransactionsService(),
+        categoryService: resolveCategoryService(),
+        transactionService: resolveTransactionService(),
+        logger: createMockLogger(),
         // Keep this run out of prompt cache of other runs
         testOnlyPromptCacheIsolationPrefix: `Request ID: ${randomUUID()}`,
       });
     });
 
     beforeEach(async () => {
+      // Sends LangChain spans to tracer provider of Phoenix suite.
+      // Spans become child spans of each test run.
+      // Suite registers provider in its own beforeAll,
+      // which runs after beforeAll hooks of this file and replaces global proxy.
+      // So instrumentation created earlier keeps no-op tracer.
+      // Each new instrumentation replaces patch of previous one.
+      new LangChainInstrumentation().manuallyInstrument(CallbackManagerModule);
+
       await truncateAllTables(createDynamoDBDocumentClient());
 
       const user = fakeUser({ id: userId });
+      const userRepository = resolveUserRepository();
       await userRepository.create(user);
 
       context = { userId, today };
     });
 
-    async function testToolCalls({
-      inputs,
-      referenceOutputs,
-    }: {
-      inputs: TestInputs;
-      referenceOutputs?: TestReferenceToolCalls;
-    }) {
-      // Arrange
-      await seedDatabase(inputs, userId);
+    // LangChain runs callbacks in background.
+    // Waits for them, so last spans end before suite flushes tracer provider.
+    afterEach(async () => {
+      await awaitAllCallbacks();
+    });
 
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage(inputs.message)] },
-        { context: { ...context, isVoiceInput: inputs.isVoiceInput } },
-      );
-      ls.logOutputs({ answer: response.messages.at(-1)?.text });
-
-      // Assert
-
-      // Agent may call tools with more args than reference lists.
-      // Compares only args listed in reference tool calls.
-      const toolArgsToCompare: Record<string, string[]> = {};
-      for (const toolCall of referenceOutputs?.toolCalls || []) {
-        toolArgsToCompare[toolCall.name] = Object.keys(toolCall.args);
-      }
-
-      const evaluator = createTrajectoryMatchEvaluator({
-        trajectoryMatchMode: "superset",
-        toolArgsMatchOverrides: toolArgsToCompare,
-      });
-
-      const result = await evaluator({
-        outputs: response.messages,
-        referenceOutputs: [
-          new AIMessage({
-            tool_calls: referenceOutputs?.toolCalls.map((toolCall) => ({
-              ...toolCall,
-              id: "required-dummy-id",
-            })),
-          }),
-        ],
-      });
-
-      expect(result.score).toBe(true);
-    }
-
-    async function testWithJudge({
-      inputs,
-      referenceOutputs,
-    }: {
-      inputs: TestInputs;
-      referenceOutputs?: TestReferenceCriteria;
-    }) {
-      // Arrange
-      await seedDatabase(inputs, userId);
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage(inputs.message)] },
-        { context },
-      );
-      ls.logOutputs({ answer: response.messages.at(-1)?.text });
-
-      // Assert
-      const evaluator = createTrajectoryLLMAsJudge({
-        continuous: true,
-        judge: judgeModel,
-        prompt: `{criteria}
-
-        Grade the following trajectory:
-        <trajectory>{outputs}</trajectory>
-      `.trim(),
-      });
-
-      // Judge prompt gets criteria through extra param
-      const result = await evaluator({
-        outputs: response.messages,
-        criteria: referenceOutputs?.criteria,
-      });
-
-      expect(result.score).toBeGreaterThanOrEqual(0.9);
-    }
-
-    async function testNoTransactionCreated({
-      inputs,
-    }: {
-      inputs: TestInputs;
-    }) {
-      // Arrange
-      await seedDatabase(inputs, userId);
-
-      // Act
-      const response = await agent.invoke(
-        { messages: [new HumanMessage(inputs.message)] },
-        { context: { ...context, isVoiceInput: inputs.isVoiceInput } },
-      );
-      ls.logOutputs({ answer: response.messages.at(-1)?.text });
-
-      // Assert
-      const toolNames = response.messages
-        .filter(AIMessage.isInstance)
-        .flatMap((message) => message.tool_calls ?? [])
-        .map((toolCall) => toolCall.name);
-      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
-    }
-
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "creates expense transaction",
       {
-        inputs: {
+        input: {
           message: "bought apples for 10 euro",
           accounts: [{ id: testId("default"), currency: "EUR" }],
           categories: [
             {
               id: testId("groceries"),
-              type: "EXPENSE",
+              type: "EXPENSE" as const,
               name: "groceries",
             },
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -249,24 +108,24 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "creates expense transaction from amount breakdown",
       {
-        inputs: {
+        input: {
           message: "bought apples for 10 and pears for 5 euro",
           accounts: [{ id: testId("default"), currency: "EUR" }],
           categories: [
             {
               id: testId("groceries"),
-              type: "EXPENSE",
+              type: "EXPENSE" as const,
               name: "groceries",
             },
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             { name: "sum", args: {} },
             {
@@ -282,18 +141,18 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "creates expense transaction by default",
       {
-        inputs: {
+        input: {
           // No explicit "bought" or "spent" verb
           message: "apples 10 euro",
           accounts: [{ currency: "EUR" }],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -302,24 +161,24 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "creates income transaction",
       {
-        inputs: {
+        input: {
           message: "received salary of 1000 euro",
           accounts: [{ id: testId("default"), currency: "EUR" }],
           categories: [
             {
               id: testId("salary"),
-              type: "INCOME",
+              type: "INCOME" as const,
               name: "salary",
             },
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -334,24 +193,24 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "creates income transaction from amount breakdown",
       {
-        inputs: {
+        input: {
           message: "received salary 1000 with bonus 200 euro on top",
           accounts: [{ id: testId("default"), currency: "EUR" }],
           categories: [
             {
               id: testId("salary"),
-              type: "INCOME",
+              type: "INCOME" as const,
               name: "salary",
             },
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             { name: "sum", args: {} },
             {
@@ -367,24 +226,24 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "creates refund transaction",
       {
-        inputs: {
+        input: {
           message: "got a refund of 50 euro for shoes",
           accounts: [{ id: testId("default"), currency: "EUR" }],
           categories: [
             {
               id: testId("shoes"),
-              type: "EXPENSE",
+              type: "EXPENSE" as const,
               name: "shoes",
             },
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -399,24 +258,24 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "creates refund transaction from amount breakdown",
       {
-        inputs: {
+        input: {
           message: "got a refund for boots 50 and sneakers 30 euro",
           accounts: [{ id: testId("default"), currency: "EUR" }],
           categories: [
             {
               id: testId("shoes"),
-              type: "EXPENSE",
+              type: "EXPENSE" as const,
               name: "shoes",
             },
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             { name: "sum", args: {} },
             {
@@ -432,17 +291,17 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "fetches active accounts and active categories to create transaction",
       {
-        inputs: {
+        input: {
           message: "bought apples for 10 euro",
           accounts: [{ currency: "EUR" }],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             { name: "get_accounts", args: { scope: "ACTIVE" } },
             { name: "get_categories", args: { scope: "ACTIVE" } },
@@ -450,13 +309,13 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "infers account by currency",
       {
-        inputs: {
+        input: {
           message: "bought apples for 50 pounds",
           accounts: [
             { currency: "EUR" },
@@ -464,7 +323,7 @@ ls.describe(
             { currency: "USD" },
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -473,20 +332,20 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "selects account by name",
       {
-        inputs: {
+        input: {
           message: "bought apples for 50 in cash",
           accounts: [
             { name: "My Visa", currency: "EUR" },
             { id: testId("cash"), name: "My Cash", currency: "EUR" },
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -495,21 +354,29 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "selects most used account for category",
       {
-        inputs: {
+        input: {
           message: "bought apples for 50 euro",
           accounts: [
             { id: testId("cash"), name: "cash", currency: "EUR" },
             { id: testId("card"), name: "card", currency: "EUR" },
           ],
           categories: [
-            { id: testId("groceries"), type: "EXPENSE", name: "groceries" },
-            { id: testId("transport"), type: "EXPENSE", name: "transport" },
+            {
+              id: testId("groceries"),
+              type: "EXPENSE" as const,
+              name: "groceries",
+            },
+            {
+              id: testId("transport"),
+              type: "EXPENSE" as const,
+              name: "transport",
+            },
           ],
           transactions: [
             // 3 groceries purchases using cash - weaker signal for groceries
@@ -538,7 +405,7 @@ ls.describe(
             })),
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -547,13 +414,13 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "selects most used account overall",
       {
-        inputs: {
+        input: {
           message: "bought apples for 50 euro",
           accounts: [
             { id: testId("account-a"), name: "account A", currency: "EUR" },
@@ -582,7 +449,7 @@ ls.describe(
             })),
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -591,21 +458,25 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "selects category by name",
       {
-        inputs: {
+        input: {
           message: "bought groceries for 10 euros",
           accounts: [{ currency: "EUR" }],
           categories: [
-            { id: testId("groceries"), type: "EXPENSE", name: "groceries" },
-            { type: "EXPENSE", name: "household" },
+            {
+              id: testId("groceries"),
+              type: "EXPENSE" as const,
+              name: "groceries",
+            },
+            { type: "EXPENSE" as const, name: "household" },
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -614,21 +485,25 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "selects category by signal",
       {
-        inputs: {
+        input: {
           message: "bought detergents for 10 euro",
           accounts: [{ currency: "EUR" }],
           categories: [
-            { type: "EXPENSE", name: "groceries" },
-            { id: testId("household"), type: "EXPENSE", name: "household" },
+            { type: "EXPENSE" as const, name: "groceries" },
+            {
+              id: testId("household"),
+              type: "EXPENSE" as const,
+              name: "household",
+            },
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -637,21 +512,21 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "leaves category blank when no match",
       {
-        inputs: {
+        input: {
           message: "bought apples for 10 euro",
           accounts: [{ currency: "EUR" }],
           categories: [
-            { type: "EXPENSE", name: "electronics" },
-            { type: "EXPENSE", name: "household" },
+            { type: "EXPENSE" as const, name: "electronics" },
+            { type: "EXPENSE" as const, name: "household" },
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -660,35 +535,35 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceCriteria>(
+    px.test(
       "produces description that only lists purchased items",
       {
-        inputs: {
+        input: {
           message:
             "bought a used mountain bike and waterproof bike bags for 200 euro",
           accounts: [{ currency: "EUR" }],
         },
-        referenceOutputs: {
+        expected: {
           criteria: `Description must list only the purchased items
           (a used mountain bike, waterproof bike bags),
           may contain conjunctions, and nothing else.`,
         },
       },
-      testWithJudge,
+      (args) => testAgentWithJudge({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceCriteria>(
+    px.test(
       "skips description that equals category name",
       {
-        inputs: {
+        input: {
           message: "purchased groceries for 50 euro",
           accounts: [{ currency: "EUR" }],
-          categories: [{ type: "EXPENSE", name: "groceries" }],
+          categories: [{ type: "EXPENSE" as const, name: "groceries" }],
         },
-        referenceOutputs: {
+        expected: {
           criteria: `Description must be empty
           because the purchased item "groceries"
           equals the category name.
@@ -696,18 +571,18 @@ ls.describe(
           "Description: N/A" in the agent's response means an empty description.`,
         },
       },
-      testWithJudge,
+      (args) => testAgentWithJudge({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceCriteria>(
+    px.test(
       "skips description that equals translated category name",
       {
-        inputs: {
+        input: {
           message: "Lebensmittel für 50 Euro gekauft",
           accounts: [{ currency: "EUR" }],
-          categories: [{ type: "EXPENSE", name: "groceries" }],
+          categories: [{ type: "EXPENSE" as const, name: "groceries" }],
         },
-        referenceOutputs: {
+        expected: {
           criteria: `Description must be empty
           because the purchased item "Lebensmittel"
           is the German translation of the category name "groceries".
@@ -715,21 +590,21 @@ ls.describe(
           "Description: N/A" in the agent's response means an empty description.`,
         },
       },
-      testWithJudge,
+      (args) => testAgentWithJudge({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "creates one transaction from amount breakdown across categories",
       {
-        inputs: {
+        input: {
           message: "meat 5 and shampoo 3 euro",
           accounts: [{ currency: "EUR" }],
           categories: [
-            { type: "EXPENSE", name: "groceries" },
-            { type: "EXPENSE", name: "household" },
+            { type: "EXPENSE" as const, name: "groceries" },
+            { type: "EXPENSE" as const, name: "household" },
           ],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             { name: "sum", args: {} },
             {
@@ -739,17 +614,17 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "creates transaction from decimal amount breakdown",
       {
-        inputs: {
+        input: {
           message: "bread 1.29, cheese 3.45, butter 2.19 euro",
           accounts: [{ currency: "EUR" }],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             { name: "sum", args: {} },
             {
@@ -759,17 +634,17 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "creates transaction from written amount breakdown",
       {
-        inputs: {
+        input: {
           message: "coffee two euros and croissant three fifty",
           accounts: [{ currency: "EUR" }],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             { name: "sum", args: {} },
             {
@@ -779,17 +654,17 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "does not treat quantity as amount breakdown",
       {
-        inputs: {
+        input: {
           message: "2 kg of apples for 5 euro",
           accounts: [{ currency: "EUR" }],
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -798,29 +673,29 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs>(
+    px.test(
       "does not create transaction for alternative amounts",
       {
-        inputs: {
+        input: {
           message: "paid 10 or 20 euros",
           accounts: [{ currency: "EUR" }],
         },
       },
-      testNoTransactionCreated,
+      (args) => testAgentNoTransactionCreated({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "keeps suspiciously high amount from voice input without price history",
       {
-        inputs: {
+        input: {
           message: "sandwich 987",
           accounts: [{ currency: "EUR" }],
           isVoiceInput: true,
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -829,16 +704,18 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "corrects suspiciously high amount from voice input using price history",
       {
-        inputs: {
+        input: {
           message: "sandwich 987",
           accounts: [{ id: testId("default"), currency: "EUR" }],
-          categories: [{ id: testId("food"), type: "EXPENSE", name: "food" }],
+          categories: [
+            { id: testId("food"), type: "EXPENSE" as const, name: "food" },
+          ],
           // Create 3 prior "food" expenses around 5–15 EUR
           transactions: [
             {
@@ -868,7 +745,7 @@ ls.describe(
           ],
           isVoiceInput: true,
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -877,16 +754,18 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "keeps suspiciously high amount from keyboard input despite price history",
       {
-        inputs: {
+        input: {
           message: "sandwich 987",
           accounts: [{ id: testId("default"), currency: "EUR" }],
-          categories: [{ id: testId("food"), type: "EXPENSE", name: "food" }],
+          categories: [
+            { id: testId("food"), type: "EXPENSE" as const, name: "food" },
+          ],
           // Create 3 prior "food" expenses around 5–15 EUR
           transactions: [
             {
@@ -916,7 +795,7 @@ ls.describe(
           ],
           isVoiceInput: false,
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -925,18 +804,18 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "parses bare HH:MM as amount under voice input",
       {
-        inputs: {
+        input: {
           message: "11:23",
           accounts: [{ currency: "EUR" }],
           isVoiceInput: true,
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -945,18 +824,18 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "parses HH:MM in mixed text as amount under voice input",
       {
-        inputs: {
+        input: {
           message: "groceries 7:50",
           accounts: [{ currency: "EUR" }],
           isVoiceInput: true,
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -965,18 +844,18 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "parses HH:MM as amount when preposition refers to place under voice input",
       {
-        inputs: {
+        input: {
           message: "lunch 11:23 at cafe",
           accounts: [{ currency: "EUR" }],
           isVoiceInput: true,
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -985,18 +864,18 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "prefers explicit amount over HH:MM under voice input",
       {
-        inputs: {
+        input: {
           message: "paid 100 at 15:30",
           accounts: [{ currency: "EUR" }],
           isVoiceInput: true,
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -1005,42 +884,42 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs>(
+    px.test(
       "does not create transaction when HH:MM is clock time under voice input",
       {
-        inputs: {
+        input: {
           message: "I bought coffee at 12:34",
           accounts: [{ currency: "EUR" }],
           isVoiceInput: true,
         },
       },
-      testNoTransactionCreated,
+      (args) => testAgentNoTransactionCreated({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs>(
+    px.test(
       "does not create transaction for bare HH:MM under keyboard input",
       {
-        inputs: {
+        input: {
           message: "11:23",
           accounts: [{ currency: "EUR" }],
           isVoiceInput: false,
         },
       },
-      testNoTransactionCreated,
+      (args) => testAgentNoTransactionCreated({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "parses NN NN as amount under voice input",
       {
-        inputs: {
+        input: {
           message: "apples, bananas 12 54",
           accounts: [{ currency: "EUR" }],
           isVoiceInput: true,
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -1049,18 +928,18 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "parses NN N as amount with leading zero under voice input",
       {
-        inputs: {
+        input: {
           message: "coffee 12 5",
           accounts: [{ currency: "EUR" }],
           isVoiceInput: true,
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -1069,28 +948,28 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs>(
+    px.test(
       "does not create transaction for NN NN under keyboard input",
       {
-        inputs: {
+        input: {
           message: "apples, bananas 12 54",
           accounts: [{ currency: "EUR" }],
           isVoiceInput: false,
         },
       },
-      testNoTransactionCreated,
+      (args) => testAgentNoTransactionCreated({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs, TestReferenceToolCalls>(
+    px.test(
       "creates transaction from same-amount recurring matches",
       {
-        inputs: {
+        input: {
           message: "gym",
           accounts: [{ id: testId("default"), currency: "EUR" }],
-          categories: [{ id: testId("sport"), type: "EXPENSE" }],
+          categories: [{ id: testId("sport"), type: "EXPENSE" as const }],
           // Same description and amount, recorded monthly
           transactions: [10, 40, 70, 100].map((days) => ({
             accountId: testId("default"),
@@ -1101,7 +980,7 @@ ls.describe(
             description: "gym abo",
           })),
         },
-        referenceOutputs: {
+        expected: {
           toolCalls: [
             {
               name: CREATE_TRANSACTION_TOOL_NAME,
@@ -1117,16 +996,16 @@ ls.describe(
           ],
         },
       },
-      testToolCalls,
+      (args) => testAgentToolCalls({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs>(
+    px.test(
       "does not create transaction from varying-amount recurring matches",
       {
-        inputs: {
+        input: {
           message: "gym",
           accounts: [{ id: testId("default"), currency: "EUR" }],
-          categories: [{ id: testId("sport"), type: "EXPENSE" }],
+          categories: [{ id: testId("sport"), type: "EXPENSE" as const }],
           // Same description, different amounts
           transactions: [
             {
@@ -1156,16 +1035,16 @@ ls.describe(
           ],
         },
       },
-      testNoTransactionCreated,
+      (args) => testAgentNoTransactionCreated({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs>(
+    px.test(
       "does not create transaction from single prior match",
       {
-        inputs: {
+        input: {
           message: "gym",
           accounts: [{ id: testId("default"), currency: "EUR" }],
-          categories: [{ id: testId("sport"), type: "EXPENSE" }],
+          categories: [{ id: testId("sport"), type: "EXPENSE" as const }],
           // One prior match is not recurring pattern
           transactions: [
             {
@@ -1179,16 +1058,18 @@ ls.describe(
           ],
         },
       },
-      testNoTransactionCreated,
+      (args) => testAgentNoTransactionCreated({ agent, context, userId }, args),
     );
 
-    ls.test<TestInputs>(
+    px.test(
       "does not create transaction without prior matches",
       {
-        inputs: {
+        input: {
           message: "gym",
           accounts: [{ id: testId("default"), currency: "EUR" }],
-          categories: [{ id: testId("food"), type: "EXPENSE", name: "food" }],
+          categories: [
+            { id: testId("food"), type: "EXPENSE" as const, name: "food" },
+          ],
           // Unrelated history, no "gym" description
           transactions: [
             {
@@ -1202,50 +1083,29 @@ ls.describe(
           ],
         },
       },
-      testNoTransactionCreated,
+      (args) => testAgentNoTransactionCreated({ agent, context, userId }, args),
+    );
+
+    px.test(
+      "does not create transaction when user has no accounts",
+      {
+        input: {
+          message: "bought apples for 10 euro",
+          accounts: [],
+        },
+      },
+      (args) => testAgentNoTransactionCreated({ agent, context, userId }, args),
     );
   },
   {
-    ...(experimentName && { projectName: experimentName }),
+    experimentName,
     metadata: { agentModelId, judgeModelId },
   },
 );
-
-// Generates stable UUID from readable name, e.g. testId("groceries").
-// Schemas require UUID, and stable IDs keep LangSmith example IDs stable.
-// UUID v5 hashes name + fixed UUID below, so same name always gives same UUID.
-// Do not change fixed UUID: all IDs and dataset examples will change.
-function testId(name: string) {
-  return uuidv5(name, "fc0c6d23-9478-4607-a85c-2b32b5b6d8c8");
-}
 
 // Returns date that is given number of days before today
 function daysAgo(days: number, today: DateString) {
   return toDateString(
     Temporal.PlainDate.from(today).subtract({ days }).toString(),
   );
-}
-
-// Creates accounts, categories and transactions for given user.
-async function seedDatabase(
-  { accounts, categories = [], transactions = [] }: TestInputs,
-  userId: string,
-) {
-  for (const accountData of accounts) {
-    await resolveAccountRepository().create(
-      fakeAccount({ ...accountData, userId }),
-    );
-  }
-
-  for (const categoryData of categories) {
-    await resolveCategoryRepository().create(
-      fakeCategory({ ...categoryData, userId }),
-    );
-  }
-
-  for (const transactionData of transactions) {
-    await resolveTransactionRepository().create(
-      fakeTransaction({ ...transactionData, userId }),
-    );
-  }
 }
