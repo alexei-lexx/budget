@@ -9,3 +9,6 @@
 # Secrets and keys
 *.pem
 *.key
+
+# Amp orb portal state
+.amp/portals/*
