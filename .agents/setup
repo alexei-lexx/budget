@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# Prepare an Amp orb: Node.js from .tool-versions, npm dependencies,
+# env files, and Docker with Compose for DynamoDB Local
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+step() {
+	echo "==> $*"
+}
+
+timed() {
+	local start=$SECONDS
+	"$@"
+	echo "    done in $((SECONDS - start))s"
+}
+
+install_node() {
+	local version
+	version="$(awk '$1 == "nodejs" { print $2 }' .tool-versions)"
+	if [[ "$(node --version 2>/dev/null)" == "v$version" ]]; then
+		echo "    node v$version already installed"
+		return
+	fi
+
+	local arch
+	case "$(uname -m)" in
+	x86_64) arch=x64 ;;
+	aarch64) arch=arm64 ;;
+	*) echo "Unsupported architecture: $(uname -m)" >&2 && exit 1 ;;
+	esac
+
+	# Replace the Node.js in /usr/local so every shell and service uses the pinned version
+	curl -fsSL "https://nodejs.org/dist/v$version/node-v$version-linux-$arch.tar.xz" |
+		sudo tar -xJ -C /usr/local --strip-components=1 \
+			--exclude=CHANGELOG.md --exclude=LICENSE --exclude=README.md
+	node --version
+}
+
+install_docker() {
+	if ! docker compose version >/dev/null 2>&1; then
+		sudo apt-get update
+		sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker-compose-plugin
+	fi
+
+	# Open the socket to every user, so `npm run db:start` works without sudo.
+	# The orb user has passwordless sudo, so this gives no new access.
+	local dropin=/etc/systemd/system/docker.socket.d/amp-orb.conf
+	if [[ ! -f "$dropin" ]]; then
+		sudo install -d "$(dirname "$dropin")"
+		printf '[Socket]\nSocketMode=0666\n' | sudo tee "$dropin" >/dev/null
+		sudo systemctl daemon-reload
+		sudo systemctl restart docker.socket
+	fi
+	sudo systemctl enable --now docker.socket docker.service >/dev/null 2>&1
+	docker info --format '    docker {{.ServerVersion}} running'
+}
+
+pull_images() {
+	(cd backend && docker compose --profile db pull --policy missing --quiet)
+}
+
+install_deps() {
+	# `npm install` rewrites the lockfiles and `npm ci` always deletes node_modules,
+	# so run `npm ci` only when the lockfile, patches, or Node.js version changed
+	local dir hash marker
+	for dir in backend frontend infra-cdk; do
+		marker="$dir/node_modules/.amp-setup-hash"
+		hash="$(
+			node --version
+			cd "$dir" && cat package.json package-lock.json
+			[[ ! -d patches ]] || cat patches/*
+		)"
+		hash="$(sha256sum <<<"$hash" | cut -d' ' -f1)"
+		if [[ "$(cat "$marker" 2>/dev/null)" == "$hash" ]]; then
+			echo "    $dir up to date"
+			continue
+		fi
+		echo "    $dir"
+		(cd "$dir" && npm ci --no-audit --no-fund --prefer-offline --loglevel=error)
+		echo "$hash" >"$marker"
+	done
+}
+
+copy_env_files() {
+	[[ -f backend/.env ]] || cp -- backend/.env.example backend/.env
+	[[ -f backend/.env.test ]] || cp -- backend/.env.test.example backend/.env.test
+	[[ -f frontend/.env ]] || cp -- frontend/.env.example frontend/.env
+}
+
+step "Node.js"
+timed install_node
+step "Docker and Compose"
+timed install_docker
+step "DynamoDB Local images"
+timed pull_images
+step "npm dependencies"
+timed install_deps
+step "Env files"
+timed copy_env_files
