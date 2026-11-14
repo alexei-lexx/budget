@@ -12,9 +12,7 @@ export default defineConfig({
           exclude: [
             "**/node_modules/**",
             "**/*.db.test.ts",
-            "**/*.int.test.ts",
             "**/*.eval.test.ts",
-            "**/*.phoenix-eval.test.ts",
           ],
           testTimeout: 10000,
           setupFiles: ["src/utils/test-utils/result-matchers.ts"],
@@ -30,21 +28,6 @@ export default defineConfig({
           testTimeout: 10000,
           maxWorkers: 1,
           setupFiles: ["src/utils/test-utils/result-matchers.ts"],
-        },
-      },
-      {
-        extends: true,
-        test: {
-          name: "integration",
-          environment: "node",
-          include: ["src/**/*.int.test.ts"],
-          exclude: ["**/node_modules/**"],
-          testTimeout: 100000,
-          maxWorkers: 1,
-          setupFiles: [
-            "src/utils/test-utils/integration-matchers.ts",
-            "src/utils/test-utils/langsmith-flush.ts",
-          ],
         },
       },
     ],

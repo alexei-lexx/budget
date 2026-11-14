@@ -1,8 +1,18 @@
 diff --git a/node_modules/@arizeai/phoenix-client/dist/esm/testing/phoenix-test-tracking.js b/node_modules/@arizeai/phoenix-client/dist/esm/testing/phoenix-test-tracking.js
-index 0270283..7beda8d 100644
+index 0270283..3759e64 100644
 --- a/node_modules/@arizeai/phoenix-client/dist/esm/testing/phoenix-test-tracking.js
 +++ b/node_modules/@arizeai/phoenix-client/dist/esm/testing/phoenix-test-tracking.js
-@@ -245,7 +245,7 @@ async function createSuiteExperiment({ suite, client, datasetId, datasetName, de
+@@ -100,7 +100,8 @@ function stableStringify(value) {
+     if (Array.isArray(value)) {
+         return "[" + value.map(stableStringify).join(",") + "]";
+     }
+-    const keys = Object.keys(value).sort();
++    // Skips undefined values, like JSON of example input stored in Phoenix
++    const keys = Object.keys(value).filter((k) => value[k] !== undefined).sort();
+     return ("{" +
+         keys
+             .map((k) => JSON.stringify(k) +
+@@ -245,7 +246,7 @@ async function createSuiteExperiment({ suite, client, datasetId, datasetName, de
              .POST("/v1/datasets/{dataset_id}/experiments", {
              params: { path: { dataset_id: datasetId } },
              body: {
@@ -25,10 +35,20 @@ index bc041c0..ca6113c 100644
      description?: string;
      /** Suite-level metadata applied to every run in this experiment. */
 diff --git a/node_modules/@arizeai/phoenix-client/dist/src/testing/phoenix-test-tracking.js b/node_modules/@arizeai/phoenix-client/dist/src/testing/phoenix-test-tracking.js
-index a920efb..a9c4066 100644
+index a920efb..e70f26d 100644
 --- a/node_modules/@arizeai/phoenix-client/dist/src/testing/phoenix-test-tracking.js
 +++ b/node_modules/@arizeai/phoenix-client/dist/src/testing/phoenix-test-tracking.js
-@@ -253,7 +253,7 @@ async function resolveSuiteExampleIds({ suite, client, datasetId, }) {
+@@ -113,7 +113,8 @@ function stableStringify(value) {
+     if (Array.isArray(value)) {
+         return "[" + value.map(stableStringify).join(",") + "]";
+     }
+-    const keys = Object.keys(value).sort();
++    // Skips undefined values, like JSON of example input stored in Phoenix
++    const keys = Object.keys(value).filter((k) => value[k] !== undefined).sort();
+     return ("{" +
+         keys
+             .map((k) => JSON.stringify(k) +
+@@ -253,7 +254,7 @@ async function resolveSuiteExampleIds({ suite, client, datasetId, }) {
      }
  }
  async function createSuiteExperiment({ suite, client, datasetId, datasetName, description, }) {
@@ -37,7 +57,7 @@ index a920efb..a9c4066 100644
      const projectName = `${datasetName}-${new Date().toISOString()}`;
      suite.projectName = projectName;
      try {
-@@ -261,7 +261,7 @@ async function createSuiteExperiment({ suite, client, datasetId, datasetName, de
+@@ -261,7 +262,7 @@ async function createSuiteExperiment({ suite, client, datasetId, datasetName, de
              .POST("/v1/datasets/{dataset_id}/experiments", {
              params: { path: { dataset_id: datasetId } },
              body: {

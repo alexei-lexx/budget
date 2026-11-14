@@ -92,9 +92,15 @@ In the Inspector UI, set Transport Type to `Streamable HTTP`, paste the copied U
 
 - `npm run format` - Run Prettier and ESLint to check and fix code style
 - `npm run test:db` - Run database-related tests only (`*.db.test.ts`)
-- `npm run test:integration` - Run agent integration tests (don't run in CI, only for local development)
-- `npm run test:unit` - Run unit tests only (excluding integration and database tests)
-- `npm run test` - Run unit and database tests (excludes integration tests)
+- `npm run test:evals` - Run agent evals with a real model and record the scores in [Phoenix](https://arize.com/docs/phoenix) (`*.eval.test.ts`, don't run in CI, only for local development)
+  - `npm run phoenix:start` - Start Phoenix before the evals
+  - `npm run phoenix:stop` - Stop Phoenix after the evals
+  - `EVAL_EXPERIMENT_NAME=my-change npm run test:evals` - Set the Phoenix experiment name (random when not set)
+  - `PHOENIX_TEST_REPETITIONS=3 npm run test:evals` - Run each case 3 times
+  - `PHOENIX_TEST_TRACKING=false npm run test:evals` - Run without Phoenix
+  - [Open Phoenix UI](http://localhost:6006)
+- `npm run test:unit` - Run unit tests only (excluding database tests and evals)
+- `npm run test` - Run unit and database tests (excludes evals)
 - `npm run typecheck` - Run TypeScript type checker
 - `npm run stryker` - Run [Stryker](https://stryker-mutator.io/) mutation testing on unit tests (HTML report in `reports/mutation/`)
   - `npm run stryker -- --mutate src/file.ts` - One file only

@@ -5,8 +5,7 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.eval.test.ts"],
     maxWorkers: 1,
-    reporters: ["langsmith/vitest/reporter"],
-    setupFiles: ["src/utils/test-utils/langsmith-flush.ts"],
+    reporters: ["default", "@arizeai/phoenix-client/vitest/reporter"],
     testTimeout: 100000,
   },
 });
