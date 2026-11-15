@@ -34,7 +34,7 @@ jobs:
       dynamodb:
         image: amazon/dynamodb-local:3.3.0
         ports:
-          - 8000:8000
+          - 4102:8000
 
     steps:
       - name: Checkout code
@@ -64,7 +64,7 @@ jobs:
         run: npm run lint
 
       - name: Wait for DynamoDB
-        run: timeout 30 bash -c 'until curl -s http://localhost:8000/ > /dev/null 2>&1; do sleep 1; done'
+        run: timeout 30 bash -c 'until curl -s http://localhost:4102/ > /dev/null 2>&1; do sleep 1; done'
 
       - name: Setup test environment variables
         working-directory: backend

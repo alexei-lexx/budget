@@ -14,7 +14,7 @@ Vue 3 single-page application for the Personal Finance Tracker.
    - `VITE_AUTH_CLIENT_ID` - from `UserPoolClientId` output
    - `VITE_AUTH_ISSUER` - from `AuthIssuer` output
    - `VITE_AUTH_UI_URL` - from `UserPoolDomainUrl` output
-4. `npm run dev` - Start development server on http://localhost:5173/
+4. `npm run dev` - Start development server on http://localhost:4101/
 
 ## Quality Checks
 

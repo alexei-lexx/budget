@@ -85,12 +85,16 @@ The test: every changed line should trace directly to the user's request.
 
 ## Git Worktrees
 
-When adding or removing a git worktree, always use `<project root>/../worktrees/<worktree-name>` as the path:
+Always add and remove git worktrees with the scripts, not with `git worktree` directly:
 
 ```
-git worktree add ../worktrees/<worktree-name> <branch>
-git worktree remove ../worktrees/<worktree-name>
+scripts/worktree-add.sh <branch>
+scripts/worktree-remove.sh <branch>
 ```
+
+- The worktree is in `.worktrees/<name>`, where `<name>` is the branch name with `/` replaced by `-`
+- Each worktree has its own ports and DynamoDB
+- See `docs/worktrees.md` for the ports, the variables, and the manual steps
 
 ## Temporary Files
 
