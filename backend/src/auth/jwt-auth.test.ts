@@ -102,6 +102,25 @@ describe("JwtAuthService", () => {
       );
     });
 
+    it("creates JWKS client for configured JWKS URL", () => {
+      // Arrange
+      const jwksUri = "https://keys.example.com/jwks";
+
+      // Act
+      new JwtAuthService({
+        issuer: ISSUER,
+        clientId: CLIENT_ID,
+        claimNamespace: CLAIM_NAMESPACE,
+        jwksUri,
+        logger: mockLogger,
+      });
+
+      // Assert
+      expect(jwksClient).toHaveBeenCalledWith(
+        expect.objectContaining({ jwksUri }),
+      );
+    });
+
     it("accepts audience without client ID", () => {
       expect(
         () =>

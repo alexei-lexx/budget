@@ -130,11 +130,12 @@ graph TD
 - **Vite Dev Server**: Serve the frontend instead of S3 and CloudFront
 - **Express Server**: Run the GraphQL API and the MCP API instead of API Gateway and Lambda
 - **DynamoDB Local**: Store user data in Docker instead of AWS DynamoDB
+- **Mock OIDC Server**: Sign in users in Docker instead of AWS Cognito
 - **`.env` File**: Keep runtime configuration and secrets instead of SSM Parameter Store
 
 **AWS Services**:
 
-- **Cognito**: Use a deployed user pool with `localhost` in its callback URLs
+- **Cognito** (optional): Use a deployed user pool with `localhost` in its callback URLs instead of the mock OIDC server
 - **Bedrock**: Call the AI models with an API key from the `.env` file
 
 **Limitations**:
@@ -434,16 +435,16 @@ graph LR
 
 ### Authentication & Authorization
 
-**Non-negotiable rule**: All user authentication flows through AWS Cognito as the authentication service. User data is strictly isolated at the database level, ensuring zero cross-user data leakage.
+**Non-negotiable rule**: All user authentication flows through AWS Cognito in deployed environments, and through the mock OIDC server in local development. User data is strictly isolated at the database level, ensuring zero cross-user data leakage.
 
 **Frontend**:
 
-- Force user authentication via AWS Cognito before allowing access to protected routes
+- Force user authentication via the identity provider before allowing access to protected routes
 - Include JWT token in Authorization header for every GraphQL request to backend
 
 **Backend GraphQL API**:
 
-- Verify JWT token against AWS Cognito public keys before any resolver runs
+- Verify JWT token against the identity provider public keys before any resolver runs
 - Reject requests with missing or invalid JWT tokens
 - Extract email from JWT token and store in context
 - Look up internal database user ID using email from context

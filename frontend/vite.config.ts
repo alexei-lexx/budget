@@ -61,4 +61,17 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  server: {
+    // Exit when the port is busy instead of trying the next port,
+    // because the port is part of the token issuer
+    // that the backend checks.
+    strictPort: true,
+    proxy: {
+      "/graphql": "http://localhost:4000",
+      // The mock OIDC server builds the token issuer from the Host header and the path.
+      // So keep both (no changeOrigin, no rewrite) to get http://localhost:5173/oidc.
+      // Use the object form, because the string form sets changeOrigin.
+      "/oidc": { target: "http://localhost:8080" },
+    },
+  },
 });

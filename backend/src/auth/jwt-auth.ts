@@ -40,6 +40,9 @@ export interface AuthContext {
  * - audience: API identifier for Auth0 (validates `aud` claim) - required for Auth0
  * - clientId: Client ID for Cognito (validates `client_id` claim) - required for Cognito
  *
+ * Optional configuration:
+ * - jwksUri: URL of the public keys (default: `<issuer>/.well-known/jwks.json`)
+ *
  * At least one of audience or clientId must be configured.
  */
 export class JwtAuthService {
@@ -59,12 +62,14 @@ export class JwtAuthService {
     audience,
     clientId,
     claimNamespace,
+    jwksUri,
     logger,
   }: {
     issuer: string;
     audience?: string;
     clientId?: string;
     claimNamespace: string;
+    jwksUri?: string;
     logger: Logger;
   }) {
     this.issuer = issuer;
@@ -82,7 +87,7 @@ export class JwtAuthService {
 
     // Initialize JWKS client to fetch public keys with caching
     this.client = jwksClient({
-      jwksUri: `${this.issuer}/.well-known/jwks.json`,
+      jwksUri: jwksUri ?? `${this.issuer}/.well-known/jwks.json`,
 
       // Caching configuration - reduces Identity Provider API calls by 90%
       cache: true,

@@ -69,6 +69,7 @@ export const resolveJwtAuthService = createSingleton(
       audience: process.env["AUTH_AUDIENCE"] || undefined,
       clientId: process.env["AUTH_CLIENT_ID"] || undefined,
       claimNamespace: requireEnv("AUTH_CLAIM_NAMESPACE"),
+      jwksUri: process.env["AUTH_JWKS_URI"] || undefined,
       logger: resolveLogger(),
     }),
 );

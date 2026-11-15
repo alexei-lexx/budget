@@ -7,6 +7,7 @@ import {
   resolveCategoryRepository,
   resolveTransactionService,
   resolveUserRepository,
+  resolveUserService,
 } from "../dependencies";
 import { Account } from "../models/account";
 import { Category } from "../models/category";
@@ -24,6 +25,10 @@ const userRepository = resolveUserRepository();
 
 // Initialize services
 const transactionService = resolveTransactionService();
+const userService = resolveUserService();
+
+// Dev users of the mock OIDC server (see docker/oidc-mock/config.json)
+const DEV_USER_EMAILS = ["dev1@example.com", "dev2@example.com"];
 
 /**
  * Truncate all tables to clear existing data
@@ -317,19 +322,21 @@ async function main() {
     // Truncate existing data
     await truncateTables();
 
-    // Get existing users
-    console.log("Fetching existing users from database...\n");
-    const users = await userRepository.findMany();
+    // Create dev users that do not exist
+    console.log("Creating dev users...\n");
+    for (const email of DEV_USER_EMAILS) {
+      const userResult = await userService.ensureUser(email);
 
-    if (users.length === 0) {
-      console.warn("⚠️  No users found in the database");
-      console.warn("Please create users via the frontend application first.\n");
-      console.log("ℹ️  To seed data, please:");
-      console.log("  1. Start the backend: npm run dev");
-      console.log("  2. Sign up a new user via the frontend application");
-      console.log("  3. Run: npm run db:seed");
-      process.exit(0);
+      if (!userResult.success) {
+        throw new Error(
+          `Failed to create dev user ${email}: ${userResult.error}`,
+        );
+      }
     }
+
+    // Get all users
+    console.log("Fetching all users from database...\n");
+    const users = await userRepository.findMany();
 
     console.log(`Found ${users.length} user(s) in the database:\n`);
     users.forEach((user) => {

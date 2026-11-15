@@ -1,0 +1,25 @@
+{
+  "interactiveLogin": true,
+  "tokenCallbacks": [
+    {
+      "issuerId": "oidc",
+      "requestMappings": [
+        {
+          "requestParam": "subject",
+          "match": "^(dev1|dev2)@example\\.com$",
+          "claims": {
+            "client_id": "${clientId}",
+            "email": "${subject}"
+          }
+        },
+        {
+          "requestParam": "subject",
+          "match": ".*",
+          "claims": {
+            "client_id": "${clientId}"
+          }
+        }
+      ]
+    }
+  ]
+}

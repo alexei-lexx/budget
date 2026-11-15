@@ -4,8 +4,7 @@ GraphQL API server for the Personal Finance Tracker application.
 
 ## Additional Prerequisites
 
-- Docker and Docker Compose installed (for DynamoDB Local in development)
-- Auth stack deployed (see [infra-cdk/README.md](../infra-cdk/README.md#development-setup))
+- Docker and Docker Compose installed (for DynamoDB Local and the mock OIDC server in development)
 
 ## Development Setup
 
@@ -13,11 +12,25 @@ GraphQL API server for the Personal Finance Tracker application.
 2. `cp .env.example .env` - Copy development environment template
 3. `cp .env.test.example .env.test` - Copy test environment template
 4. Edit `.env` to set environment variables; typically only:
-   - `AUTH_CLIENT_ID`
-   - `AUTH_ISSUER`
    - `AWS_BEARER_TOKEN_BEDROCK`
 5. `npm run db:setup` - Start DynamoDB Local and create tables
-6. `npm run dev` - Start the development server on http://localhost:4000
+6. `npm run dev` - Start DynamoDB Local, the mock OIDC server, and the development server on http://localhost:4000
+7. Optional: `npm run db:seed` - Create the dev users and add sample data
+
+## Authentication (Development)
+
+Uses [mock-oauth2-server](https://github.com/navikt/mock-oauth2-server) running in Docker.
+
+- Sign in as `dev1@example.com` or `dev2@example.com` without a password
+- Tokens of other users have no `email` claim, so the backend rejects them
+- To add a dev user, add the email to `docker/oidc-mock/config.json` and `src/scripts/seed-data.ts`, then restart the mock server
+
+**Scripts:**
+
+- `npm run auth:start` - Start the mock OIDC server container
+- `npm run auth:stop` - Stop and remove the mock OIDC server container
+
+To use the deployed Cognito user pool, comment out the local mock OIDC server block in `.env`, then uncomment the Cognito block and set its values (see [infra-cdk/README.md](../infra-cdk/README.md#development-setup)).
 
 ## Database (Development & Test)
 
@@ -46,8 +59,8 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 
 - `npm run db:seed` - Populate database with sample data
   - ⚠️ **Erases all existing data**
-  - Requires at least one user in the database
-  - Creates sample data for that user
+  - Creates the dev users of the mock OIDC server (`dev1@example.com`, `dev2@example.com`) if they do not exist
+  - Creates sample data for all users in the database
 - `npm run migrate` - Run pending data migrations
   - Safe for production use
   - Tracks migration history in migrations table
