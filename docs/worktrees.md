@@ -80,6 +80,8 @@ Then run `npm run dev` in `backend/` and `frontend/` of the worktree.
 The new DynamoDB has no data.
 The user record appears on the first login.
 
+If the script fails after it creates the worktree, run `scripts/worktree-remove.sh <branch>` and try again.
+
 ### Remove a Worktree
 
 ```
