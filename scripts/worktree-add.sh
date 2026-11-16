@@ -124,7 +124,21 @@ set_env_var "$frontend_env" VITE_MCP_ENDPOINT "http://localhost:$backend_port/mc
 
 (cd "$worktree_dir/backend" && npm ci)
 (cd "$worktree_dir/frontend" && npm ci)
-(cd "$worktree_dir/backend" && npm run db:setup && npm run test:db:create)
+(cd "$worktree_dir/backend" && npm run db:start)
+
+# A new DynamoDB container needs a few seconds to start
+for attempt in $(seq 1 30); do
+  if curl -s "http://localhost:$dynamodb_port" >/dev/null; then
+    break
+  fi
+  if [ "$attempt" -eq 30 ]; then
+    echo "Error: DynamoDB does not answer on port $dynamodb_port" >&2
+    exit 1
+  fi
+  sleep 1
+done
+
+(cd "$worktree_dir/backend" && npm run db:create && npm run test:db:create)
 
 cat <<EOF
 

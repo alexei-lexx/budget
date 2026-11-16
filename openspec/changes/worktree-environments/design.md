@@ -217,7 +217,9 @@ Steps:
    - Replace the line of a variable if it exists
    - Add the line if it does not exist
 7. Run `npm ci` in `backend/` and `frontend/`
-8. Run `npm run db:setup` and `npm run test:db:create` in `backend/`
+8. Run `npm run db:start` in `backend/`, wait until DynamoDB answers on port `41n2`, and run `npm run db:create` and `npm run test:db:create`
+   - A new DynamoDB container needs a few seconds to start
+   - The script stops with an error after 30 seconds
 9. Show the slot, the ports, and the URLs
 
 - The script uses Bash with `set -euo pipefail`
@@ -234,6 +236,19 @@ Steps:
    - Git stops if the worktree has changes or untracked files
    - Ignored files, such as `node_modules`, `.env`, and DynamoDB data, are removed
 4. Keep the branch
+
+### Remove `db:setup` and `test:db:setup`
+
+- `db:setup` and `test:db:setup` run `db:start`, `sleep 1`, and the table creation
+  - A new DynamoDB container needs more than 1 second, so the table creation fails
+- Remove both scripts from `backend/package.json`
+- The documentation lists `npm run db:start` and the table creation as two steps
+- Only `scripts/worktree-add.sh` waits for DynamoDB
+
+Alternatives:
+
+- **Wait in the npm scripts**: rejected, to keep the scripts simple
+- **Retry in `create-tables.ts`**: rejected, to keep the change small
 
 ### Cognito callback URLs
 

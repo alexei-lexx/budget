@@ -114,7 +114,8 @@ Before first backend test run:
 ```
 cd backend
 cp .env.test.example .env.test
-npm run test:db:setup
+npm run db:start
+npm run test:db:create
 ```
 
 ## Additional Documentation

@@ -37,6 +37,7 @@ Parallel work on several branches, by a person or by coding agents, is not possi
 - Move the worktree location from `../worktrees/<name>` to `.worktrees/<name>` and add it to `.gitignore`
 - Add `docs/worktrees.md` and link it from the agent instruction files
 - List the frontend ports of all slots in the Cognito callback and logout URLs of `infra-cdk/.env.example`
+- Remove `db:setup` and `test:db:setup`, because their `sleep 1` is too short for a new DynamoDB container
 - Update the example `.env` files, the CI workflow, `frontend/apollo.config.js`, and the README files to the new ports
 
 ## Capabilities
@@ -52,7 +53,7 @@ The change sets `skip_specs: true`.
 
 ## Impact
 
-- **Backend**: `src/dev.ts`, `docker-compose.yml`, `.env.example`, `.env.test.example`, `README.md`
+- **Backend**: `src/dev.ts`, `docker-compose.yml`, `package.json`, `.env.example`, `.env.test.example`, `README.md`
 - **Frontend**: `vite.config.ts`, `apollo.config.js`, `.env.example`, `README.md`
 - **Infra CDK**: `.env.example`
 - **CI**: `.github/workflows/ci.yml` (DynamoDB service port)

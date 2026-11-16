@@ -16,8 +16,9 @@ GraphQL API server for the Personal Finance Tracker application.
    - `AUTH_CLIENT_ID`
    - `AUTH_ISSUER`
    - `AWS_BEARER_TOKEN_BEDROCK`
-5. `npm run db:setup` - Start DynamoDB Local and create tables
-6. `npm run dev` - Start the development server on http://localhost:4100
+5. `npm run db:start` - Start DynamoDB Local
+6. `npm run db:create` - Create tables
+7. `npm run dev` - Start the development server on http://localhost:4100
 
 ## Database (Development & Test)
 
@@ -40,7 +41,6 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 - `npm run db:create` - Create all tables (skips existing tables)
 - `npm run db:drop` - Delete all tables ⚠️ **Destroys all data**
 - `npm run db:recreate` - Drop and recreate all tables ⚠️ **Destroys all data**
-- `npm run db:setup` - Start container + create tables (first-time setup)
 
 **Data Management (Development):**
 
@@ -58,11 +58,10 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 - `npm run test:db:create` - Create test tables (uses `.env.test`)
 - `npm run test:db:drop` - Delete test tables ⚠️ **Destroys all test data**
 - `npm run test:db:recreate` - Drop and recreate test tables ⚠️ **Destroys all test data**
-- `npm run test:db:setup` - Start container + create test tables
 
 **Use Cases:**
 
-- **First-time setup**: `npm run db:setup`
+- **First-time setup**: `npm run db:start`, then `npm run db:create`
 - **Apply schema changes**: `npm run db:recreate` (local development only)
 - **Reset to empty tables**: `npm run db:recreate`
 - **Seed sample data for existing users**: `npm run db:seed`

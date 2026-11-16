@@ -20,6 +20,7 @@ The agent does all other tasks, including all checks.
 - [x] 2.5 In `frontend/apollo.config.js`, change the URL to `http://localhost:4100/graphql`; verify with `git diff`
 - [x] 2.6 In `.github/workflows/ci.yml`, map the DynamoDB service to host port `4102` and wait for DynamoDB on port `4102`; verify with `git diff`
 - [x] 2.7 In `backend/README.md` and `frontend/README.md`, change the old ports to the new ports; verify `git grep -nE "localhost:(4000|5173|8000|8001|6006)" -- ':!openspec/changes/archive'` shows no result
+- [x] 2.8 Remove `db:setup` and `test:db:setup` from `backend/package.json`; in `backend/README.md` and the Cloud Agent Setup of `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, and `.github/copilot-instructions.md`, replace them with `npm run db:start` and the table creation script; verify `git grep -n "db:setup" -- ':!openspec'` shows no result
 
 ## 3. Local Setup of the Main Checkout (manual)
 
@@ -41,7 +42,7 @@ The agent does all other tasks, including all checks.
 ## 5. Worktree Scripts
 
 - [x] 5.1 Add `.worktrees/` to `.gitignore`, and verify `git check-ignore .worktrees/example` matches
-- [x] 5.2 Add `scripts/worktree-add.sh <branch>` as in design.md (main checkout lookup, name, lowest free slot, port check, worktree creation for an existing or new branch, `.env` copy and update, `npm ci`, `db:setup`, `test:db:create`, summary); make it executable, and verify `bash -n` passes and the script prints usage without arguments
+- [x] 5.2 Add `scripts/worktree-add.sh <branch>` as in design.md (main checkout lookup, name, lowest free slot, port check, worktree creation for an existing or new branch, `.env` copy and update, `npm ci`, `db:start`, wait for DynamoDB, `db:create`, `test:db:create`, summary); make it executable, and verify `bash -n` passes and the script prints usage without arguments
 - [x] 5.3 Add `scripts/worktree-remove.sh <branch>` as in design.md (stop the containers of all profiles, `git worktree remove` without `--force`, keep the branch); make it executable, and verify `bash -n` passes and the script prints usage without arguments
 
 ## 6. Documentation
@@ -52,13 +53,13 @@ The agent does all other tasks, including all checks.
 
 ## 7. Integration Check
 
-- [ ] 7.1 Run `scripts/worktree-add.sh` with a new test branch, and verify the worktree is in `.worktrees/`, it gets slot 1, its `.env` files have ports `4110` to `4114`, and its DynamoDB runs on port `4112` with the dev and test tables
-- [ ] 7.2 In the slot 1 worktree, run `npm test` in `backend/`, and verify all tests pass while the main checkout's DynamoDB also runs
-- [ ] 7.3 In the slot 1 worktree, run `npm run dev` in `backend/` and `frontend/`, and verify the backend answers on port `4110`, the frontend on port `4111`, and the main checkout still answers on ports `4100` and `4101`
-- [ ] 7.4 Run `scripts/worktree-add.sh` with a second test branch, and verify it gets slot 2
-- [ ] 7.5 Run `scripts/worktree-remove.sh` for the slot 1 branch, and verify the folder and its containers are gone, the branch still exists, and the main checkout's DynamoDB still runs
-- [ ] 7.6 Run `scripts/worktree-add.sh` with a third test branch, and verify it reuses slot 1
-- [ ] 7.7 Remove the remaining test worktrees with `scripts/worktree-remove.sh`, delete the test branches, and verify `git worktree list` shows only the main checkout
+- [x] 7.1 Run `scripts/worktree-add.sh` with a new test branch, and verify the worktree is in `.worktrees/`, it gets slot 1, its `.env` files have ports `4110` to `4114`, and its DynamoDB runs on port `4112` with the dev and test tables
+- [x] 7.2 In the slot 1 worktree, run `npm test` in `backend/`, and verify all tests pass while the main checkout's DynamoDB also runs
+- [x] 7.3 In the slot 1 worktree, run `npm run dev` in `backend/` and `frontend/`, and verify the backend answers on port `4110`, the frontend on port `4111`, and the main checkout still answers on ports `4100` and `4101`
+- [x] 7.4 Run `scripts/worktree-add.sh` with a second test branch, and verify it gets slot 2
+- [x] 7.5 Run `scripts/worktree-remove.sh` for the slot 1 branch, and verify the folder and its containers are gone, the branch still exists, and the main checkout's DynamoDB still runs
+- [x] 7.6 Run `scripts/worktree-add.sh` with a third test branch, and verify it reuses slot 1
+- [x] 7.7 Remove the remaining test worktrees with `scripts/worktree-remove.sh`, delete the test branches, and verify `git worktree list` shows only the main checkout
 
 ## 8. Parallel Full App Check
 
