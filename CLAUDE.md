@@ -85,33 +85,17 @@ The test: every changed line should trace directly to the user's request.
 
 ## Git Worktrees
 
-When adding or removing a git worktree, always use `<project root>/../worktrees/<worktree-name>` as the path:
-
-```
-git worktree add ../worktrees/<worktree-name> <branch>
-git worktree remove ../worktrees/<worktree-name>
-```
+- Worktrees are in `.worktrees/`
+- Add and remove git worktrees with the scripts, not with `git worktree`
+  - `scripts/worktree-add.sh <branch>`
+  - `scripts/worktree-remove.sh <branch>`
+- See `docs/worktrees.md`
 
 ## Temporary Files
 
 Write all temporary files (scratch scripts, debug output, ad-hoc data dumps)
 to the project's `tmp/` directory — not the system `/tmp`.
 Avoids permission prompts for paths outside the project.
-
-## CRITICAL: Cloud Agent Setup
-
-**Run at the start of every cloud session.** Skip if already set up.
-
-- Use Node.js version from `.tool-versions` (`nodejs` key)
-- Run `npm install` in any package you plan to modify (`backend/`, `frontend/`, `infra-cdk/`)
-
-Before first backend test run:
-
-```
-cd backend
-cp .env.test.example .env.test
-npm run test:db:setup
-```
 
 ## Additional Documentation
 

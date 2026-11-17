@@ -1,6 +1,10 @@
 .playwright
 .playwright-cli
 
+# Git worktrees (see docs/worktrees.md)
+.worktree-slot
+.worktrees/
+
 # Environment files (defense-in-depth — subdirectories have their own .gitignore)
 .env*
 !**/.env.example

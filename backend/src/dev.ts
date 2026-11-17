@@ -6,7 +6,7 @@ import express from "express";
 import { createAuthenticatedMcpServer } from "./mcp/server";
 import { server as apolloServer, createContext } from "./server";
 
-const PORT = 4000;
+const PORT = Number(process.env["BACKEND_PORT"] || 4100);
 
 (async () => {
   await apolloServer.start();

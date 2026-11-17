@@ -6,11 +6,11 @@ import { AuthCdkStack } from "../lib/auth-cdk-stack";
 describe("AuthCdkStack", () => {
   const props = {
     authClaimNamespace: "https://personal-budget-tracker",
-    callbackUrls: ["http://localhost:5173"],
+    callbackUrls: ["http://localhost/callback"],
     domainPrefix: "test-budget-auth",
     lambdaMemorySizeMb: 128,
     lambdaTimeoutSeconds: 5,
-    logoutUrls: ["http://localhost:5173"],
+    logoutUrls: ["http://localhost/logout"],
     retainUserPoolOnDestroy: false,
     selfSignUpEnabled: true,
   } as const;

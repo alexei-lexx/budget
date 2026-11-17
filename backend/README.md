@@ -16,8 +16,9 @@ GraphQL API server for the Personal Finance Tracker application.
    - `AUTH_CLIENT_ID`
    - `AUTH_ISSUER`
    - `AWS_BEARER_TOKEN_BEDROCK`
-5. `npm run db:setup` - Start DynamoDB Local and create tables
-6. `npm run dev` - Start the development server on http://localhost:4000
+5. `npm run db:start` - Start DynamoDB Local
+6. `npm run db:create` - Create tables
+7. `npm run dev` - Start the development server on http://localhost:4100
 
 ## Database (Development & Test)
 
@@ -25,8 +26,8 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 
 ### Database access:
 
-- **DynamoDB Local**: http://localhost:8000
-- **Admin UI**: http://localhost:8001
+- **DynamoDB Local**: http://localhost:4102
+- **Admin UI**: http://localhost:4103
 
 ### Database Scripts
 
@@ -40,7 +41,6 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 - `npm run db:create` - Create all tables (skips existing tables)
 - `npm run db:drop` - Delete all tables ⚠️ **Destroys all data**
 - `npm run db:recreate` - Drop and recreate all tables ⚠️ **Destroys all data**
-- `npm run db:setup` - Start container + create tables (first-time setup)
 
 **Data Management (Development):**
 
@@ -58,11 +58,10 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 - `npm run test:db:create` - Create test tables (uses `.env.test`)
 - `npm run test:db:drop` - Delete test tables ⚠️ **Destroys all test data**
 - `npm run test:db:recreate` - Drop and recreate test tables ⚠️ **Destroys all test data**
-- `npm run test:db:setup` - Start container + create test tables
 
 **Use Cases:**
 
-- **First-time setup**: `npm run db:setup`
+- **First-time setup**: `npm run db:start`, then `npm run db:create`
 - **Apply schema changes**: `npm run db:recreate` (local development only)
 - **Reset to empty tables**: `npm run db:recreate`
 - **Seed sample data for existing users**: `npm run db:seed`
@@ -70,13 +69,13 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 
 ## MCP Server
 
-The dev server exposes an MCP endpoint at `http://localhost:4000/mcp` (Streamable HTTP transport), available once `npm run dev` is running.
+The dev server exposes an MCP endpoint at `http://localhost:4100/mcp` (Streamable HTTP transport), available once `npm run dev` is running.
 
 **Getting a connection URL:**
 
-1. Open the frontend app in a browser (http://localhost:5173)
+1. Open the frontend app in a browser (http://localhost:4101)
 1. Sign in
-1. Go to the Settings page (http://localhost:5173/settings) → `MCP Connection` and copy the URL
+1. Go to the Settings page (http://localhost:4101/settings) → `MCP Connection` and copy the URL
 
 **Using [MCP Inspector](https://github.com/modelcontextprotocol/inspector):**
 
@@ -98,7 +97,7 @@ In the Inspector UI, set Transport Type to `Streamable HTTP`, paste the copied U
   - `EVAL_EXPERIMENT_NAME=my-change npm run test:evals` - Set the Phoenix experiment name (random when not set)
   - `PHOENIX_TEST_REPETITIONS=3 npm run test:evals` - Run each case 3 times
   - `PHOENIX_TEST_TRACKING=false npm run test:evals` - Run without Phoenix
-  - [Open Phoenix UI](http://localhost:6006)
+  - [Open Phoenix UI](http://localhost:4104)
 - `npm run test:unit` - Run unit tests only (excluding database tests and evals)
 - `npm run test` - Run unit and database tests (excludes evals)
 - `npm run typecheck` - Run TypeScript type checker
