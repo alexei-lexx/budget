@@ -17,7 +17,7 @@ The agent does all other tasks, including all checks.
 - [x] 2.2 In `backend/.env.test.example`, set `DYNAMODB_ENDPOINT` to `http://localhost:4102`, `API_BASE_URL` to `http://localhost:4100`, and `PHOENIX_ENDPOINT` to `http://localhost:4104`; verify with `git diff`
 - [x] 2.3 In `frontend/.env.example`, set `VITE_GRAPHQL_ENDPOINT` and `VITE_MCP_ENDPOINT` to port `4100`, and add a commented-out `FRONTEND_PORT` with a short comment; verify with `git diff`
 - [x] 2.4 In `infra-cdk/.env.example`, set `AUTH_CALLBACK_URLS` and `AUTH_LOGOUT_URLS` to `http://localhost:4101` and `http://localhost:4111` to `http://localhost:4191`, separated by commas; verify with `git diff`
-- [x] 2.5 In `frontend/apollo.config.js`, change the URL to `http://localhost:4100/graphql`; verify with `git diff`
+- [x] 2.5 Delete `frontend/apollo.config.js`, and verify `git grep apollo.config -- ':!openspec'` shows no result
 - [x] 2.6 In `.github/workflows/ci.yml`, map the DynamoDB service to host port `4102` and wait for DynamoDB on port `4102`; verify with `git diff`
 - [x] 2.7 In `backend/README.md` and `frontend/README.md`, change the old ports to the new ports; verify `git grep -nE "localhost:(4000|5173|8000|8001|6006)" -- ':!openspec/changes/archive'` shows no result
 - [x] 2.8 Remove `db:setup` and `test:db:setup` from `backend/package.json`; in `backend/README.md` and the Cloud Agent Setup of `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, and `.github/copilot-instructions.md`, replace them with `npm run db:start` and the table creation script; verify `git grep -n "db:setup" -- ':!openspec'` shows no result
@@ -63,12 +63,19 @@ The agent does all other tasks, including all checks.
 
 ## 8. Parallel Full App Check
 
-- [x] 8.1 Run `scripts/worktree-add.sh` with a new test branch, and note its slot `n`
-- [x] 8.2 Run `npm run dev` in `backend/` and `frontend/` of the main checkout (slot 0) and of the slot `n` worktree at the same time, and verify all four servers run
-- [x] 8.3 With `playwright-cli`, open `http://localhost:4101` and `http://localhost:41n1` in two sessions at the same time, log in to both with the dev credentials from `pass`, and verify each app sends GraphQL requests only to its own backend (`4100` and `41n0`)
-- [x] 8.4 In both apps, create a budget account (`worktree-check-0` in slot 0, `worktree-check-n` in slot `n`), and verify each app shows only its own account
-- [x] 8.5 While all four dev servers run, run `npm test` in `backend/` of slot 0 and slot `n` at the same time, then `npm test` in `frontend/` of both, and verify all tests pass and both apps still show their own `worktree-check-*` account
-- [x] 8.6 Clean up: delete the `worktree-check-0` account in the slot 0 app, stop the slot `n` dev servers, remove the worktree with `scripts/worktree-remove.sh`, and delete the test branch
+- [ ] 8.1 Run `scripts/worktree-add.sh` with a new test branch, and note its slot `n`
+- [ ] 8.2 Run `npm run dev` in `backend/` and `frontend/` of the main checkout (slot 0) and of the slot `n` worktree at the same time, and verify all four servers run
+- [ ] 8.3 With `playwright-cli`, open `http://localhost:4101` and `http://localhost:41n1` in two sessions at the same time, log in to both with the dev credentials from `pass`, and verify each app sends GraphQL requests only to its own backend (`4100` and `41n0`)
+- [ ] 8.4 In both apps, create a budget account (`worktree-check-0` in slot 0, `worktree-check-n` in slot `n`), and verify each app shows only its own account
+- [ ] 8.5 While all four dev servers run, run `npm test` in `backend/` of slot 0 and slot `n` at the same time, then `npm test` in `frontend/` of both, and verify all tests pass and both apps still show their own `worktree-check-*` account
+- [ ] 8.6 Clean up: delete the `worktree-check-0` account in the slot 0 app, stop the slot `n` dev servers, remove the worktree with `scripts/worktree-remove.sh`, and delete the test branch
+
+## 9. Slot File
+
+- [x] 9.1 Add `.worktree-slot` to `.gitignore`, and verify `git check-ignore .worktree-slot` matches
+- [x] 9.2 In `scripts/worktree-add.sh`, write the slot to `.worktree-slot` instead of `WORKTREE_SLOT` in `backend/.env`, and read the used slots from `.worktrees/*/.worktree-slot`; verify `bash -n` passes
+- [x] 9.3 In `docs/worktrees.md`, remove the `WORKTREE_SLOT` row and describe `.worktree-slot` under "Slots and Ports"
+- [ ] 9.4 Add two test worktrees with `scripts/worktree-add.sh`, and verify they get slots 1 and 2 and `git status` in each is clean; remove them with `scripts/worktree-remove.sh`, and verify the removal works without `--force`
 
 ## Constitution Compliance
 

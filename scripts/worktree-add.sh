@@ -31,12 +31,11 @@ for env_file in "${env_files[@]}"; do
   fi
 done
 
-# The used slots are the WORKTREE_SLOT values of the existing worktrees
+# The used slots are the .worktree-slot values of the existing worktrees
 used_slots=" "
-for existing_env in "$main_dir"/.worktrees/*/backend/.env; do
-  [ -f "$existing_env" ] || continue
-  existing_slot="$(sed -n 's/^WORKTREE_SLOT=//p' "$existing_env")"
-  used_slots+="$existing_slot "
+for existing_slot_file in "$main_dir"/.worktrees/*/.worktree-slot; do
+  [ -f "$existing_slot_file" ] || continue
+  used_slots+="$(cat "$existing_slot_file") "
 done
 
 slot=""
@@ -103,7 +102,6 @@ set_env_var() {
 }
 
 backend_env="$worktree_dir/backend/.env"
-set_env_var "$backend_env" WORKTREE_SLOT "$slot"
 set_env_var "$backend_env" COMPOSE_PROJECT_NAME "$compose_project"
 set_env_var "$backend_env" BACKEND_PORT "$backend_port"
 set_env_var "$backend_env" DYNAMODB_PORT "$dynamodb_port"
@@ -121,6 +119,8 @@ frontend_env="$worktree_dir/frontend/.env"
 set_env_var "$frontend_env" FRONTEND_PORT "$frontend_port"
 set_env_var "$frontend_env" VITE_GRAPHQL_ENDPOINT "http://localhost:$backend_port/graphql"
 set_env_var "$frontend_env" VITE_MCP_ENDPOINT "http://localhost:$backend_port/mcp"
+
+echo "$slot" >"$worktree_dir/.worktree-slot"
 
 (cd "$worktree_dir/backend" && npm ci)
 (cd "$worktree_dir/frontend" && npm ci)

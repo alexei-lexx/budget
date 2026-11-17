@@ -188,10 +188,13 @@ Alternatives:
 ### Slot allocation
 
 - `scripts/worktree-add.sh` selects the lowest free slot from 1 to 9
-- The script writes the slot to `WORKTREE_SLOT` in the `backend/.env` of the worktree
-- The used slots are the `WORKTREE_SLOT` values in `.worktrees/*/backend/.env`
+- The script writes the slot to `.worktree-slot` in the root of the worktree
+- The used slots are the values in `.worktrees/*/.worktree-slot`
   - Removing a worktree removes its folder, so its slot becomes free
   - No separate registry is necessary
+- Add `.worktree-slot` to `.gitignore`
+  - Without it, `git status` in the worktree shows the file
+  - Without it, `git worktree remove` stops, because the file is untracked
 - The script checks that ports `41n0` to `41n4` are free before it uses slot `n`
   - A busy port makes the script stop with an error
 - The script stops with an error when all slots are used
@@ -199,6 +202,8 @@ Alternatives:
 Alternatives:
 
 - **Slot as an argument**: rejected by the user, to keep one simple path
+- **`WORKTREE_SLOT` in `backend/.env`**: rejected, because the backend does not use the slot
+- **Slot from `BACKEND_PORT`**: rejected by the user, to keep the slot separate from the port values
 
 ### `scripts/worktree-add.sh <branch>`
 
@@ -216,11 +221,12 @@ Steps:
 6. Set the slot values in the copied files
    - Replace the line of a variable if it exists
    - Add the line if it does not exist
-7. Run `npm ci` in `backend/` and `frontend/`
-8. Run `npm run db:start` in `backend/`, wait until DynamoDB answers on port `41n2`, and run `npm run db:create` and `npm run test:db:create`
+7. Write the slot to `.worktree-slot`
+8. Run `npm ci` in `backend/` and `frontend/`
+9. Run `npm run db:start` in `backend/`, wait until DynamoDB answers on port `41n2`, and run `npm run db:create` and `npm run test:db:create`
    - A new DynamoDB container needs a few seconds to start
    - The script stops with an error after 30 seconds
-9. Show the slot, the ports, and the URLs
+10. Show the slot, the ports, and the URLs
 
 - The script uses Bash with `set -euo pipefail`
 - The script does not need a root `package.json`
@@ -277,7 +283,7 @@ Alternatives:
 Code changes:
 
 1. Change the defaults in code, Docker Compose, example files, CI, and documentation
-2. Add the scripts, `.gitignore` entry, and `docs/worktrees.md`
+2. Add the scripts, `.gitignore` entries, and `docs/worktrees.md`
 3. Update the agent instruction files
 
 Manual steps for each developer:
