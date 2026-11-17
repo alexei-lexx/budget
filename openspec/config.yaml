@@ -1,4 +1,5 @@
 schema: spec-driven
+skillsScope: project
 
 context: |
   File `docs/constitution.md` is the project's constitution.
@@ -31,4 +32,3 @@ operations:
       - Apply the code style rules in `docs/code-style.md`
       - Use the `testing` skill for each new or modified test
       - To check the application, assume that the backend and frontend are already up and running
-skillsScope: project
