@@ -63,19 +63,19 @@ The agent does all other tasks, including all checks.
 
 ## 8. Parallel Full App Check
 
-- [ ] 8.1 Run `scripts/worktree-add.sh` with a new test branch, and note its slot `n`
-- [ ] 8.2 Run `npm run dev` in `backend/` and `frontend/` of the main checkout (slot 0) and of the slot `n` worktree at the same time, and verify all four servers run
-- [ ] 8.3 With `playwright-cli`, open `http://localhost:4101` and `http://localhost:41n1` in two sessions at the same time, log in to both with the dev credentials from `pass`, and verify each app sends GraphQL requests only to its own backend (`4100` and `41n0`)
-- [ ] 8.4 In both apps, create a budget account (`worktree-check-0` in slot 0, `worktree-check-n` in slot `n`), and verify each app shows only its own account
-- [ ] 8.5 While all four dev servers run, run `npm test` in `backend/` of slot 0 and slot `n` at the same time, then `npm test` in `frontend/` of both, and verify all tests pass and both apps still show their own `worktree-check-*` account
-- [ ] 8.6 Clean up: delete the `worktree-check-0` account in the slot 0 app, stop the slot `n` dev servers, remove the worktree with `scripts/worktree-remove.sh`, and delete the test branch
+- [x] 8.1 Run `scripts/worktree-add.sh` with a new test branch, and note its slot `n`
+- [x] 8.2 Run `npm run dev` in `backend/` and `frontend/` of the main checkout (slot 0) and of the slot `n` worktree at the same time, and verify all four servers run
+- [x] 8.3 With `playwright-cli`, open `http://localhost:4101` and `http://localhost:41n1` in two sessions at the same time, log in to both with the dev credentials from `pass`, and verify each app sends GraphQL requests only to its own backend (`4100` and `41n0`)
+- [x] 8.4 In both apps, create a budget account (`worktree-check-0` in slot 0, `worktree-check-n` in slot `n`), and verify each app shows only its own account
+- [x] 8.5 While all four dev servers run, run `npm test` in `backend/` of slot 0 and slot `n` at the same time, then `npm test` in `frontend/` of both, and verify all tests pass and both apps still show their own `worktree-check-*` account
+- [x] 8.6 Clean up: delete the `worktree-check-0` account in the slot 0 app, stop the slot `n` dev servers, remove the worktree with `scripts/worktree-remove.sh`, and delete the test branch
 
 ## 9. Slot File
 
 - [x] 9.1 Add `.worktree-slot` to `.gitignore`, and verify `git check-ignore .worktree-slot` matches
 - [x] 9.2 In `scripts/worktree-add.sh`, write the slot to `.worktree-slot` instead of `WORKTREE_SLOT` in `backend/.env`, and read the used slots from `.worktrees/*/.worktree-slot`; verify `bash -n` passes
 - [x] 9.3 In `docs/worktrees.md`, remove the `WORKTREE_SLOT` row and describe `.worktree-slot` under "Slots and Ports"
-- [ ] 9.4 Add two test worktrees with `scripts/worktree-add.sh`, and verify they get slots 1 and 2 and `git status` in each is clean; remove them with `scripts/worktree-remove.sh`, and verify the removal works without `--force`
+- [x] 9.4 Add two test worktrees with `scripts/worktree-add.sh`, and verify they get slots 1 and 2 and `git status` in each is clean; remove them with `scripts/worktree-remove.sh`, and verify the removal works without `--force`
 
 ## Constitution Compliance
 
