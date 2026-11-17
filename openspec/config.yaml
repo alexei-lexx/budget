@@ -1,4 +1,5 @@
 schema: spec-driven
+skillsScope: project
 
 context: |
   File `docs/constitution.md` is the project's constitution.
