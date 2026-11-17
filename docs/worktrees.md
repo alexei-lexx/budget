@@ -70,12 +70,3 @@ Cognito accepts a login redirect only to a registered URL.
 
 1. Copy the two values to `infra-cdk/.env`
 2. Run `npm run deploy:auth:dev` in `infra-cdk/`
-
-### Containers of a Removed Worktree
-
-If a worktree folder is removed without the script, its containers stay.
-Stop them from any folder:
-
-```bash
-docker compose -p budget-<name> down
-```
