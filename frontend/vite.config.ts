@@ -14,8 +14,9 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       port: Number(env["FRONTEND_PORT"] || 4101),
-      // Stop with an error on a busy port.
-      // Cognito does not accept a different port.
+      // Exit with an error if the port is busy.
+      // Without it, Vite moves to the next free port.
+      // That port can belong to another service or worktree slot, see docs/worktrees.md.
       strictPort: true,
     },
     plugins: [
