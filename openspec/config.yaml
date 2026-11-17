@@ -13,21 +13,30 @@ context: |
 
 rules:
   proposal:
-    - When on the `main` branch, create a git branch for each proposal using the name of the proposal without prefixes and suffixes
-    - If applicable, include an issue number, title, and description at the beginning
-    - Include a "## Constitution Compliance" section that lists the principles that apply and any violations
+    - When on the `main` branch, create a git branch for each proposal using the
+      name of the proposal without prefixes and suffixes
+    - If applicable, include an issue number, title, and description at the
+      beginning
+    - Include a "## Constitution Compliance" section that lists the principles
+      that apply and any violations
   design:
-    - Include a "## Constitution Compliance" section that lists the principles that apply and any violations
+    - Include a "## Constitution Compliance" section that lists the principles
+      that apply and any violations
   specs:
     - Make sure the spec does not include technical details
   tasks:
-    - Use test-driven development - write tests first, then implement and refactor
-    - Omit end-to-end manual verification tasks if backend tests can fully verify the change
-    - Include a "## Constitution Compliance" section that lists the principles that apply and any violations
+    - Use test-driven development - write tests first, then implement and
+      refactor
+    - Omit end-to-end manual verification tasks if backend tests can fully
+      verify the change
+    - Include a "## Constitution Compliance" section that lists the principles
+      that apply and any violations
 
 operations:
   apply:
     guidance:
       - Apply the code style rules in `docs/code-style.md`
       - Use the `testing` skill for each new or modified test
-      - To check the application, assume that the backend and frontend are already up and running
+      - To check the application, assume that the backend and frontend are
+        already up and running
+skillsScope: project
