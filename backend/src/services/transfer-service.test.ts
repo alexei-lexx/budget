@@ -934,6 +934,158 @@ describe("TransferService", () => {
       expect(accountBToUpdate?.transactionBalance).toBe(100);
     });
 
+    it("keeps unchanged archived source when only destination changes", async () => {
+      // Arrange
+      const transferId = faker.string.uuid();
+      const currency = "USD";
+      const sourceAccount = fakeAccount({
+        userId,
+        currency,
+        transactionBalance: 500,
+        isArchived: true,
+      });
+      const oldDestAccount = fakeAccount({
+        userId,
+        currency,
+        transactionBalance: 300,
+      });
+      const newDestAccount = fakeAccount({
+        userId,
+        currency,
+        transactionBalance: 0,
+      });
+      const outboundTransaction = fakeTransferOut({
+        userId,
+        accountId: sourceAccount.id,
+        currency,
+        amount: 100,
+        transferId,
+      });
+      const inboundTransaction = fakeTransferIn({
+        userId,
+        accountId: oldDestAccount.id,
+        currency,
+        amount: 100,
+        transferId,
+      });
+      // Returns existing pair
+      mockTransactionRepository.findManyByTransferId.mockResolvedValue([
+        outboundTransaction,
+        inboundTransaction,
+      ]);
+      // Returns old accounts including archived
+      mockAccountRepository.findOneWithArchivedById
+        .mockResolvedValueOnce(sourceAccount)
+        .mockResolvedValueOnce(oldDestAccount);
+      // Returns only the new active destination
+      mockAccountRepository.findOneById.mockResolvedValueOnce(newDestAccount);
+      // Persists update atomically
+      mockAtomicWriter.commit.mockResolvedValue({
+        createdTransactions: [],
+        updatedTransactions: [],
+        updatedAccounts: [],
+      });
+
+      // Act
+      const result = await service.updateTransfer(transferId, userId, {
+        fromAccountId: sourceAccount.id,
+        toAccountId: newDestAccount.id,
+      });
+
+      // Assert
+      expect(result).toBeSuccess();
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      expect(commitInput?.accountsToUpdate).toHaveLength(3);
+
+      // Source: 500 - (-100) revert + (-100) apply = 500
+      const sourceAccountToUpdate = commitInput?.accountsToUpdate?.[0];
+      expect(sourceAccountToUpdate?.transactionBalance).toBe(500);
+
+      // Old destination: 300 - 100 = 200 (revert inbound)
+      const oldDestAccountToUpdate = commitInput?.accountsToUpdate?.[1];
+      expect(oldDestAccountToUpdate?.transactionBalance).toBe(200);
+
+      // New destination: 0 + 100 = 100 (apply inbound)
+      const newDestAccountToUpdate = commitInput?.accountsToUpdate?.[2];
+      expect(newDestAccountToUpdate?.transactionBalance).toBe(100);
+    });
+
+    it("keeps unchanged archived destination when only source changes", async () => {
+      // Arrange
+      const transferId = faker.string.uuid();
+      const currency = "USD";
+      const oldSourceAccount = fakeAccount({
+        userId,
+        currency,
+        transactionBalance: 500,
+      });
+      const newSourceAccount = fakeAccount({
+        userId,
+        currency,
+        transactionBalance: 1000,
+      });
+      const destAccount = fakeAccount({
+        userId,
+        currency,
+        transactionBalance: 300,
+        isArchived: true,
+      });
+      const outboundTransaction = fakeTransferOut({
+        userId,
+        accountId: oldSourceAccount.id,
+        currency,
+        amount: 100,
+        transferId,
+      });
+      const inboundTransaction = fakeTransferIn({
+        userId,
+        accountId: destAccount.id,
+        currency,
+        amount: 100,
+        transferId,
+      });
+      // Returns existing pair
+      mockTransactionRepository.findManyByTransferId.mockResolvedValue([
+        outboundTransaction,
+        inboundTransaction,
+      ]);
+      // Returns old accounts including archived
+      mockAccountRepository.findOneWithArchivedById
+        .mockResolvedValueOnce(oldSourceAccount)
+        .mockResolvedValueOnce(destAccount);
+      // Returns only the new active source
+      mockAccountRepository.findOneById.mockResolvedValueOnce(newSourceAccount);
+      // Persists update atomically
+      mockAtomicWriter.commit.mockResolvedValue({
+        createdTransactions: [],
+        updatedTransactions: [],
+        updatedAccounts: [],
+      });
+
+      // Act
+      const result = await service.updateTransfer(transferId, userId, {
+        fromAccountId: newSourceAccount.id,
+        toAccountId: destAccount.id,
+      });
+
+      // Assert
+      expect(result).toBeSuccess();
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      expect(commitInput?.accountsToUpdate).toHaveLength(3);
+
+      // Old source: 500 - (-100) = 600 (revert outbound)
+      const oldSourceAccountToUpdate = commitInput?.accountsToUpdate?.[0];
+      expect(oldSourceAccountToUpdate?.transactionBalance).toBe(600);
+
+      // New source: 1000 + (-100) = 900 (apply outbound)
+      const newSourceAccountToUpdate = commitInput?.accountsToUpdate?.[1];
+      expect(newSourceAccountToUpdate?.transactionBalance).toBe(900);
+
+      // Destination: 300 - 100 revert + 100 apply = 300
+      const destAccountToUpdate = commitInput?.accountsToUpdate?.[2];
+      expect(destAccountToUpdate?.transactionBalance).toBe(300);
+    });
+
     it("skips account updates when only description changes", async () => {
       // Arrange
       const transferId = faker.string.uuid();
