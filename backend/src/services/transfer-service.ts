@@ -315,8 +315,9 @@ export class TransferService {
       return Failure(ACCOUNT_NOT_FOUND_ERROR);
     }
 
+    // Keep the old account when unchanged, so an archived one stays allowed
     let newSourceAccount = oldSourceAccount;
-    if (input.fromAccountId) {
+    if (input.fromAccountId && input.fromAccountId !== oldSourceAccount.id) {
       const account = await this.accountRepository.findOneById({
         id: input.fromAccountId,
         userId,
@@ -327,8 +328,9 @@ export class TransferService {
       newSourceAccount = account;
     }
 
+    // Keep the old account when unchanged, so an archived one stays allowed
     let newDestAccount = oldDestAccount;
-    if (input.toAccountId) {
+    if (input.toAccountId && input.toAccountId !== oldDestAccount.id) {
       const account = await this.accountRepository.findOneById({
         id: input.toAccountId,
         userId,
@@ -359,7 +361,10 @@ export class TransferService {
         outboundTransaction.update(
           {
             ...sharedUpdate,
-            account: input.fromAccountId ? newSourceAccount : undefined,
+            account:
+              newSourceAccount !== oldSourceAccount
+                ? newSourceAccount
+                : undefined,
           },
           // Transfers have no category
           { currentCategory: undefined },
@@ -376,7 +381,8 @@ export class TransferService {
         inboundTransaction.update(
           {
             ...sharedUpdate,
-            account: input.toAccountId ? newDestAccount : undefined,
+            account:
+              newDestAccount !== oldDestAccount ? newDestAccount : undefined,
           },
           // Transfers have no category
           { currentCategory: undefined },
