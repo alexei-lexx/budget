@@ -938,22 +938,26 @@ describe("TransferService", () => {
       // Arrange
       const transferId = faker.string.uuid();
       const currency = "USD";
+
       const sourceAccount = fakeAccount({
         userId,
         currency,
         transactionBalance: 500,
         isArchived: true,
       });
+
       const oldDestAccount = fakeAccount({
         userId,
         currency,
         transactionBalance: 300,
       });
+
       const newDestAccount = fakeAccount({
         userId,
         currency,
-        transactionBalance: 0,
+        transactionBalance: 50,
       });
+
       const outboundTransaction = fakeTransferOut({
         userId,
         accountId: sourceAccount.id,
@@ -961,6 +965,7 @@ describe("TransferService", () => {
         amount: 100,
         transferId,
       });
+
       const inboundTransaction = fakeTransferIn({
         userId,
         accountId: oldDestAccount.id,
@@ -968,17 +973,21 @@ describe("TransferService", () => {
         amount: 100,
         transferId,
       });
+
       // Returns existing pair
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([
         outboundTransaction,
         inboundTransaction,
       ]);
+
       // Returns old accounts including archived
       mockAccountRepository.findOneWithArchivedById
         .mockResolvedValueOnce(sourceAccount)
         .mockResolvedValueOnce(oldDestAccount);
+
       // Returns only the new active destination
       mockAccountRepository.findOneById.mockResolvedValueOnce(newDestAccount);
+
       // Persists update atomically
       mockAtomicWriter.commit.mockResolvedValue({
         createdTransactions: [],
@@ -1005,31 +1014,35 @@ describe("TransferService", () => {
       const oldDestAccountToUpdate = commitInput?.accountsToUpdate?.[1];
       expect(oldDestAccountToUpdate?.transactionBalance).toBe(200);
 
-      // New destination: 0 + 100 = 100 (apply inbound)
+      // New destination: 50 + 100 = 150 (apply inbound)
       const newDestAccountToUpdate = commitInput?.accountsToUpdate?.[2];
-      expect(newDestAccountToUpdate?.transactionBalance).toBe(100);
+      expect(newDestAccountToUpdate?.transactionBalance).toBe(150);
     });
 
     it("keeps unchanged archived destination when only source changes", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       const currency = "USD";
+
       const oldSourceAccount = fakeAccount({
         userId,
         currency,
         transactionBalance: 500,
       });
+
       const newSourceAccount = fakeAccount({
         userId,
         currency,
         transactionBalance: 1000,
       });
+
       const destAccount = fakeAccount({
         userId,
         currency,
         transactionBalance: 300,
         isArchived: true,
       });
+
       const outboundTransaction = fakeTransferOut({
         userId,
         accountId: oldSourceAccount.id,
@@ -1037,6 +1050,7 @@ describe("TransferService", () => {
         amount: 100,
         transferId,
       });
+
       const inboundTransaction = fakeTransferIn({
         userId,
         accountId: destAccount.id,
@@ -1044,17 +1058,21 @@ describe("TransferService", () => {
         amount: 100,
         transferId,
       });
+
       // Returns existing pair
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([
         outboundTransaction,
         inboundTransaction,
       ]);
+
       // Returns old accounts including archived
       mockAccountRepository.findOneWithArchivedById
         .mockResolvedValueOnce(oldSourceAccount)
         .mockResolvedValueOnce(destAccount);
+
       // Returns only the new active source
       mockAccountRepository.findOneById.mockResolvedValueOnce(newSourceAccount);
+
       // Persists update atomically
       mockAtomicWriter.commit.mockResolvedValue({
         createdTransactions: [],
