@@ -83,6 +83,10 @@ The test: every changed line should trace directly to the user's request.
 - Comments not directly related to the change
 - Blank lines used for visual formatting and separation
 
+## Development Workflow
+
+Use the `openspec` CLI for spec-driven development of features, fixes, and other behavior changes.
+
 ## Git Worktrees
 
 - Worktrees are in `.worktrees/`
