@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mount } from "@vue/test-utils";
+import { mount, type DOMWrapper } from "@vue/test-utils";
 import type { Category, TrendPreset } from "@/__generated__/vue-apollo";
 import TrendPresetsList from "./TrendPresetsList.vue";
 
@@ -332,6 +332,78 @@ describe("TrendPresetsList", () => {
       const transportStyle = getPeriodPhraseStyleInChip(wrapper, "Transport");
 
       expect(groceriesStyle).toEqual(transportStyle);
+    });
+  });
+
+  describe("selected marking", () => {
+    // Happy path
+
+    function getMarking(chip: DOMWrapper<Element>) {
+      return {
+        ariaCurrent: chip.attributes("aria-current"),
+        isOutlined: chip.classes().includes("v-chip--variant-outlined"),
+        isPrimary: chip.classes().includes("text-primary"),
+      };
+    }
+
+    const MARKED = { ariaCurrent: "true", isOutlined: true, isPrimary: true };
+    const UNMARKED = { ariaCurrent: undefined, isOutlined: true, isPrimary: false };
+
+    it("marks only selected preset", () => {
+      // Arrange
+      const selectedTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 6 });
+      const otherTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 3 });
+
+      // Act
+      const wrapper = mount(TrendPresetsList, {
+        props: {
+          trendPresets: [selectedTrendPreset, otherTrendPreset],
+          categories: [],
+          selectedTrendPresetIds: [selectedTrendPreset.id],
+        },
+      });
+
+      // Assert
+      const chips = wrapper.findAll(".v-chip");
+      expect(chips.map((chip) => chip.text())).toEqual([
+        "all in last 6 months in EUR",
+        "all in last 3 months in EUR",
+      ]);
+      expect(chips.map(getMarking)).toEqual([MARKED, UNMARKED]);
+    });
+
+    it("marks all identical selected presets", () => {
+      // Arrange
+      const firstTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 6 });
+      const secondTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 6 });
+
+      // Act
+      const wrapper = mount(TrendPresetsList, {
+        props: {
+          trendPresets: [firstTrendPreset, secondTrendPreset],
+          categories: [],
+          selectedTrendPresetIds: [firstTrendPreset.id, secondTrendPreset.id],
+        },
+      });
+
+      // Assert
+      expect(wrapper.findAll(".v-chip").map(getMarking)).toEqual([MARKED, MARKED]);
+    });
+
+    it("marks no preset when no preset is selected", () => {
+      // Arrange
+      const trendPresets = [
+        createTrendPreset({ periodUnit: "MONTH", lookback: 6 }),
+        createTrendPreset({ periodUnit: "WEEK", lookback: 3 }),
+      ];
+
+      // Act
+      const wrapper = mount(TrendPresetsList, {
+        props: { trendPresets, categories: [], selectedTrendPresetIds: [] },
+      });
+
+      // Assert
+      expect(wrapper.findAll(".v-chip").map(getMarking)).toEqual([UNMARKED, UNMARKED]);
     });
   });
 

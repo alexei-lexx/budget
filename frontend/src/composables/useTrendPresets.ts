@@ -46,19 +46,11 @@ export function useTrendPresets() {
     useDeleteTrendPresetMutation();
 
   function matchingTrendPreset(selection: TrendSelection): TrendPreset | null {
-    const selectionCategoryIds = new Set(selection.categoryIds);
+    return trendPresets.value.find(matchesSelection(selection)) ?? null;
+  }
 
-    return (
-      trendPresets.value.find(
-        (trendPreset) =>
-          trendPreset.periodUnit === selection.periodUnit &&
-          trendPreset.lookback === selection.lookback &&
-          trendPreset.currency === selection.currency &&
-          Boolean(trendPreset.includeUncategorized) === Boolean(selection.includeUncategorized) &&
-          trendPreset.categoryIds.length === selectionCategoryIds.size &&
-          trendPreset.categoryIds.every((categoryId) => selectionCategoryIds.has(categoryId)),
-      ) ?? null
-    );
+  function matchingTrendPresets(selection: TrendSelection): TrendPreset[] {
+    return trendPresets.value.filter(matchesSelection(selection));
   }
 
   async function star(selection: TrendSelection): Promise<void> {
@@ -109,7 +101,20 @@ export function useTrendPresets() {
 
     // Functions
     matchingTrendPreset,
+    matchingTrendPresets,
     star,
     unstar,
   };
+}
+
+function matchesSelection(selection: TrendSelection): (trendPreset: TrendPreset) => boolean {
+  const selectionCategoryIds = new Set(selection.categoryIds);
+
+  return (trendPreset) =>
+    trendPreset.periodUnit === selection.periodUnit &&
+    trendPreset.lookback === selection.lookback &&
+    trendPreset.currency === selection.currency &&
+    Boolean(trendPreset.includeUncategorized) === Boolean(selection.includeUncategorized) &&
+    trendPreset.categoryIds.length === selectionCategoryIds.size &&
+    trendPreset.categoryIds.every((categoryId) => selectionCategoryIds.has(categoryId));
 }
