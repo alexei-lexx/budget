@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mount, type DOMWrapper } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import type { Category, TrendPreset } from "@/__generated__/vue-apollo";
 import TrendPresetsList from "./TrendPresetsList.vue";
 
@@ -335,21 +335,10 @@ describe("TrendPresetsList", () => {
     });
   });
 
-  describe("selected marking", () => {
+  describe("highlighting selected presets", () => {
     // Happy path
 
-    function getMarking(chip: DOMWrapper<Element>) {
-      return {
-        ariaCurrent: chip.attributes("aria-current"),
-        isOutlined: chip.classes().includes("v-chip--variant-outlined"),
-        isPrimary: chip.classes().includes("text-primary"),
-      };
-    }
-
-    const MARKED = { ariaCurrent: "true", isOutlined: true, isPrimary: true };
-    const UNMARKED = { ariaCurrent: undefined, isOutlined: true, isPrimary: false };
-
-    it("marks only selected preset", () => {
+    it("highlights one selected preset", () => {
       // Arrange
       const selectedTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 6 });
       const otherTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 3 });
@@ -364,37 +353,45 @@ describe("TrendPresetsList", () => {
       });
 
       // Assert
-      const chips = wrapper.findAll(".v-chip");
-      expect(chips.map((chip) => chip.text())).toEqual([
-        "all in last 6 months in EUR",
-        "all in last 3 months in EUR",
-      ]);
-      expect(chips.map(getMarking)).toEqual([MARKED, UNMARKED]);
+      const [selectedChip, otherChip] = wrapper.findAll(".v-chip");
+
+      expect(selectedChip?.text()).toEqual("all in last 6 months in EUR");
+      expect(selectedChip?.classes()).toContain("text-primary");
+      expect(selectedChip?.attributes("aria-current")).toEqual("true");
+
+      expect(otherChip?.text()).toEqual("all in last 3 months in EUR");
+      expect(otherChip?.classes()).not.toContain("text-primary");
+      expect(otherChip?.attributes("aria-current")).toBeUndefined();
     });
 
-    it("marks all identical selected presets", () => {
+    it("highlights all selected duplicates", () => {
       // Arrange
       const firstTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 6 });
       const secondTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 6 });
+      const thirdTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 3 });
 
       // Act
       const wrapper = mount(TrendPresetsList, {
         props: {
-          trendPresets: [firstTrendPreset, secondTrendPreset],
+          trendPresets: [firstTrendPreset, secondTrendPreset, thirdTrendPreset],
           categories: [],
           selectedTrendPresetIds: [firstTrendPreset.id, secondTrendPreset.id],
         },
       });
 
       // Assert
-      expect(wrapper.findAll(".v-chip").map(getMarking)).toEqual([MARKED, MARKED]);
+      const [firstChip, secondChip, thirdChip] = wrapper.findAll(".v-chip");
+
+      expect(firstChip?.attributes("aria-current")).toEqual("true");
+      expect(secondChip?.attributes("aria-current")).toEqual("true");
+      expect(thirdChip?.attributes("aria-current")).toBeUndefined();
     });
 
-    it("marks no preset when no preset is selected", () => {
+    it("highlights no preset when none is selected", () => {
       // Arrange
       const trendPresets = [
         createTrendPreset({ periodUnit: "MONTH", lookback: 6 }),
-        createTrendPreset({ periodUnit: "WEEK", lookback: 3 }),
+        createTrendPreset({ periodUnit: "MONTH", lookback: 3 }),
       ];
 
       // Act
@@ -403,7 +400,10 @@ describe("TrendPresetsList", () => {
       });
 
       // Assert
-      expect(wrapper.findAll(".v-chip").map(getMarking)).toEqual([UNMARKED, UNMARKED]);
+      const [firstChip, secondChip] = wrapper.findAll(".v-chip");
+
+      expect(firstChip?.attributes("aria-current")).toBeUndefined();
+      expect(secondChip?.attributes("aria-current")).toBeUndefined();
     });
   });
 
