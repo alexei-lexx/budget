@@ -64,12 +64,12 @@
         <v-btn
           variant="outlined"
           class="mr-2"
-          :aria-label="matchingTrendPreset ? t('trends.filters.unstar') : t('trends.filters.star')"
+          :aria-label="isStarred ? t('trends.filters.unstar') : t('trends.filters.star')"
           :disabled="loading || starLoading || unstarLoading"
           @click="handleToggleStar"
         >
-          <v-icon :color="matchingTrendPreset ? 'amber-darken-2' : undefined">
-            {{ matchingTrendPreset ? "mdi-star" : "mdi-star-outline" }}
+          <v-icon :color="isStarred ? 'amber-darken-2' : undefined">
+            {{ isStarred ? "mdi-star" : "mdi-star-outline" }}
           </v-icon>
         </v-btn>
         <v-btn color="primary" :disabled="loading" @click="handleApply">
@@ -107,16 +107,11 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const { supportedCurrencies } = useCurrencies();
-const {
-  matchingTrendPreset: findMatchingTrendPreset,
-  star,
-  unstar,
-  starLoading,
-  unstarLoading,
-} = useTrendPresets();
+const { matchingTrendPresets, star, unstar, starLoading, unstarLoading } = useTrendPresets();
 
 // Reflects the applied selection, not the unsaved draft
-const matchingTrendPreset = computed(() => findMatchingTrendPreset(props.selection));
+const starredTrendPresets = computed(() => matchingTrendPresets(props.selection));
+const isStarred = computed(() => starredTrendPresets.value.length > 0);
 
 // Draft state: edits stay local until Apply
 const draftPeriodUnit = ref<TrendPeriodUnit>(props.selection.periodUnit);
@@ -159,9 +154,10 @@ function handleClear() {
 }
 
 async function handleToggleStar() {
-  const matched = matchingTrendPreset.value;
-  if (matched) {
-    await unstar(matched.id);
+  if (isStarred.value) {
+    for (const trendPreset of starredTrendPresets.value) {
+      await unstar(trendPreset.id);
+    }
   } else {
     await star(props.selection);
   }

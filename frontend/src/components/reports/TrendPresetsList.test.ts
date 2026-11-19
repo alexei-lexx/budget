@@ -335,6 +335,78 @@ describe("TrendPresetsList", () => {
     });
   });
 
+  describe("highlighting selected presets", () => {
+    // Happy path
+
+    it("highlights one selected preset", () => {
+      // Arrange
+      const selectedTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 6 });
+      const otherTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 3 });
+
+      // Act
+      const wrapper = mount(TrendPresetsList, {
+        props: {
+          trendPresets: [selectedTrendPreset, otherTrendPreset],
+          categories: [],
+          selectedTrendPresetIds: [selectedTrendPreset.id],
+        },
+      });
+
+      // Assert
+      const [selectedChip, otherChip] = wrapper.findAll(".v-chip");
+
+      expect(selectedChip?.text()).toEqual("all in last 6 months in EUR");
+      expect(selectedChip?.classes()).toContain("text-primary");
+      expect(selectedChip?.attributes("aria-current")).toEqual("true");
+
+      expect(otherChip?.text()).toEqual("all in last 3 months in EUR");
+      expect(otherChip?.classes()).not.toContain("text-primary");
+      expect(otherChip?.attributes("aria-current")).toBeUndefined();
+    });
+
+    it("highlights all selected duplicates", () => {
+      // Arrange
+      const firstTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 6 });
+      const secondTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 6 });
+      const thirdTrendPreset = createTrendPreset({ periodUnit: "MONTH", lookback: 3 });
+
+      // Act
+      const wrapper = mount(TrendPresetsList, {
+        props: {
+          trendPresets: [firstTrendPreset, secondTrendPreset, thirdTrendPreset],
+          categories: [],
+          selectedTrendPresetIds: [firstTrendPreset.id, secondTrendPreset.id],
+        },
+      });
+
+      // Assert
+      const [firstChip, secondChip, thirdChip] = wrapper.findAll(".v-chip");
+
+      expect(firstChip?.attributes("aria-current")).toEqual("true");
+      expect(secondChip?.attributes("aria-current")).toEqual("true");
+      expect(thirdChip?.attributes("aria-current")).toBeUndefined();
+    });
+
+    it("highlights no preset when none is selected", () => {
+      // Arrange
+      const trendPresets = [
+        createTrendPreset({ periodUnit: "MONTH", lookback: 6 }),
+        createTrendPreset({ periodUnit: "MONTH", lookback: 3 }),
+      ];
+
+      // Act
+      const wrapper = mount(TrendPresetsList, {
+        props: { trendPresets, categories: [], selectedTrendPresetIds: [] },
+      });
+
+      // Assert
+      const [firstChip, secondChip] = wrapper.findAll(".v-chip");
+
+      expect(firstChip?.attributes("aria-current")).toBeUndefined();
+      expect(secondChip?.attributes("aria-current")).toBeUndefined();
+    });
+  });
+
   describe("clicking preset", () => {
     // Happy path
 

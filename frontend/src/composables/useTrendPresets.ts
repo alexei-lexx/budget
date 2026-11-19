@@ -45,19 +45,17 @@ export function useTrendPresets() {
   const { mutate: deleteTrendPresetMutation, loading: unstarLoading } =
     useDeleteTrendPresetMutation();
 
-  function matchingTrendPreset(selection: TrendSelection): TrendPreset | null {
+  function matchingTrendPresets(selection: TrendSelection): TrendPreset[] {
     const selectionCategoryIds = new Set(selection.categoryIds);
 
-    return (
-      trendPresets.value.find(
-        (trendPreset) =>
-          trendPreset.periodUnit === selection.periodUnit &&
-          trendPreset.lookback === selection.lookback &&
-          trendPreset.currency === selection.currency &&
-          Boolean(trendPreset.includeUncategorized) === Boolean(selection.includeUncategorized) &&
-          trendPreset.categoryIds.length === selectionCategoryIds.size &&
-          trendPreset.categoryIds.every((categoryId) => selectionCategoryIds.has(categoryId)),
-      ) ?? null
+    return trendPresets.value.filter(
+      (trendPreset) =>
+        trendPreset.periodUnit === selection.periodUnit &&
+        trendPreset.lookback === selection.lookback &&
+        trendPreset.currency === selection.currency &&
+        Boolean(trendPreset.includeUncategorized) === Boolean(selection.includeUncategorized) &&
+        trendPreset.categoryIds.length === selectionCategoryIds.size &&
+        trendPreset.categoryIds.every((categoryId) => selectionCategoryIds.has(categoryId)),
     );
   }
 
@@ -108,7 +106,7 @@ export function useTrendPresets() {
     trendPresetsError,
 
     // Functions
-    matchingTrendPreset,
+    matchingTrendPresets,
     star,
     unstar,
   };

@@ -4,6 +4,7 @@
     <TrendPresetsList
       :trend-presets="trendPresets"
       :categories="expenseCategories"
+      :selected-trend-preset-ids="selectedTrendPresetIds"
       @apply="handleApply"
     />
 
@@ -62,7 +63,7 @@ const today = ref(getTodayDateString());
 
 const { categories } = useCategories("EXPENSE");
 const { defaultCurrency, errorMessage: currenciesErrorMessage } = useCurrencies();
-const { trendPresets, trendPresetsError } = useTrendPresets();
+const { trendPresets, trendPresetsError, matchingTrendPresets } = useTrendPresets();
 
 watch(trendPresetsError, (error) => {
   if (error) showErrorSnackbar(error);
@@ -158,6 +159,10 @@ const selection = computed<TrendSelection>(() => ({
   ...appliedSelection.value,
   currency: appliedSelection.value.currency || defaultCurrency.value,
 }));
+
+const selectedTrendPresetIds = computed(() =>
+  matchingTrendPresets(selection.value).map((trendPreset) => trendPreset.id),
+);
 
 const { expenseTrend, expenseTrendLoading, expenseTrendError } = useExpenseTrend(selection, today);
 

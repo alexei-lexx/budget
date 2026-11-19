@@ -29,17 +29,25 @@ describe("useTrendPresets", () => {
     vi.clearAllMocks();
   });
 
-  describe("matchingTrendPreset", () => {
-    const { matchingTrendPreset } = useTrendPresets();
+  describe("matchingTrendPresets", () => {
+    const { matchingTrendPresets } = useTrendPresets();
 
     // Happy path
 
     it("matches no preset", () => {
       // Arrange
-      result.value.trendPresets = [];
+      result.value.trendPresets = [
+        {
+          id: "preset-1",
+          categoryIds: [],
+          currency: "USD",
+          lookback: 3,
+          periodUnit: "WEEK",
+        },
+      ];
 
       // Act
-      const match = matchingTrendPreset({
+      const matches = matchingTrendPresets({
         categoryIds: [],
         currency: "EUR",
         lookback: 3,
@@ -47,7 +55,79 @@ describe("useTrendPresets", () => {
       });
 
       // Assert
-      expect(match).toBeNull();
+      expect(matches).toEqual([]);
+    });
+
+    it("matches one preset", () => {
+      // Arrange
+      const matchingPreset: TrendPreset = {
+        id: "preset-1",
+        categoryIds: ["category-1"],
+        currency: "EUR",
+        lookback: 6,
+        periodUnit: "MONTH",
+      };
+      const otherPreset: TrendPreset = {
+        id: "preset-2",
+        categoryIds: ["category-1"],
+        currency: "EUR",
+        lookback: 12,
+        periodUnit: "MONTH",
+      };
+      result.value.trendPresets = [matchingPreset, otherPreset];
+
+      // Act
+      const matches = matchingTrendPresets({
+        categoryIds: ["category-1"],
+        currency: "EUR",
+        lookback: 6,
+        periodUnit: "MONTH",
+      });
+
+      // Assert
+      expect(matches).toEqual([matchingPreset]);
+    });
+
+    it("matches all identical presets", () => {
+      // Arrange
+      const shared: Omit<TrendPreset, "id" | "includeUncategorized"> = {
+        categoryIds: ["category-1"],
+        currency: "EUR",
+        lookback: 6,
+        periodUnit: "MONTH",
+      };
+      const firstPreset: TrendPreset = { ...shared, id: "preset-1" };
+      const secondPreset: TrendPreset = { ...shared, id: "preset-2" };
+      result.value.trendPresets = [firstPreset, secondPreset];
+
+      // Act
+      const matches = matchingTrendPresets(shared);
+
+      // Assert
+      expect(matches).toEqual([firstPreset, secondPreset]);
+    });
+
+    it("matches categories in different order", () => {
+      // Arrange
+      const preset: TrendPreset = {
+        id: "preset-1",
+        categoryIds: ["category-1", "category-2"],
+        currency: "EUR",
+        lookback: 6,
+        periodUnit: "MONTH",
+      };
+      result.value.trendPresets = [preset];
+
+      // Act
+      const matches = matchingTrendPresets({
+        categoryIds: ["category-2", "category-1"],
+        currency: "EUR",
+        lookback: 6,
+        periodUnit: "MONTH",
+      });
+
+      // Assert
+      expect(matches).toEqual([preset]);
     });
 
     describe("when includeUncategorized varies", () => {
@@ -70,13 +150,13 @@ describe("useTrendPresets", () => {
         result.value.trendPresets = [preset];
 
         // Act
-        const match = matchingTrendPreset({
+        const matches = matchingTrendPresets({
           ...shared,
           includeUncategorized: true,
         });
 
         // Assert
-        expect(match).toEqual(preset);
+        expect(matches).toEqual([preset]);
       });
 
       it("does not match when preset true and selection undefined", () => {
@@ -89,13 +169,13 @@ describe("useTrendPresets", () => {
         result.value.trendPresets = [preset];
 
         // Act
-        const match = matchingTrendPreset({
+        const matches = matchingTrendPresets({
           ...shared,
           includeUncategorized: undefined,
         });
 
         // Assert
-        expect(match).toBeNull();
+        expect(matches).toEqual([]);
       });
 
       it("does not match when preset false and selection true", () => {
@@ -108,13 +188,13 @@ describe("useTrendPresets", () => {
         result.value.trendPresets = [preset];
 
         // Act
-        const match = matchingTrendPreset({
+        const matches = matchingTrendPresets({
           ...shared,
           includeUncategorized: true,
         });
 
         // Assert
-        expect(match).toBeNull();
+        expect(matches).toEqual([]);
       });
 
       it("matches when preset false and selection undefined", () => {
@@ -127,13 +207,13 @@ describe("useTrendPresets", () => {
         result.value.trendPresets = [preset];
 
         // Act
-        const match = matchingTrendPreset({
+        const matches = matchingTrendPresets({
           ...shared,
           includeUncategorized: undefined,
         });
 
         // Assert
-        expect(match).toEqual(preset);
+        expect(matches).toEqual([preset]);
       });
 
       it("does not match when preset null and selection true", () => {
@@ -146,13 +226,13 @@ describe("useTrendPresets", () => {
         result.value.trendPresets = [preset];
 
         // Act
-        const match = matchingTrendPreset({
+        const matches = matchingTrendPresets({
           ...shared,
           includeUncategorized: true,
         });
 
         // Assert
-        expect(match).toBeNull();
+        expect(matches).toEqual([]);
       });
 
       it("matches when preset null and selection undefined", () => {
@@ -166,13 +246,13 @@ describe("useTrendPresets", () => {
         result.value.trendPresets = [preset];
 
         // Act
-        const match = matchingTrendPreset({
+        const matches = matchingTrendPresets({
           ...shared,
           includeUncategorized: undefined,
         });
 
         // Assert
-        expect(match).toEqual(preset);
+        expect(matches).toEqual([preset]);
       });
 
       it("does not match when preset undefined and selection true", () => {
@@ -185,13 +265,13 @@ describe("useTrendPresets", () => {
         result.value.trendPresets = [preset];
 
         // Act
-        const match = matchingTrendPreset({
+        const matches = matchingTrendPresets({
           ...shared,
           includeUncategorized: true,
         });
 
         // Assert
-        expect(match).toBeNull();
+        expect(matches).toEqual([]);
       });
 
       it("matches when preset undefined and selection undefined", () => {
@@ -205,13 +285,13 @@ describe("useTrendPresets", () => {
         result.value.trendPresets = [preset];
 
         // Act
-        const match = matchingTrendPreset({
+        const matches = matchingTrendPresets({
           ...shared,
           includeUncategorized: undefined,
         });
 
         // Assert
-        expect(match).toEqual(preset);
+        expect(matches).toEqual([preset]);
       });
     });
   });

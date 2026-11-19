@@ -7,9 +7,12 @@ import type { TrendSelection } from "@/composables/useExpenseTrend";
 interface Props {
   trendPresets: TrendPreset[];
   categories: Category[];
+  selectedTrendPresetIds?: string[];
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  selectedTrendPresetIds: () => [],
+});
 
 const emit = defineEmits<{
   apply: [selection: TrendSelection];
@@ -113,6 +116,7 @@ const trendPresetChips = computed(() =>
     categoriesLabel: getCategoriesLabel(trendPreset),
     periodPhrase: getPeriodPhrase(trendPreset),
     periodPhraseBgColor: getPeriodPhraseBgColor(trendPreset),
+    isSelected: props.selectedTrendPresetIds.includes(trendPreset.id),
   })),
 );
 
@@ -134,6 +138,8 @@ function handleClick(trendPreset: TrendPreset) {
         v-for="chip in trendPresetChips"
         :key="chip.trendPreset.id"
         variant="outlined"
+        :color="chip.isSelected ? 'primary' : undefined"
+        :aria-current="chip.isSelected ? 'true' : undefined"
         size="small"
         class="text-caption"
         clickable
