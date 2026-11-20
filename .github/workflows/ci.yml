@@ -40,12 +40,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup mise
+        uses: jdx/mise-action@v5
         with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: backend/package-lock.json
+          install_args: node
+
+      - name: Cache npm downloads
+        uses: actions/cache@v6
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-backend-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-backend-
 
       - name: Install dependencies
         working-directory: backend
@@ -86,12 +92,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup mise
+        uses: jdx/mise-action@v5
         with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+          install_args: node
+
+      - name: Cache npm downloads
+        uses: actions/cache@v6
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-frontend-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-frontend-
 
       - name: Install dependencies
         working-directory: frontend
@@ -121,12 +133,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup mise
+        uses: jdx/mise-action@v5
         with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: infra-cdk/package-lock.json
+          install_args: node
+
+      - name: Cache npm downloads
+        uses: actions/cache@v6
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-infra-cdk-${{ hashFiles('infra-cdk/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-infra-cdk-
 
       - name: Install dependencies
         working-directory: infra-cdk

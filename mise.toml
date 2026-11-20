@@ -1,0 +1,6 @@
+[tools]
+node = "24"
+aws-cli = "2"
+jq = "1"
+"npm:prettier" = "3"
+"npm:@playwright/cli" = "0.1"
