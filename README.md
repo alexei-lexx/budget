@@ -52,9 +52,9 @@ Deploy the application to AWS.
 
 ### Prerequisites
 
-- AWS CLI installed and configured
-- Node.js installed
-- `jq` command-line JSON processor installed
+- [mise](https://mise.jdx.dev/installing-mise.html) installed and activated in the shell
+- Tools installed with `mise install` at the repository root (Node.js, AWS CLI, `jq`, and others from `mise.toml`)
+- AWS credentials configured for the AWS CLI
 
 ### Deployment order
 
