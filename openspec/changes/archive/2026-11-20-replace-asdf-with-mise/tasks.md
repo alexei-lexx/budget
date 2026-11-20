@@ -35,7 +35,7 @@ The agent does all other tasks.
 
 - [x] 5.1 **(needs mise)** In `backend/`, verify `node --version` matches the Node.js version in `mise.lock`, then run `npm ci` and `npm test` and verify all tests pass
 - [x] 5.2 **(needs mise)** Run `scripts/worktree-add.sh` with a test branch; in the new worktree, verify `mise ls --current` shows the 5 tools without a trust prompt and `node --version` matches `mise.lock`; remove the worktree with `scripts/worktree-remove.sh` and delete the test branch
-- [ ] 5.3 After the user commits and pushes the branch and opens a pull request, verify the 3 CI jobs pass, the "Setup mise" logs show `mise install --locked node`, and the Node.js version in the logs matches `mise.lock`
+- [x] 5.3 After the user commits and pushes the branch and opens a pull request, verify the 3 CI jobs pass, the "Setup mise" logs show `mise install --locked node`, and the Node.js version in the logs matches `mise.lock`
 
 ## Constitution Compliance
 
