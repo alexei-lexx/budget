@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Run when an Amp orb starts or wakes: start Docker and DynamoDB Local.
+# Must be fast and idempotent.
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/../backend"
+
+sudo systemctl start docker.socket docker.service
+docker compose --profile db up -d --wait
