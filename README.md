@@ -52,7 +52,7 @@ Deploy the application to AWS.
 
 ### Prerequisites
 
-- [mise](https://mise.jdx.dev/installing-mise.html) installed and activated in the shell
+- `mise` installed and activated in the shell (https://mise.jdx.dev/installing-mise.html and https://mise.jdx.dev/dev-tools/shims.html#how-to-add-mise-shims-to-path)
 - Tools installed with `mise install` at the repository root (Node.js, AWS CLI, `jq`, and others from `mise.toml`)
 - AWS credentials configured for the AWS CLI
 
