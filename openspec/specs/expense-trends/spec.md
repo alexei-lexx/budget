@@ -12,7 +12,7 @@ The system SHALL display net expenses as a bar chart, with one bar per period. B
 
 Each bar's value SHALL be the sum of expenses in that period minus the sum of refunds in that period, for the selected slice.
 
-Each bar SHALL be labelled with the period it covers, and inspecting a bar SHALL disclose that period alongside the bar's amount. For a weekly period the disclosed period SHALL be the week's full date range, whether or not the week has finished. For a monthly period it SHALL identify the month and its year.
+Each bar SHALL be labelled with the period it covers. The label of a monthly bar SHALL include its year only when the month is January. Inspecting a bar SHALL disclose that period alongside the bar's amount. For a weekly period the disclosed period SHALL be the week's full date range, whether or not the week has finished. For a monthly period it SHALL identify the month and its year.
 
 #### Scenario: Chart shows one bar per period
 
@@ -55,6 +55,12 @@ Each bar SHALL be labelled with the period it covers, and inspecting a bar SHALL
 - **GIVEN** a monthly bar for August 2026
 - **WHEN** the user inspects it
 - **THEN** the month and its year are shown
+
+#### Scenario: January bar labels show the year
+
+- **GIVEN** a user has chosen a lookback of 24 months, and the running month is August 2026
+- **WHEN** the Trends page loads
+- **THEN** the labels of the bars for January 2025 and January 2026 show their year, and the labels of all other bars show only the month
 
 ### Requirement: Running Period Treatment
 
@@ -120,7 +126,7 @@ The system SHALL let the user choose which spending to plot. The user SHALL be a
 
 - any number of categories, and whether to include uncategorized transactions
 - the period type: Week or Month
-- the lookback: any whole number of completed periods from 1 to 12, defaulting to 3
+- the lookback: any whole number of completed periods from 1 to 24, defaulting to 3
 - exactly one currency
 
 When no category is selected and uncategorized is not requested, the system SHALL plot all of the user's expenses in the chosen currency.
@@ -163,10 +169,10 @@ Amounts SHALL never be converted between currencies. Only the selected currency 
 - **WHEN** the page loads
 - **THEN** the chart shows three completed periods and the running one
 
-#### Scenario: Any whole number of periods from 1 to 12 can be chosen
+#### Scenario: Any whole number of periods from 1 to 24 can be chosen
 
 - **GIVEN** a user is choosing a lookback
-- **WHEN** they pick any whole number from 1 to 12
+- **WHEN** they pick any whole number from 1 to 24
 - **THEN** that number is accepted as the lookback
 
 #### Scenario: A lookback of 1 compares with just the previous period
@@ -174,6 +180,12 @@ Amounts SHALL never be converted between currencies. Only the selected currency 
 - **GIVEN** a user sets the lookback to 1
 - **WHEN** they apply the selection
 - **THEN** the chart shows 2 bars: the previous period and the running period
+
+#### Scenario: A lookback above 24 is not accepted
+
+- **GIVEN** a user opens a Trends URL with a lookback of 25
+- **WHEN** the page loads
+- **THEN** the default lookback is used and no error is shown
 
 ### Requirement: Weekly and Monthly Periods
 

@@ -1,6 +1,7 @@
 import { Temporal } from "temporal-polyfill";
 import { Failure, Result, Success } from "ts-result";
 import { Transaction } from "../models/transaction";
+import { LOOKBACK_MAX, LOOKBACK_MIN } from "../models/trend-preset";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString, toDateString } from "../types/date-string";
@@ -48,8 +49,14 @@ export class ExpenseTrendService {
     categoryIds,
     includeUncategorized,
   }: ExpenseTrendInput): Promise<Result<ExpenseTrend>> {
-    if (!Number.isInteger(lookback) || lookback < 1 || lookback > 12) {
-      return Failure("Lookback must be a whole number from 1 to 12");
+    if (
+      !Number.isInteger(lookback) ||
+      lookback < LOOKBACK_MIN ||
+      lookback > LOOKBACK_MAX
+    ) {
+      return Failure(
+        `Lookback must be a whole number from ${LOOKBACK_MIN} to ${LOOKBACK_MAX}`,
+      );
     }
     if (currency.trim().length === 0) {
       return Failure("Currency must not be empty");

@@ -588,7 +588,7 @@ describe("ExpenseTrendService", () => {
       });
     });
 
-    it("accepts lookback of 12", async () => {
+    it("accepts lookback of 24", async () => {
       // Arrange
       // No transactions and no categories
       transactionRepository.findManyByUserId.mockResolvedValue([]);
@@ -598,7 +598,7 @@ describe("ExpenseTrendService", () => {
       const result = await service.call({
         userId,
         periodUnit: "MONTH",
-        lookback: 12,
+        lookback: 24,
         currency: "EUR",
         today: toDateString("2000-04-12"),
       });
@@ -607,17 +607,10 @@ describe("ExpenseTrendService", () => {
       expect(result).toMatchObject({
         data: {
           points: [
-            { periodStart: "1999-04-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-05-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-06-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-07-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-08-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-09-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-10-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-11-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-12-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-01-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-02-01", amount: 0, isCurrent: false },
+            { periodStart: "1998-04-01", amount: 0, isCurrent: false },
+            { periodStart: "1998-05-01", amount: 0, isCurrent: false },
+            // 21 points in between, so 25 points in total
+            ...Array.from({ length: 21 }, () => expect.anything()),
             { periodStart: "2000-03-01", amount: 0, isCurrent: false },
             { periodStart: "2000-04-01", amount: 0, isCurrent: true },
           ],
@@ -664,7 +657,7 @@ describe("ExpenseTrendService", () => {
 
     // Validation failures
 
-    it("returns failure when lookback is below 1", async () => {
+    it("fails when lookback is below 1", async () => {
       // Act
       const result = await service.call({
         userId,
@@ -676,29 +669,29 @@ describe("ExpenseTrendService", () => {
 
       // Assert
       expect(result).toBeFailure(
-        "Lookback must be a whole number from 1 to 12",
+        "Lookback must be a whole number from 1 to 24",
       );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
-    it("returns failure when lookback is above 12", async () => {
+    it("fails when lookback is above 24", async () => {
       // Act
       const result = await service.call({
         userId,
         periodUnit: "MONTH",
-        lookback: 13,
+        lookback: 25,
         currency: "EUR",
         today: toDateString("2000-04-12"),
       });
 
       // Assert
       expect(result).toBeFailure(
-        "Lookback must be a whole number from 1 to 12",
+        "Lookback must be a whole number from 1 to 24",
       );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
-    it("returns failure when lookback is not integer", async () => {
+    it("fails when lookback is not integer", async () => {
       // Act
       const result = await service.call({
         userId,
@@ -710,12 +703,12 @@ describe("ExpenseTrendService", () => {
 
       // Assert
       expect(result).toBeFailure(
-        "Lookback must be a whole number from 1 to 12",
+        "Lookback must be a whole number from 1 to 24",
       );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
-    it("returns failure when currency is empty", async () => {
+    it("fails when currency is empty", async () => {
       // Act
       const result = await service.call({
         userId,

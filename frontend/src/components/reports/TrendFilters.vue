@@ -86,11 +86,11 @@ import { useI18n } from "vue-i18n";
 import type { Category, TrendPeriodUnit } from "@/__generated__/vue-apollo";
 import CategoryMultiSelect from "@/components/common/CategoryMultiSelect.vue";
 import { useCurrencies } from "@/composables/useCurrencies";
-import type { TrendSelection } from "@/composables/useExpenseTrend";
+import { LOOKBACK_MAX, type TrendSelection } from "@/composables/useExpenseTrend";
 import { useTrendPresets } from "@/composables/useTrendPresets";
 
 const LOOKBACK_OPTIONS = [3, 6, 12];
-const LOOKBACK_SELECT_OPTIONS = Array.from({ length: 12 }, (_, index) => index + 1);
+const LOOKBACK_SELECT_OPTIONS = Array.from({ length: LOOKBACK_MAX }, (_, index) => index + 1);
 
 interface Props {
   selection: TrendSelection;

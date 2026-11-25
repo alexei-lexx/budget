@@ -45,7 +45,7 @@ import TrendFilters from "@/components/reports/TrendFilters.vue";
 import TrendPresetsList from "@/components/reports/TrendPresetsList.vue";
 import { useCategories } from "@/composables/useCategories";
 import { useCurrencies } from "@/composables/useCurrencies";
-import { useExpenseTrend, type TrendSelection } from "@/composables/useExpenseTrend";
+import { LOOKBACK_MAX, useExpenseTrend, type TrendSelection } from "@/composables/useExpenseTrend";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useTrendPresets } from "@/composables/useTrendPresets";
 import { trendSelectionStorage } from "@/lib/trendSelectionStorage";
@@ -104,7 +104,7 @@ function readSelectionFromUrlQuery(): TrendSelection {
 
   const lookbackNumber = Number(route.query["lookback"]);
   const lookback =
-    Number.isInteger(lookbackNumber) && lookbackNumber >= 1 && lookbackNumber <= 12
+    Number.isInteger(lookbackNumber) && lookbackNumber >= 1 && lookbackNumber <= LOOKBACK_MAX
       ? lookbackNumber
       : DEFAULT_LOOKBACK;
 

@@ -351,7 +351,7 @@ type ByCategoryReport {
 input ExpenseTrendInput {
   periodUnit: TrendPeriodUnit!
   """
-  Number of completed periods to plot before the running one. Accepts 3, 6 or 12.
+  Number of completed periods to plot before the running one. Accepts any whole number from 1 to 24.
   """
   lookback: Int!
   currency: String!

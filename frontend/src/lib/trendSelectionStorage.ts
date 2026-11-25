@@ -1,5 +1,9 @@
 import { appStorage } from "./appStorage";
-import type { TrendPeriodUnit, TrendSelection } from "@/composables/useExpenseTrend";
+import {
+  LOOKBACK_MAX,
+  type TrendPeriodUnit,
+  type TrendSelection,
+} from "@/composables/useExpenseTrend";
 
 const STORAGE_KEY = "trendSelection";
 
@@ -13,7 +17,7 @@ function readPeriodUnit(value: unknown): TrendPeriodUnit {
 
 function readLookback(value: unknown): number {
   const lookback = Number(value);
-  return Number.isInteger(lookback) && lookback >= 1 && lookback <= 12
+  return Number.isInteger(lookback) && lookback >= 1 && lookback <= LOOKBACK_MAX
     ? lookback
     : DEFAULT_LOOKBACK;
 }

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { trendSelectionStorage } from "./trendSelectionStorage";
-import type { TrendSelection } from "@/composables/useExpenseTrend";
+import { LOOKBACK_MAX, type TrendSelection } from "@/composables/useExpenseTrend";
 
 describe("trendSelectionStorage", () => {
   beforeEach(() => {
@@ -30,6 +30,23 @@ describe("trendSelectionStorage", () => {
 
       // Assert
       expect(result).toEqual(selection);
+    });
+
+    it("returns stored lookback at maximum", () => {
+      // Arrange
+      localStorage.setItem(
+        "budget:trendSelection",
+        JSON.stringify({
+          ...validSelection,
+          lookback: LOOKBACK_MAX,
+        }),
+      );
+
+      // Act
+      const result = trendSelectionStorage.read();
+
+      // Assert
+      expect(result?.lookback).toBe(LOOKBACK_MAX);
     });
 
     // Validation failures
@@ -76,7 +93,7 @@ describe("trendSelectionStorage", () => {
         "budget:trendSelection",
         JSON.stringify({
           ...validSelection,
-          lookback: 99,
+          lookback: LOOKBACK_MAX + 1,
         }),
       );
 

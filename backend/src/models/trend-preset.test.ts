@@ -77,30 +77,40 @@ describe("TrendPreset", () => {
       expect(result.id).toBeDefined();
     });
 
+    it("accepts lookback of 24", () => {
+      // Act
+      const result = TrendPreset.create(
+        fakeCreateTrendPresetInput({ lookback: 24 }),
+      );
+
+      // Assert
+      expect(result.lookback).toBe(24);
+    });
+
     // Validation failures
 
-    it("throws when lookback is below 1", () => {
+    it("fails when lookback is below 1", () => {
       // Act & Assert
       expect(() =>
         TrendPreset.create(fakeCreateTrendPresetInput({ lookback: 0 })),
-      ).toThrow(new ModelError("Lookback must be a whole number from 1 to 12"));
+      ).toThrow(new ModelError("Lookback must be a whole number from 1 to 24"));
     });
 
-    it("throws when lookback is above 12", () => {
+    it("fails when lookback is above 24", () => {
       // Act & Assert
       expect(() =>
-        TrendPreset.create(fakeCreateTrendPresetInput({ lookback: 13 })),
-      ).toThrow(new ModelError("Lookback must be a whole number from 1 to 12"));
+        TrendPreset.create(fakeCreateTrendPresetInput({ lookback: 25 })),
+      ).toThrow(new ModelError("Lookback must be a whole number from 1 to 24"));
     });
 
-    it("throws when lookback is not integer", () => {
+    it("fails when lookback is not integer", () => {
       // Act & Assert
       expect(() =>
         TrendPreset.create(fakeCreateTrendPresetInput({ lookback: 3.5 })),
-      ).toThrow(new ModelError("Lookback must be a whole number from 1 to 12"));
+      ).toThrow(new ModelError("Lookback must be a whole number from 1 to 24"));
     });
 
-    it("throws when currency is empty", () => {
+    it("fails when currency is empty", () => {
       // Act & Assert
       expect(() =>
         TrendPreset.create(fakeCreateTrendPresetInput({ currency: "" })),
@@ -124,17 +134,17 @@ describe("TrendPreset", () => {
 
     // Validation failures
 
-    it("throws when lookback is out of range", () => {
+    it("fails when lookback is out of range", () => {
       // Arrange
-      const data = { ...fakeTrendPreset().toData(), lookback: 13 };
+      const data = { ...fakeTrendPreset().toData(), lookback: 25 };
 
       // Act & Assert
       expect(() => TrendPreset.fromPersistence(data)).toThrow(
-        new ModelError("Lookback must be a whole number from 1 to 12"),
+        new ModelError("Lookback must be a whole number from 1 to 24"),
       );
     });
 
-    it("throws when currency is empty", () => {
+    it("fails when currency is empty", () => {
       // Arrange
       const data = { ...fakeTrendPreset().toData(), currency: "" };
 

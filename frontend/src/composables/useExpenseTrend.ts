@@ -11,6 +11,8 @@ import {
 // Re-export types for consumers of this composable
 export type { ExpenseTrend, ExpenseTrendPoint, TrendPeriodUnit };
 
+export const LOOKBACK_MAX = 24;
+
 export interface TrendSelection {
   periodUnit: TrendPeriodUnit;
   lookback: number;
