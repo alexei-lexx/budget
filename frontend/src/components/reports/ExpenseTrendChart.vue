@@ -57,14 +57,19 @@ function formatDayAndMonth(date: Date, locale: string): string {
   return date.toLocaleDateString(locale, { day: "numeric", month: "short" });
 }
 
-// Weekly bars carry a day, monthly bars only a month. The year lives in the
-// tooltip instead, so a 12-period lookback repeats a month name on the axis.
+// Weekly bars carry a day, monthly bars only a month.
+// A January bar also carries its year, so the axis shows where each year starts.
+// The tooltip shows the year of every bar.
 const labels = computed(() =>
   props.trend.points.map((point) => {
     const date = parsePeriodStart(point.periodStart);
-    return props.periodUnit === "MONTH"
-      ? date.toLocaleDateString(locale.value, { month: "short" })
-      : formatDayAndMonth(date, locale.value);
+    if (props.periodUnit !== "MONTH") {
+      return formatDayAndMonth(date, locale.value);
+    }
+
+    return date.getMonth() === 0
+      ? date.toLocaleDateString(locale.value, { month: "short", year: "numeric" })
+      : date.toLocaleDateString(locale.value, { month: "short" });
   }),
 );
 

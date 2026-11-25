@@ -79,14 +79,14 @@ describe("TrendPresetService", () => {
     it("fails when model invariant is violated", async () => {
       // Arrange
       // Out-of-range lookback triggers ModelError, which the service must expose as failure
-      const input = fakeCreateTrendPresetServiceInput({ lookback: 13 });
+      const input = fakeCreateTrendPresetServiceInput({ lookback: 25 });
 
       // Act
       const result = await service.createTrendPreset(userId, input);
 
       // Assert
       expect(result).toBeFailure(
-        "Lookback must be a whole number from 1 to 12",
+        "Lookback must be a whole number from 1 to 24",
       );
       expect(trendPresetRepository.create).not.toHaveBeenCalled();
     });

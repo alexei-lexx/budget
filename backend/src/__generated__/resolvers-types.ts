@@ -194,7 +194,7 @@ export type ExpenseTrendInput = {
   categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   currency: Scalars['String']['input'];
   includeUncategorized?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Number of completed periods to plot before the running one. Accepts 3, 6 or 12. */
+  /** Number of completed periods to plot before the running one. Accepts any whole number from 1 to 24. */
   lookback: Scalars['Int']['input'];
   periodUnit: TrendPeriodUnit;
   /** The client's current date as YYYY-MM-DD. Determines the running period. */

@@ -5,7 +5,7 @@ import { ModelError } from "./model-error";
 export type TrendPeriodUnit = "MONTH" | "WEEK";
 
 export const LOOKBACK_MIN = 1;
-export const LOOKBACK_MAX = 12;
+export const LOOKBACK_MAX = 24;
 
 // Plain data shape.
 export interface TrendPresetData {
