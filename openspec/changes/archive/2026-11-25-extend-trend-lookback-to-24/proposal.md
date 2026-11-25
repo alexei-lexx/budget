@@ -4,7 +4,7 @@
 
 The Trends page accepts a lookback of at most 12 completed periods.
 For months, this covers 1 year, so monthly spending over 2 years cannot be shown.
-Weeks use the same maximum, so a weekly lookback can cover about half a year.
+Weeks use the same maximum, so a weekly lookback can cover about 3 months.
 
 ## What Changes
 
