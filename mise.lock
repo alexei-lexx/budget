@@ -31,6 +31,12 @@ specifiers = ["24"]
 checksum = "sha256:061ec3e3062115705b56b51fa9cc330ab50d34b6969387d4e4b1a50c6809acc2"
 url = "https://nodejs.org/dist/v24.22.3/node-v24.22.3-linux-x64.tar.gz"
 
+[[tools."npm:@fission-ai/openspec"]]
+version = "2.2.0"
+aube = { path = ".mise/locks/npm-fission-ai-openspec/2.2.0", digest = "sha256:0f2f952402b23c334110274180c491e3b654207faf8b05e78a0ab46c0cea4136" }
+backend = "npm:@fission-ai/openspec"
+specifiers = ["2"]
+
 [[tools."npm:@playwright/cli"]]
 version = "0.1.25"
 aube = { path = ".mise/locks/npm-playwright-cli/0.1.25", digest = "sha256:e6dbfdf2360944d42e58ee754fa0209e144af7888c03cd19fe9fff4fcfc39672" }
