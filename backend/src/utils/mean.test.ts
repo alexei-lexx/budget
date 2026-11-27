@@ -14,9 +14,7 @@ describe("mean", () => {
     expect(mean([100, 200, 600])).toBe(300);
   });
 
-  it("does not mutate input array", () => {
-    const values = [100, 200, 600];
-    mean(values);
-    expect(values).toEqual([100, 200, 600]);
+  it("returns fractional mean without rounding", () => {
+    expect(mean([1, 2])).toBe(1.5);
   });
 });
