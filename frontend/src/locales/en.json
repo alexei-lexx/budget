@@ -314,7 +314,9 @@
     "chart": {
       "expenses": "Expenses",
       "pastMedian": "Median of past periods",
-      "pastMedianAtSamePoint": "Median of past periods at day {days}"
+      "pastMedianAtSamePoint": "Median of past periods at day {days}",
+      "pastMean": "Mean of past periods",
+      "pastMeanAtSamePoint": "Mean of past periods at day {days}"
     },
     "errors": {
       "loadFailed": "Failed to load trend",

@@ -376,6 +376,8 @@ type ExpenseTrend {
   points: [ExpenseTrendPoint!]!
   pastMedian: Float!
   pastMedianAtSamePoint: Float!
+  pastMean: Float!
+  pastMeanAtSamePoint: Float!
   """
   Days elapsed in the running period, counting today.
   """

@@ -185,6 +185,8 @@ export type ExpenseTrend = {
   __typename?: 'ExpenseTrend';
   /** Days elapsed in the running period, counting today. */
   elapsedDays: Scalars['Int']['output'];
+  pastMean: Scalars['Float']['output'];
+  pastMeanAtSamePoint: Scalars['Float']['output'];
   pastMedian: Scalars['Float']['output'];
   pastMedianAtSamePoint: Scalars['Float']['output'];
   points: Array<ExpenseTrendPoint>;
@@ -883,6 +885,8 @@ export type CreateTransactionFromTextSuccessResolvers<ContextType = GraphQLConte
 
 export type ExpenseTrendResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ExpenseTrend'] = ResolversParentTypes['ExpenseTrend']> = {
   elapsedDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  pastMean?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  pastMeanAtSamePoint?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   pastMedian?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   pastMedianAtSamePoint?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   points?: Resolver<Array<ResolversTypes['ExpenseTrendPoint']>, ParentType, ContextType>;

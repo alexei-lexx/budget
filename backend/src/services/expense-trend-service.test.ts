@@ -4,6 +4,7 @@ import { TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date-string";
+import * as meanModule from "../utils/mean";
 import * as medianModule from "../utils/median";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import {
@@ -474,6 +475,194 @@ describe("ExpenseTrendService", () => {
         },
       });
       expect(medianSpy).toHaveBeenCalledWith([100, 200, 300, 0, 0, 0]);
+    });
+
+    it("returns mean of completed period amounts", async () => {
+      // Arrange
+      // One expense per completed month, plus one in running month
+      transactionRepository.findManyByUserId.mockResolvedValue([
+        fakeExpense({
+          amount: 100,
+          date: toDateString("2000-01-15"),
+        }),
+        fakeExpense({
+          amount: 200,
+          date: toDateString("2000-02-15"),
+        }),
+        fakeExpense({
+          amount: 600,
+          date: toDateString("2000-03-15"),
+        }),
+        // In running period, excluded
+        fakeExpense({
+          amount: 1000,
+          date: toDateString("2000-04-05"),
+        }),
+      ]);
+      // No categories
+      categoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
+      const meanSpy = vi.spyOn(meanModule, "mean");
+
+      // Act
+      const result = await service.call({
+        userId,
+        periodUnit: "MONTH",
+        lookback: 3,
+        currency: "EUR",
+        today: toDateString("2000-04-12"),
+      });
+
+      // Assert
+      expect(result).toMatchObject({
+        data: {
+          pastMean: 300,
+        },
+      });
+
+      expect(meanSpy).toHaveBeenCalledWith([100, 200, 600]);
+    });
+
+    it("returns mean of completed period amounts truncated to elapsed days", async () => {
+      // Arrange
+      // Only transactions dated on or before day 12 of each month count toward truncated mean
+      transactionRepository.findManyByUserId.mockResolvedValue([
+        // On or before Jan 12
+        fakeExpense({
+          amount: 100,
+          date: toDateString("2000-01-12"),
+        }),
+        // After Jan 12
+        fakeExpense({
+          amount: 900,
+          date: toDateString("2000-01-20"),
+        }),
+        // On or before Feb 12
+        fakeExpense({
+          amount: 200,
+          date: toDateString("2000-02-05"),
+        }),
+        // On or before Mar 12
+        fakeExpense({
+          amount: 300,
+          date: toDateString("2000-03-05"),
+        }),
+        // After Mar 12
+        fakeExpense({
+          amount: 300,
+          date: toDateString("2000-03-20"),
+        }),
+      ]);
+      // No categories
+      categoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
+      const meanSpy = vi.spyOn(meanModule, "mean");
+
+      // Act
+      const result = await service.call({
+        userId,
+        periodUnit: "MONTH",
+        lookback: 3,
+        currency: "EUR",
+        today: toDateString("2000-04-12"),
+      });
+
+      // Assert
+      // Truncated amounts are 100 (Jan), 200 (Feb), 300 (Mar)
+      // Full amounts are 1000 (Jan), 200 (Feb), 600 (Mar)
+      expect(result).toMatchObject({
+        data: {
+          pastMeanAtSamePoint: 200,
+          pastMean: 600,
+        },
+      });
+
+      expect(meanSpy).toHaveBeenCalledWith([100, 200, 300]);
+    });
+
+    it("returns mean counting periods without transactions as zero", async () => {
+      // Arrange
+      // Three of six completed months hold nothing
+      transactionRepository.findManyByUserId.mockResolvedValue([
+        fakeExpense({
+          amount: 100,
+          date: toDateString("2000-01-05"),
+        }),
+        fakeExpense({
+          amount: 200,
+          date: toDateString("2000-02-05"),
+        }),
+        fakeExpense({
+          amount: 300,
+          date: toDateString("2000-03-05"),
+        }),
+      ]);
+      // No categories
+      categoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
+      const meanSpy = vi.spyOn(meanModule, "mean");
+
+      // Act
+      const result = await service.call({
+        userId,
+        periodUnit: "MONTH",
+        lookback: 6,
+        currency: "EUR",
+        today: toDateString("2000-07-20"),
+      });
+
+      // Assert
+      // Completed period amounts are 100, 200, 300, 0, 0, 0
+      expect(result).toMatchObject({
+        data: {
+          pastMean: 100,
+        },
+      });
+
+      expect(meanSpy).toHaveBeenCalledWith([100, 200, 300, 0, 0, 0]);
+    });
+
+    it("returns truncated mean counting periods without transactions as zero", async () => {
+      // Arrange
+      // Three of six completed months hold nothing in their first 12 days
+      transactionRepository.findManyByUserId.mockResolvedValue([
+        fakeExpense({
+          amount: 100,
+          date: toDateString("2000-01-05"),
+        }),
+        fakeExpense({
+          amount: 200,
+          date: toDateString("2000-02-05"),
+        }),
+        fakeExpense({
+          amount: 300,
+          date: toDateString("2000-03-05"),
+        }),
+        // After Apr 12
+        fakeExpense({
+          amount: 400,
+          date: toDateString("2000-04-20"),
+        }),
+      ]);
+      // No categories
+      categoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
+      const meanSpy = vi.spyOn(meanModule, "mean");
+
+      // Act
+      const result = await service.call({
+        userId,
+        periodUnit: "MONTH",
+        lookback: 6,
+        currency: "EUR",
+        today: toDateString("2000-07-12"),
+      });
+
+      // Assert
+      // Truncated completed period amounts are 100, 200, 300, 0, 0, 0
+      expect(result).toMatchObject({
+        data: {
+          pastMeanAtSamePoint: 100,
+        },
+      });
+
+      expect(meanSpy).toHaveBeenCalledWith([100, 200, 300, 0, 0, 0]);
     });
 
     it("excludes transactions in categories flagged excludeFromReports", async () => {

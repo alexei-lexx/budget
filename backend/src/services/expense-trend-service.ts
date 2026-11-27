@@ -5,6 +5,7 @@ import { LOOKBACK_MAX, LOOKBACK_MIN } from "../models/trend-preset";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString, toDateString } from "../types/date-string";
+import { mean } from "../utils/mean";
 import { median } from "../utils/median";
 
 type TrendPeriodUnit = "MONTH" | "WEEK";
@@ -27,12 +28,15 @@ export interface ExpenseTrend {
   }[];
   pastMedian: number;
   pastMedianAtSamePoint: number;
+  pastMean: number;
+  pastMeanAtSamePoint: number;
   elapsedDays: number;
 }
 
 /**
  * Computes net expenses per period for a slice of the user's spending,
- * plus two medians over the completed periods used as reference lines.
+ * plus two medians and two means over the completed periods
+ * used as reference lines.
  */
 export class ExpenseTrendService {
   constructor(
@@ -129,6 +133,8 @@ export class ExpenseTrendService {
       points,
       pastMedian: median(pastAmounts),
       pastMedianAtSamePoint: median(pastAmountsAtSamePoint),
+      pastMean: mean(pastAmounts),
+      pastMeanAtSamePoint: mean(pastAmountsAtSamePoint),
       elapsedDays,
     });
   }
