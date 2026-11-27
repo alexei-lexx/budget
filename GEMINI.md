@@ -95,6 +95,10 @@ Use the `openspec` CLI for spec-driven development of features, fixes, and other
   - `scripts/worktree-remove.sh <branch>`
 - See `docs/worktrees.md`
 
+## Agent Setup
+
+Update `.agents/setup`, `.agents/resume`, and `.amp/services.yaml` when a change affects how an Amp sandbox installs, builds, tests, or runs the project.
+
 ## Temporary Files
 
 Write all temporary files (scratch scripts, debug output, ad-hoc data dumps)

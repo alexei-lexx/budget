@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+# Prepare an Amp orb for this project.
+# Amp runs this script again on a stale snapshot, so each step must be safe to run again.
+
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+step() {
+  echo "==> $1"
+  SECONDS=0
+}
+
+done_step() {
+  echo "    done in ${SECONDS}s"
+}
+
+# Docker runs DynamoDB Local (see backend/docker-compose.yml).
+step "Docker"
+
+if ! dpkg -s docker-compose-plugin >/dev/null 2>&1; then
+  sudo apt-get update -qq
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq docker-compose-plugin
+fi
+
+# Give the socket the group of the orb user.
+# Then running processes can use Docker without a new login.
+socket_dropin=/etc/systemd/system/docker.socket.d/amp-orb.conf
+if [ ! -f "$socket_dropin" ]; then
+  sudo mkdir -p "$(dirname "$socket_dropin")"
+  printf '[Socket]\nSocketGroup=%s\n' "$(id -gn)" | sudo tee "$socket_dropin" >/dev/null
+  sudo systemctl daemon-reload
+  sudo systemctl stop docker.service docker.socket 2>/dev/null || true
+fi
+
+sudo systemctl start docker.socket docker.service
+
+done_step
+
+# Install the tools in mise.toml with the exact versions in mise.lock.
+step "Tools (mise)"
+
+if [ ! -x "$HOME/.local/bin/mise" ]; then
+  curl -fsSL https://mise.run | MISE_QUIET=1 sh
+fi
+
+"$HOME/.local/bin/mise" trust --quiet "$repo_root/mise.toml"
+"$HOME/.local/bin/mise" install --locked
+
+mise_shims="$HOME/.local/share/mise/shims"
+export PATH="$mise_shims:$PATH"
+
+# Login shells (Amp and orb services) get the mise shims.
+# Outside a folder with mise.toml, the shims use the system tools.
+profile_marker="# budget: mise shims for the tools in mise.toml"
+if ! grep -Fqx "$profile_marker" "$HOME/.bash_profile" 2>/dev/null; then
+  cat >>"$HOME/.bash_profile" <<EOF
+
+$profile_marker
+case ":\$PATH:" in
+  *":$mise_shims:"*) ;;
+  *) export PATH="$mise_shims:\$PATH" ;;
+esac
+EOF
+fi
+
+echo "    node $(node -v)"
+
+done_step
+
+# npm ci always deletes node_modules.
+# A marker file skips it when the installed packages match the lockfile and the Node.js version.
+for pkg in backend frontend infra-cdk; do
+  step "npm dependencies: $pkg"
+
+  marker="$pkg/node_modules/.amp-orb-lock"
+  fingerprint="$(node -v) $(sha256sum "$pkg/package-lock.json" | cut -d' ' -f1)"
+
+  if [ -f "$marker" ] && [ "$(cat "$marker")" = "$fingerprint" ]; then
+    echo "    up to date"
+  else
+    (cd "$pkg" && npm ci --no-audit --no-fund --no-update-notifier --loglevel=error)
+    echo "$fingerprint" >"$marker"
+  fi
+
+  done_step
+done
+
+# Copy each env template, but keep an existing env file.
+step "Env files"
+
+for pair in \
+  backend/.env.example:backend/.env \
+  backend/.env.test.example:backend/.env.test \
+  frontend/.env.example:frontend/.env \
+  infra-cdk/.env.example:infra-cdk/.env; do
+  src="${pair%%:*}"
+  dst="${pair#*:}"
+  [ -f "$dst" ] || cp -- "$src" "$dst"
+done
+
+done_step
+
+# Create the development and test tables and the sample data.
+# The data stays in backend/docker/dynamodb.
+# The container stops at the end, because Amp stops all processes after setup.
+step "DynamoDB Local"
+
+(
+  cd backend
+
+  docker compose --profile db pull --quiet
+  docker compose --profile db up -d --wait
+  timeout 30 bash -c 'until curl -s http://localhost:4102/ >/dev/null; do sleep 1; done'
+
+  npm run --silent db:create
+  npm run --silent test:db:create
+
+  # Create the dev user from DEV_USER_EMAIL and fresh sample data for it.
+  # DEV_USER_EMAIL must be the email of an existing Cognito user.
+  npm run --silent db:seed
+
+  docker compose --profile db stop
+)
+
+done_step

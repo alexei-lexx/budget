@@ -1,0 +1,10 @@
+services:
+  # Fixed ports: Cognito accepts only the registered localhost callback URLs (see infra-cdk/.env.example)
+  backend:
+    command: npm run dev
+    cwd: backend
+    port: 4100
+  frontend:
+    command: npm run dev
+    cwd: frontend
+    port: 4101
