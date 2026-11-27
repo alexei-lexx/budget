@@ -47,6 +47,9 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 - `npm run db:seed` - Populate database with sample data
   - ⚠️ **Erases all existing data**
   - Requires at least one user in the database
+    - Sign in with Cognito once, or
+    - Set the environment variable `DEV_USER_EMAIL` to the email of a user that already exists in Cognito
+      - In `.env`, or for one run: `DEV_USER_EMAIL=user@example.com npm run db:seed`
   - Creates sample data for that user
 - `npm run migrate` - Run pending data migrations
   - Safe for production use

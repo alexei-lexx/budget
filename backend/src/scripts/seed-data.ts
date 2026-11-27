@@ -7,11 +7,13 @@ import {
   resolveCategoryRepository,
   resolveTransactionService,
   resolveUserRepository,
+  resolveUserService,
 } from "../dependencies";
 import { Account } from "../models/account";
 import { Category } from "../models/category";
 import { toDateString } from "../types/date-string";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { normalizeAndValidateEmail } from "../utils/email";
 import { requireEnv } from "../utils/require-env";
 
 // Initialize DynamoDB client
@@ -24,6 +26,7 @@ const userRepository = resolveUserRepository();
 
 // Initialize services
 const transactionService = resolveTransactionService();
+const userService = resolveUserService();
 
 /**
  * Truncate all tables to clear existing data
@@ -316,6 +319,17 @@ async function main() {
 
     // Truncate existing data
     await truncateTables();
+
+    // Create the dev user when DEV_USER_EMAIL is not blank, like the first sign-in.
+    // The user must exist in Cognito.
+    // Otherwise nobody can sign in to see the sample data.
+    const devUserEmail = process.env["DEV_USER_EMAIL"]?.trim();
+    if (devUserEmail) {
+      console.log("Creating the dev user from DEV_USER_EMAIL...\n");
+      (
+        await userService.ensureUser(normalizeAndValidateEmail(devUserEmail))
+      ).unwrapOrThrowAs(Error);
+    }
 
     // Get existing users
     console.log("Fetching existing users from database...\n");
