@@ -190,6 +190,8 @@ export type ExpenseTrend = {
   __typename?: 'ExpenseTrend';
   /** Days elapsed in the running period, counting today. */
   elapsedDays: Scalars['Int']['output'];
+  pastMean: Scalars['Float']['output'];
+  pastMeanAtSamePoint: Scalars['Float']['output'];
   pastMedian: Scalars['Float']['output'];
   pastMedianAtSamePoint: Scalars['Float']['output'];
   points: Array<ExpenseTrendPoint>;
@@ -812,7 +814,7 @@ export type GetExpenseTrendQueryVariables = Exact<{
 }>;
 
 
-export type GetExpenseTrendQuery = { __typename?: 'Query', expenseTrend: { __typename?: 'ExpenseTrend', pastMedian: number, pastMedianAtSamePoint: number, elapsedDays: number, points: Array<{ __typename?: 'ExpenseTrendPoint', periodStart: string, amount: number, isCurrent: boolean }> } };
+export type GetExpenseTrendQuery = { __typename?: 'Query', expenseTrend: { __typename?: 'ExpenseTrend', pastMedian: number, pastMedianAtSamePoint: number, pastMean: number, pastMeanAtSamePoint: number, elapsedDays: number, points: Array<{ __typename?: 'ExpenseTrendPoint', periodStart: string, amount: number, isCurrent: boolean }> } };
 
 export type GetTrendPresetsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1794,6 +1796,8 @@ export const GetExpenseTrendDocument = gql`
     }
     pastMedian
     pastMedianAtSamePoint
+    pastMean
+    pastMeanAtSamePoint
     elapsedDays
   }
 }

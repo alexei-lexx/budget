@@ -112,6 +112,8 @@ export const GET_EXPENSE_TREND = gql`
       }
       pastMedian
       pastMedianAtSamePoint
+      pastMean
+      pastMeanAtSamePoint
       elapsedDays
     }
   }

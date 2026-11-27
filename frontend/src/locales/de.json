@@ -314,7 +314,9 @@
     "chart": {
       "expenses": "Ausgaben",
       "pastMedian": "Median der vergangenen Zeiträume",
-      "pastMedianAtSamePoint": "Median der vergangenen Zeiträume an Tag {days}"
+      "pastMedianAtSamePoint": "Median der vergangenen Zeiträume an Tag {days}",
+      "pastMean": "Durchschnitt der vergangenen Zeiträume",
+      "pastMeanAtSamePoint": "Durchschnitt der vergangenen Zeiträume an Tag {days}"
     },
     "errors": {
       "loadFailed": "Trend konnte nicht geladen werden",

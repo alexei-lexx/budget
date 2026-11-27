@@ -125,6 +125,32 @@ const chartData = computed<ChartData>(() => {
         pointRadius: 0,
         order: 1,
       },
+      {
+        type: "line" as const,
+        label: t("trends.chart.pastMean"),
+        data: amounts.map(() => props.trend.pastMean),
+        borderColor: colors.value.success,
+        borderDash: [6, 4],
+        borderWidth: 2,
+        pointRadius: 0,
+        order: 1,
+        // The user shows the line from its legend entry
+        hidden: true,
+      },
+      {
+        type: "line" as const,
+        label: t("trends.chart.pastMeanAtSamePoint", {
+          days: props.trend.elapsedDays,
+        }),
+        data: amounts.map(() => props.trend.pastMeanAtSamePoint),
+        borderColor: colors.value.error,
+        borderDash: [6, 4],
+        borderWidth: 2,
+        pointRadius: 0,
+        order: 1,
+        // The user shows the line from its legend entry
+        hidden: true,
+      },
     ],
   };
 });
